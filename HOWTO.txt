@@ -10,6 +10,7 @@ sudo apt-get install python-mysqldb
 sudo apt-get install apache2
 sudo apt-get install mysql-server (remember the database password)
 sudo apt-get install mysql-client
+sudo apt-get install python-django
 
 3. Get the Extended Stats code from github.
 
