@@ -3,6 +3,7 @@
 # the directory where the configuration files (e.g. usernames.txt) are stored
 cfgdir = "/home/john/subjects/geek/"
 dbdir = "/home/john/subjects/geek/db/"
+resultdir= "/home/john/subjects/geek/static/"
 
 # the password for the database
 password = "basilisk"
