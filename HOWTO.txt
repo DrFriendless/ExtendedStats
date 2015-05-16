@@ -4,10 +4,22 @@ HOW TO INSTALL EXTENDED STATS ON AN AMAZON EC2 FREE INSTANCE
 
 2. Install stuff
 
-sudo apt-get install mysql-client-core-5.6
+sudo apt-get update
 sudo apt-get install git
 sudo apt-get install python-mysqldb
+sudo apt-get install apache2
+sudo apt-get install mysql-server (remember the database password)
+sudo apt-get install mysql-client
 
 3. Get the Extended Stats code from github.
 
 git clone https://github.com/DrFriendless/ExtendedStats extended
+
+4. Create the MySQL database
+
+mysql -u root -p (type in the password)
+create database extended;
+
+5. Edit usernames.txt to have the correct set of users.
+
+6. Edit sitedata.py to tell the program about the directory structure.
