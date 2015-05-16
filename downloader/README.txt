@@ -1,0 +1,1 @@
+This is the code for the downloader. To run the downloader, edit sitedata.py then execute "downloader".

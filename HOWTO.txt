@@ -1,0 +1,13 @@
+HOW TO INSTALL EXTENDED STATS ON AN AMAZON EC2 FREE INSTANCE
+
+1. Get your virtual machine and connect to it.
+
+2. Install stuff
+
+sudo apt-get install mysql-client-core-5.6
+sudo apt-get install git
+sudo apt-get install python-mysqldb
+
+3. Get the Extended Stats code from github.
+
+git clone https://github.com/DrFriendless/ExtendedStats extended
