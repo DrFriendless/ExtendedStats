@@ -1,0 +1,18 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Collection Checklist for {{geek.username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+
+<table border=1 width=900>
+<tbody>
+{% for row in rows %}
+<TR><TD width=20 align=center>&#9744;</TD><TD>{{row.name}}</TD><TD width=500>&nbsp;</td><TD width=20 align=center>&#9744;</TD></TR>
+{% endfor %}
+</tbody>
+</table>
+
+</body>
+</html>

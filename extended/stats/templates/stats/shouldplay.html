@@ -1,0 +1,17 @@
+<div id="shouldplay" class="section tablesection">
+<H1>Games You Should Play</h1>
+
+<P>
+<table class="sortable shaded" id="sptable"><thead>
+<tr><td>Game</td><td>Rating</td><td>Last Played</td><td>Days Since Last Play</td></tr></thead>
+<tbody>
+{% for row in shouldPlay %}
+<TR>
+<td><A href="{{row.gameurl}}">{{row.gamename}}</A></td>
+<td>{{row.rating}}</td>
+<td>{{row.lastPlayed|date:"d-m-Y"}}</td>
+<td>{{row.sincePlayed}}</td>
+</TR>
+{% endfor %}
+</tbody></table>
+</div>

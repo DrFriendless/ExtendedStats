@@ -1,0 +1,30 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Plays for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+
+<h1>Plays for {{username}}</h1>
+
+{% for link in links %}
+<A HREF="{{link.url}}">{{link.name}}</A>
+{% endfor %}
+<P>
+
+<div class="section tablesection">
+<table class="sortable" id="playstable"><thead><tr><td>Date</td><td>Game</td><td>Quantity</td><td>Rating</td><td>Expansions</td></tr></thead><tbody>
+{% for play in plays %}
+<tr><td width=100>{{play.date}}</td><td><A HREF="{{play.gameurl}}">{{play.gamename}}</A></td><td>{{play.count}}</td><td>{{play.rating}}</td><td>{{play.expansionNames}}</td></tr>
+{% endfor %}
+</tbody></table>
+</div>
+
+{% for message in messages %}
+{{message}}<BR>
+{% endfor %}
+
+</body>
+</html>

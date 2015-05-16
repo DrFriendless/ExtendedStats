@@ -1,0 +1,43 @@
+{% if pbm %}
+<H1>Plays By Month</h1>
+
+<div id="pbmgraph">
+This graph shows your plays in each month over time. The number of plays of new games are shown as red, the number of plays of distinct games are shown as blue, and the total number of plays is shown as green. If your gaming history is too long and your graph is too wide, you can drag it to scroll to the right.
+
+<div id="pbm_graph" style="position:relative; width:900px; height:300px; overflow:hidden; background:#000;">
+<img id="pbm_graph_image" src="/dynamic/image/pbm/{{username}}" style="position:absolute;" alt=""/>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function () {    
+        $('#pbm_graph').mousedown(function (event) {
+            $(this)
+                .data('down', true)
+                .data('x', event.clientX)
+                .data('scrollLeft', this.scrollLeft);
+                
+            return false;
+        }).mouseup(function (event) {
+            $(this).data('down', false);
+        }).mousemove(function (event) {
+            if ($(this).data('down') == true) {
+                this.scrollLeft = $(this).data('scrollLeft') + $(this).data('x') - event.clientX;
+            }
+        }).css({
+            'overflow' : 'hidden',
+            'cursor' : '-moz-grab'
+        });
+    });
+    
+    $(window).mouseout(function (event) {
+        if ($('#pbm_graph').data('down')) {
+            try {
+                if (event.originalTarget.nodeName == 'BODY' || event.originalTarget.nodeName == 'HTML') {
+                    $('#pbm_graph').data('down', false);
+                }                
+            } catch (e) {}
+        }
+    });
+</script>
+</div>
+{% endif %}

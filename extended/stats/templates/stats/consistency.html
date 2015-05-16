@@ -1,0 +1,29 @@
+<div id="consistency" class="section colouredtablesection">
+<H1>Consistency of Play</H1>
+This is a prototype of a feature <A HREF="https://boardgamegeek.com/article/18042982#18042982">suggested by Martí Cabré</A>.
+<P>
+
+<!--
+<img src="/dynamic/image/consistency/{{username}}"/>
+-->
+
+<table class="sortable shaded" id="consistencytable"><thead>
+<tr><td>Game</td><td>Plays</td><td>Rating</td><td>Months Played</td><td>First Played</td><td>% Months Played</td></tr></thead>
+<tbody>
+
+{% for game in data %}
+<tr>
+<td>{{game.name}}</td><td>{{game.plays}}</td><td>{{game.rating}}</td><td>{{game.monthsPlayed}}</td><td>{{game.firstPlay}}</td><td>{{game.propMonths}}</td>
+{% for cl in game.played %}
+{% if cl.clss %}
+<td class="{{cl.clss}}" title="{{cl.tooltip}}">&#x2588;</td>
+{% else %}
+<td>&nbsp;</td>
+{% endif %}
+{% endfor %}
+</tr>
+{% endfor %}
+
+</tbody></table>
+</div>
+

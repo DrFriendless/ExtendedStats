@@ -1,0 +1,101 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Extended Stats Trading for {{geek.username}}</title>
+{% include 'stats/stylesheets.html' %}
+
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>(EXPERIMENTAL) Trading Analysis for {{geek.username}} in {{country}}</h1>
+
+<div id="trade" class="section tablesection">
+
+<div id="games" class="display">
+<h2>Games</h2>
+This shows pretty much all the games that are on offer from the users in your country, and which games they want.
+There are tooltips on users showing either which of your games they want, or which of their games you want.
+Red user names represent sales, and link through to the BGG market place.
+<form>
+  <input class="show" type="button" value="Display Boring Entries" onClick="document.getElementById('games').className='display'">
+  <input class="hide" type="button" value="Hide Boring Entries" onClick="document.getElementById('games').className='hidden'">
+</form>
+<table class="sortable shaded" id="tradegames">
+<thead><tr><td>Games</td><td>Offer It</td><td>Want It</td></tr></thead>
+<tbody>
+{% for game in games %}
+{% if game.exciting %}
+<tr class="exciting">
+{% else %}
+<tr class="boring">
+{% endif %}
+<td><A href="{{game.url}}">{{game.name}}</A></td>
+<td>
+{% for geek in game.notwanting %}
+<A href="http://boardgamegeek.com/user/{{geek.username}}" title="{{geek.tooltip}}">{{geek.username}}</A>&nbsp;
+{% endfor %}
+{% for sale in game.selling %}
+<A class="sale" href="http://www.boardgamegeek.com/geekstore.php3?action=viewitem&amp;itemid={{sale.itemid}}">{{sale.geek}}</A>&nbsp;
+{% endfor %}
+</td>
+<td>
+{% for geek in game.wanting %}
+<A href="http://boardgamegeek.com/user/{{geek.username}}" title="{{geek.tooltip2}}">{{geek.username}}</A>&nbsp;
+{% endfor %}
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<h2>Participating Geeks</h2>
+This is who's on Extended Stats in {{country}}, and how many games they have or want.
+<table class="sortable shaded" id="tradesummary">
+<thead><tr><td>Geek</td><td>Want</td><td>Offer</td><td>Sell</td></tr></thead>
+<tbody>
+{% for geek in geeks %}
+<tr>
+<td><A href="http://boardgamegeek.com/user/{{geek.username}}">{{geek.username}}</A></td>
+<td><A href="http://boardgamegeek.com/user/{{geek.username}}">{{geek.want}}</A></td>
+<td><A href="http://boardgamegeek.com/user/{{geek.username}}">{{geek.trade}}</A></td>
+<td><A href="http://boardgamegeek.com/user/{{geek.username}}">{{geek.sell}}</A></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>Most Wanted</h2>
+<table class="sortable shaded" id="tradegameswanted">
+<thead><tr><td>Users Wanting</td><td>Users Offering</td><td>Game</td></tr></thead>
+<tbody>
+{% for game in mostWanted %}
+<tr>
+<td>{{game.howManyWant}}</td>
+<td>{{game.howManyDontWant}}</td>
+<td><A href="{{game.url}}">{{game.name}}</A></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>Most Unwanted</h2>
+<table class="sortable shaded" id="tradegamesunwanted">
+<thead><tr><td>Users Wanting</td><td>Users Offering</td><td>Game</td></tr></thead>
+<tbody>
+{% for game in leastWanted %}
+<tr>
+<td>{{game.howManyWant}}</td>
+<td>{{game.howManyDontWant}}</td>
+<td><A href="{{game.url}}">{{game.name}}</A></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,25 @@
+{% if pbm %}
+<div id="pbmytd" class="section tablesection">
+<H1>Plays By Month (Year to Date)</h1>
+
+The month column links to all plays for the month. The "percent played" number refers to the percentage of your current collection that you had played in that year by that time.
+<P>
+<table class="sortable shaded" id="pbmytdtable"><thead>
+<tr><td>Month</td><td>Plays</td><td>Distinct Games</td><td>Expansions</td><td>New Games</td><td>New Nickels</td><td>New Dimes</td><td>Hours Played</td><td>Plays YTD</td><td>Distinct YTD</td><td>New YTD</td><td>H-Index</td><td>Percent Played</td></tr>
+</thead><tbody>
+{% for row in pbm %}
+{% if row.january %}
+<tr class="underline">
+{% else %}
+<tr>
+{% endif %}
+<td><A HREF="/dynamic/plays/{{username}}/{{row.year}}/{{row.month}}">{{row.name}}</A></td><td>{{row.count}}</td>
+<td title="{{row.distinctTooltip}}">{{row.distinctCount}}</td><td title="{{row.expTooltip}}">{{row.expCount}}</td>
+<td title="{{row.newTooltip}}">{{row.newCount}}</td>
+<td title="{{row.newNickelsTooltip}}">{{row.newNickels}}</td><td title="{{row.newDimesTooltip}}">{{row.newDimes}}</td>
+<td>{{row.playHours}}</td><td>{{row.countYtd}}</td><td>{{row.distinctYtd}}</td><td>{{row.newYtd}}</td><td>{{row.hindex}}</td>
+<td>{{row.percentPlayedYTD|floatformat}}</td></tr>
+{% endfor %}
+</tbody></table>
+</div>
+{% endif %}

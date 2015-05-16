@@ -1,0 +1,17 @@
+<div id="fgbpy" class="section tablesection">
+<H1>Favourite Games by Published Year</h1>
+
+<table class="sortable shaded" id="fgbpytable"><thead>
+<tr><td>Year</td><td>Count</td><td>Games</td></tr>
+</thead><tbody>
+{% for row in fgbpy %}
+<tr>
+<td>{{row.year}}</td><td>{{row.count}}</td><td>
+{% for game in row.games %}
+<a href="{{game.url}}">{{game.name}}</A> &nbsp;
+{% endfor %}
+</td></tr>
+{% endfor %}
+</tbody></table>
+These are all games you rate 8 or higher, grouped by year.
+</div>

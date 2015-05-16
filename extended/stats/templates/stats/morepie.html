@@ -1,0 +1,21 @@
+<div id="morepie" class="section">
+<H1>Mike Hulsebus-style Pie Chart</h1>
+
+<form>
+<INPUT TYPE=BUTTON OnClick="changeImageURL('morePieImage', '/dynamic/image/morepie/{{username}}/lastyear')" VALUE="Last 12 Months">
+<INPUT TYPE=BUTTON OnClick="changeImageURL('morePieImage', '/dynamic/image/morepie/{{username}}/lastmonth')" VALUE="Last Month">
+{% for year in playsYears %}
+<INPUT TYPE=BUTTON OnClick="changeImageURL('morePieImage', '/dynamic/image/morepie/{{username}}/{{year}}')" VALUE="{{year}}">
+{% endfor %}
+<INPUT TYPE=BUTTON OnClick="changeImageURL('morePieImage', '/dynamic/image/morepie/{{username}}/')" VALUE="All Time">
+</form>
+<TABLE id="morepietable"><tbody>
+<TR><TD width=300>
+This diagram is inspired by <A HREF="http://boardgamegeek.com/blogpost/30679/every-play-i-logged-in-2013-organized-by-hours-pla">a BGG blog entry by Mike Hulsebus</A>.
+Each wedge of the pie chart represents the proportion of your plays in the period which have been of a particular game.
+<P>
+Click on the buttons above to change the range of data displayed.
+</TD><TD width=600>
+<IMG id="morePieImage" SRC="/dynamic/image/morepie/{{username}}/{{morePieDefault}}">
+</TD></TR></tbody></TABLE>
+</div>

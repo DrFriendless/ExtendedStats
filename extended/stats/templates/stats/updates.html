@@ -1,0 +1,32 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Update Schedule for {{geek}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+
+<h1>Updates</H1>
+This table summarises when files containing your data have been downloaded, and when it's planned to download them next. Dates are in Brisbane time (GMT +10). The refresh link causes the server to reload your data (within about a minute). This is a slow process and usually not necessary, so please don't use it unless you know what you're doing.
+<P>
+Any file which says "None" in the Next Update column is a file that is updated <u>by request only</u>. The extended stats downloader will never download that file unless the Last Update column also says None. Clicking on the refresh button will set the Last Update column to None - so that's what you've got to do. (I had to make it a button because the GoogleBot was clicking on the link for everyone!)
+<P>
+At the moment, the only files which are not scheduled for updates are plays for months which ended more than 120 days ago. So, if you enter your plays within 4 months you won't notice any difference. 
+
+<div class="section">
+<table><thead><tr><td>URL</td><td>Last Updated</td><td>Next Update</td></tr></thead><tbody>
+{% for row in updates %}
+<TR><TD><A HREF="{{row.url}}">{{row.description}}</A></td><td>{{row.lastupdate}}</td><td>{{row.nextupdate}}</td><td>
+<form name="input" action="{% url "stats.views.refresh" row.url %}" method="post">
+{% csrf_token %}
+<input type="submit" value="Refresh" />
+</form>
+</td></tr>
+{% endfor %}
+</tbody></table>
+</div>
+</body>
+</html>
+
+

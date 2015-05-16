@@ -1,0 +1,5 @@
+{% for feature in contents %}
+{% if feature.htmlFile %}
+{% include feature.htmlFile %}
+{% endif %}
+{% endfor %}

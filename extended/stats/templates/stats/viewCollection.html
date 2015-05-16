@@ -1,0 +1,47 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>View Collection {{collection.name}}</title>
+{% include 'stats/stylesheets.html' %}
+<script>
+function fixTabClasses() {
+    $('#tabs td').each(function(index, node) { $(node).addClass((node.id == "{{group.index}}") ? "TabbedPanelsTabSelected" : "TabbedPanelsTab"); });
+}
+
+$(document).ready(function() { 
+    fixTabClasses();
+});
+</script>
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<A HREF="/dynamic/collections/{{username}}">Collections</A>
+<A HREF="/dynamic/editCollection/{{username}}/{{collection.index}}">Edit</A>
+<BR>
+<div id="collection" class="section tablesection">
+<h1>{{collection.name}}</h1>
+
+{{collection.description}}
+<P>
+<table class="sortable shaded" id="collectiontable">
+<thead><tr><td>Group</td><td>Count</td><td>Rated Count</td><td>Mean Rating</td><td>Sum of Ratings</td><td>Total Plays</td><td>Mean Plays</td><td>Median Plays</td><td>Utilisation</td></tr></thead><tbody>
+{% for group in groups %}
+<tr><td>{{group.name}}</td><td>{{group.count}}</td><td>{{group.rated}}</td><td>{{group.rating}}</td><td>{{group.sumrating}}</td><td>{{group.plays}}</td><td>{{group.meanPlays}}</td><td>{{group.medianPlays}}</td><td>{{group.utilisation}}%</td></tr>
+{% endfor %}
+</tbody></table>
+</div>
+
+<div class="TabbedPanels" id="tabs">
+<table><TR>
+{% for g in groups %}
+<TD id="{{g.index}}"><A HREF="/dynamic/viewCollection/{{username}}/{{collection.index}}/{{g.index}}">{{g.name}}</A>&nbsp;</TD>
+{% endfor %}
+</tr></table>
+</div>
+<P>
+{{group.description}}
+
+{% include 'stats/contents.html' %}
+
+</body>
+</html>

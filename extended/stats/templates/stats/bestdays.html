@@ -1,0 +1,20 @@
+<div id="bestdays" class="section tablesection">
+<H1>Best Days in Gaming</h1>
+These are your best days in gaming. Playing a game more than once counts as only 1.5 plays, so the best days will be those on which you played a variety of games you liked.
+<P>
+<table class="sortable shaded" id="bestdaystable"><thead>
+<tr><td>Date</td><td>Games</td></tr></thead>
+<tbody>
+{% for row in bestDays %}
+<TR>
+<td><A href="/dynamic/plays/{{username}}/{{row.year}}/{{row.month}}/{{row.day}}/totals">{{row.date}}</A></td>
+<td>
+{% for game in row.plays %}
+{{game.plays}} plays of <A HREF="{{game.url}}">{{game.name}}</A>{% if not forloop.last %}, {% endif %} 
+{% endfor %}
+</td>
+</TR>
+{% endfor %}
+</tbody></table>
+</div>
+

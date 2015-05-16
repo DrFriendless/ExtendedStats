@@ -1,0 +1,201 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Selections Documentation</title>
+{% include 'stats/stylesheets.html' %}
+
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+
+<h1>Error: {{mesg}}</h1>
+
+<hr>
+<h1>Selections Documentation</h1>
+A couple of pages now accept a "selector" as part of their URL. For example, this is the favourites table restricted to games by Reiner Knizia:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/designer/2">http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/designer/2</A><br>
+or restricted to games I own:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/owned">http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/owned</A>
+<P>
+See how the end of the URL is changing?
+That's the selector.
+The selector specifies a set of games.
+This will always be a subset of the games you've recorded data for on BGG (well, so far).
+<P>
+These are the selectors that I've implemented so far.
+<P>
+<ul>
+<li> /all - all games for which you have recorded data or plays on BGG
+<li> /owned - all games you own
+<li> /played - all games you've recorded plays for
+<li> /prevowned - games you previously owned
+<li> /want - games you want in trade
+<li> /wanttobuy - games you want to buy
+<li> /wanttoplay - games you want to play
+<li> /preordered - games you've preordered (if you see a bug here, please do a refresh on your collection, I've fixed that)
+<li> /designer/n - a designer, n is their designer ID on BGG (all games for this designer for which Extended Stats has a record)
+<li> /mechanic/s - a mechanic, s is its name (now works against all games Extended Stats knows about)
+<li> /category/s - a category, s is its name (now works against all games Extended Stats knows about)
+<li> /books - a book - equivalent to /category/Book
+<li> /geeklist/n - geeklist number n from boardgamegeek. This is slow because it downloads the geeklist during the call.
+<li> /wishlist/n - games on your wishlist, with any of the nominated values, e.g. /wishlist/1234 means "rated 1, 2, 3 or 4" on your wishlist; /wishlist/5 means "marked as don't buy this", and /wishlist/0 means "not on your wishlist at all".
+<li> /piy/n - plays in year n. Year 0 means "this year" (Australian time).
+<li> /pim/y/m - plays in year n, month m (Jan = 1)
+<li> /fpiy/n - games first played in year n. Year 0 means "this year" (Australian time).
+<li> /lpiy/n - games last played in year n. Year 0 means "this year" (Australian time).
+<li> /expansion - expansions
+<LI> /series/name - all games in series "name" (see below for valid options) (This one breaks the rule about you needing to have a BGG record - it can return games you've never heard of.)
+<li> /rating/op/n - op can be "le", "lt", "gt", "ge", "eq", and n is an integer. Returns all games for which the user's rating matches the predicate.
+<li> /game/n - the game with BGG ID n, whether you've recorded information for it or not.
+</ul>
+
+These are operators on selectors, i.e. they take selectors and do things with them.
+As they go down the list they become less user-friendly and more exciting for programmers.
+<ul>
+<li> /A/B/and - games which are selected by selector A and selector B (intersection)
+<li> /A/B/or - games which are selected by selector A or selector B (union)
+<li> /A/B/minus - games which are selected by selector A but not selector B
+<li> /A/"name" - selector A, given a particular name for display purposes (read on for why that's useful)
+<li> /dup/n - copy the nth element from the top of the stack onto the stack, where 0 is the top element, 1 is the one below that, etc.
+<li> /map/op - this is what's called a higher order function, and if you don't have a computer mind maybe you should give up on this one. For a stack consisting of [A1, A2... An, B, map, op], give [A1 op B, A2 op B... An op B] where op is an operator such as and, or or minus. In addition, Ai op B will be given the name of Ai.
+<li> /A/geek/s - evaluate selector A as if you're geek s. (This one breaks the rule about you needing to have a BGG record.)
+<LI> /columns/A,B,C - in the resulting page, show columns A, B and C in the generic table. Technically this operator doesn't even work on the selectors, it was just easier to code it as an operator.
+</ul>
+<P>
+
+If you're wondering why "and", "or" and "minus" go after the selectors they refer to, it's because I'm using Reverse Polish Notation, like an old HP calculator, to evaluate the compound selectors. That means you can just keep tacking more stuff on the end and brackets aren't required to explain precedence (just a head that gets RPN).
+<P>
+
+<H2>What Are Selectors Used For?</H2>
+<h3>The Favourites Page</h3>
+The default selector for the favourites page is "/owned/rated/played/or/or", but using a selector you can show your favourites from a particular set of games.
+<P>
+
+Games designed by Kramer without Kiesling:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/designer/7/designer/42/minus"> http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/designer/7/designer/42/minus</A>
+<P>
+
+Games designed by either Bruno Cathala or Bruno Faidutti:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/designer/125/designer/1727/or"> http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/designer/125/designer/1727/or</A>
+<P>
+
+Abstract strategy games I own:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/category/Abstract Strategy/owned/and"> http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/category/Abstract Strategy/owned/and</A>
+<P>
+
+Games owned by jmdsplotter:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/jmdsplotter/owned">
+http://friendlessstats.dtdns.net/dynamic/favourites/jmdsplotter/owned</A>
+<P>
+
+Games played by Friendless and Almecho and jmdsplotter:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/played/geek/Almecho/played/geek/jmdsplotter/and/played/and">
+http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/played/geek/Almecho/played/geek/jmdsplotter/and/played/and</A>
+<P>
+
+Games owned by sa266 which Friendless wants to play:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/owned/geek/sa266/wanttoplay/and">
+http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/owned/geek/sa266/wanttoplay/and</A>
+<P>
+
+Games rated more than 7 by both Friendless and Almecho:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/rating/gt/7/rating/gt/7/geek/Almecho/and">
+http://friendlessstats.dtdns.net/dynamic/favourites/Friendless/rating/gt/7/rating/gt/7/geek/Almecho/and</A>
+<P>
+
+<h3>The Plays of Games Owned Graph</h3>
+The default selector for the POGO Graph is "/owned/books/minus", but it can be changed.
+<P>
+Plays of all games:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/image/pogo/Friendless/all">
+http://friendlessstats.dtdns.net/dynamic/image/pogo/Friendless/all</A>
+<P>
+
+Plays of Stefan Feld games:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/image/pogo/Friendless/designer/4958">
+http://friendlessstats.dtdns.net/dynamic/image/pogo/Friendless/designer/4958</A>
+<P>
+
+Games owned by Friendless and Almecho and jmdsplotter:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/image/pogo/jmdsplotter/owned/geek/Friendless/owned/geek/Almecho/owned/and/and">
+http://friendlessstats.dtdns.net/dynamic/image/pogo/jmdsplotter/owned/geek/Friendless/owned/geek/Almecho/owned/and/and</A>
+<P>
+
+<h3>The Selections Page</h3>
+The selections page is a new page which allows you to create a number of tabs with different games on, and provides a summary table comparing the different tabs.
+The general form of the URL is:
+
+<tt>http://friendlessstats.dtdns.net/dynamic/selections/(username)</tt>/<tt>(selector)</tt>(1 or more times)<tt>/(tabnum)</tt>
+<P>
+
+Here's an example:
+<A HREF="http://friendlessstats.dtdns.net/dynamic/selections/Friendless/designer/2/designer/7/designer/125/designer/141/designer/770/"The Famous Game Designer Peter Hawes"/designer/4958/2"> http://friendlessstats.dtdns.net/dynamic/selections/Friendless/designer/2/designer/7/designer/125/designer/141/designer/770/"The Famous Game Designer Peter Hawes"/designer/4958/2</A>
+<P>
+What does it mean?
+<br>
+http://friendlessstats.dtdns.net/dynamic/selections - you have to have this basic bit
+<br>
+/Friendless - your username
+<br>
+/designer/2 - a selector for Knizia
+<br>
+/designer/7 - a selector for Kramer
+<br>
+/designer/125 - Faidutti
+<br>
+/designer/141 - Friese
+<br>
+/designer/770/"The Famous Game Designer Peter Hawes" - Hawes. The "..." bit means "call this tab this name", which is handy if the selector for the tab is something complex.
+<br>
+/designer/4958 - Feld
+<br>
+/2 - and show me tab 2 (Kramer).
+<P>
+
+Here's another example: games I've played partitioned by the year I last played them in:
+<A HREF="http://friendlessstats.dtdns.net/dynamic/selections/Friendless/lpiy/2006/lpiy/2007/lpiy/2008/lpiy/2009/lpiy/2010/lpiy/2011/lpiy/2012/lpiy/2013/1">http://friendlessstats.dtdns.net/dynamic/selections/Friendless/lpiy/2006/lpiy/2007/lpiy/2008/lpiy/2009/lpiy/2010/lpiy/2011/lpiy/2012/lpiy/2013/1</A>
+<P>
+And now an example using map.
+For each of the listed designers, intersect their set of games with games I own, and show me the results:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/selections/Friendless/designer/125/designer/2/designer/7/designer/244/designer/141/owned/map/and/5">http://friendlessstats.dtdns.net/dynamic/selections/Friendless/designer/125/designer/2/designer/7/designer/244/designer/141/owned/map/and/5</A>
+<P>
+Or, for each of those designers, show me which of their games I played in 2012:<br>
+<A HREF="http://friendlessstats.dtdns.net/dynamic/selections/Friendless/designer/125/designer/2/designer/7/designer/244/designer/141/piy/2012/map/and/2">http://friendlessstats.dtdns.net/dynamic/selections/Friendless/designer/125/designer/2/designer/7/designer/244/designer/141/piy/2012/map/and/2</A>
+<P>
+
+<h2>Background on How This Complicated Stuff Works</h2>
+If you can understand the FORTH programming language, these URLs should be easy for you.
+On the other hand if you're a normal person they could be intimidating.
+Start by thinking of a selector as a set of games.
+If we write a URL which contains several selectors in a row, it describes several sets of games.
+When my program interprets that URL, it goes along finding all of those different sets of games.
+As it goes past each one, it puts it into some memory called "the stack".
+I'll illustrate the stack as a table.
+So if my URL is .../designer/2, the stack will look like:
+<table border=2><tr><td>Designer 2</td></tr></table><P>
+If I then add /designer/125 to the URL (so it's now .../designer/2/designer/125), the stack will look like:
+<table border=2><tr><td>Designer 2</td><td>Designer 125</td></tr></table><P>
+and if I add on /owned, we'll have:
+<table border=2><tr><td>Designer 2</td><td>Designer 125</td><td>Owned</td></tr></table><P>
+
+In computer talk, the "top" of the stack is the rightmost entry in the table.
+If I had a whiteboard to explain this I'd draw it the right way up.
+Anyway, say now an operator like /and comes along.
+That operator says "take the top two things from the stack and calculate their intersection and put that on top of the stack".
+So if my URL is /designer/2/designer/125/owned/and, the stack will look like:
+<table border=2><tr><td>Designer 2</td><td>Designer 125 and Owned</td></tr></table><P>
+
+The useful thing about this somewhat confusing way of describing sets of games is that you can describe any combination of things without using any brackets (which are a bit of a pain in URLs).
+On the favourites page, which uses a selection, only the BOTTOM thing on the stack will be displayed.
+On the selections page, there will be a tab for each set of games left on the stack after all the operations have been done.
+
+<h2>Selectors</h2>
+This is just the easy ones...
+
+<UL>
+{% for s in selectors %}
+<li>{{s.name}} - <A HREF="/dynamic/favourites/{{username}}/{{s.fragment}}">/{{s.fragment}}</A>
+{% endfor %}
+</ul>
+</body>
+</html>

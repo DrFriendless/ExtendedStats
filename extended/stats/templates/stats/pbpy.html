@@ -1,0 +1,16 @@
+<div id="pbpy" class="section">
+<H1>Plays of Games Owned by Published Year</h1>
+
+<img border="0" type="image/png" usemap="#pbpymap" src="data:image/png,{{pbpydata}}">
+</img>
+<map name="pbpymap">
+{% for row in pbpymap %}
+<area shape="rect" coords="{{row.x1}},{{row.y1}},{{row.x2}},{{row.y2}}" href="{{row.url}}"
+onMouseover="showtip(this, event, '{{row.name}}')"
+onMouseout="hidetip()">
+{% endfor %}
+</map>
+<P>
+This was an idea from Almecho. White spaces indicate games with no plays, red indicates one play, and the darkest green indicates 25+ plays. The games displayed here are the same games displayed in the Plays of Games Owned table (i.e. this graph uses the cookies for that graph).
+<P>
+</div>

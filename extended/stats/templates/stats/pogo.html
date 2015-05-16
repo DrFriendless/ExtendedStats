@@ -1,0 +1,74 @@
+<script>
+function useSelection() {
+    var fragment = $('#selection').find('option:selected').val();
+    var url = "{{url}}/{{username}}/" + fragment;
+    console.log(url);
+    $('#pogoimg').attr('src', url);
+}
+</script>
+<div id="pogo" class="section pogo tablesection">
+<H1>Plays of Games {{title}}</h1>
+<P>
+<style type="text/css" media="screen">
+<!--
+#pogoCollections td.coll {
+    margin-top: 10px;
+    padding: 20px;
+    overflow: auto;
+    border: 2px solid lightblue;
+}
+-->
+</style>
+<P>
+But what is the Friendless metric?
+To calculate the Friendless metric, make a list of all of your games in descending order of how many times you've played them.
+Scrabble with 173 plays comes first, Triominos with 0 plays comes last.
+For each game at the beginning with 10 or more plays, we consider that game to have earned its keep.
+Even better, having played one game that many times, you're forgiven one at the other end which you haven't played so much.
+So for playing Scrabble so many times we'll forgive you for never playing Triominos.
+People who play games tend to accumulate them, so we'll assume that was a gift.
+Then, we look at how many times you've played the last game remaining on the list... and that's your Friendless metric.
+The higher the better.
+Most bggeeks have a value of zero, so I extended the definition to go into negatives.
+A value of ­-x tells you that to get to a Friendless metric of 1 you need to play x more of your games that you've never played.
+<P>
+The intent of this metric is to convince you that you really don't need more games because you haven't played the ones you've got.
+<P>
+So what's the Continuous Friendless Metric?
+The standard Friendless metric has a weakness in that once you get that value above zero you can't increase it by playing your games with 0 plays any more.
+You can ensure that if you buy more games it will stay above zero for a while longer, but until you do that there's no motivation to play (or otherwise deal with) those games you've been ignoring. The CFM changes the Friendless metric so that you're ALWAYS rewarded for playing a game you own, but you're rewarded more for playing a game you've played less.
+<P>
+
+In the particular reward function I've chosen, I've guessed that if you've played a game 10 times you've gained 90% of the value you'll ever get from it. That's a complete nonsense of course, as you will find some games demand many plays and some can justifiably be dumped after one or two. If you play a game 10 more times, you gain 90% of the remaining utility. I call this percentage your utilisation of the game. I can then take an average (mean) of the utilisations of all the games in your collection to tell you how much of the goodness of your collection you've used. The CFM is then a backfit of that average utilisation into a number of plays - consider it a sort of average number of plays where games you've played lots of times don't count for so much.
+<P>
+
+Use selection...
+<select id="selection">
+{% for s in selectors %}
+<option value="{{s.fragment}}">{{s.name}}</option>
+{% endfor %}    
+</select>
+<button onclick="useSelection()">Go</button> (only affects the image, not the numbers)
+<P>
+
+There are {{collection.count}} games in this collection. The BGG average rating for this collection is {{collection.bggAvg}}. Your average rating for this collection is {{collection.yourAvg}}.
+<P>
+
+On average you have played each of these games {{collection.avgPlays}} times. Your Friendless Metric is 
+{{collection.friendless}} ({{collection.ten}} games played 10+ times, {{collection.zero}} games never played.)
+Your Continuous Friendless Metric is {{collection.cfm}} which corresponds to an average utilisation of {{collection.utilisation}}%.
+<P>
+
+Check out the hyperlinks from the histogram! And the new tooltips!
+<P>
+<img id="pogoimg" border="0" src="/dynamic/image/pogo/{{username}}" usemap="#pogomap">
+<map name="pogomap">
+{% for row in pogomap %}
+<area shape="rect" coords="{{row.x1}},{{row.y1}},{{row.x2}},{{row.y2}}" href="{{row.url}}" title="{{row.title}}">
+{% endfor %}
+</map>
+<P>
+The little green tick on one of the rows of the histogram is an approximation of your Friendless metric.
+The different colours you might see at the left end of the rows shows how many expansions are at that number of plays.
+The reported value of the Friendless metric is the row the tick is on, but closer to the left means it will go up to the next row sooner.
+</div>

@@ -1,0 +1,11 @@
+<div id="pogotable" class="section pogotable tablesection">
+<H1>Plays of Games Owned Table</h1>
+<P>
+<table class="shaded" id="pogotable"><thead>
+<TR><TD>Game</TD><TD>Plays</TD><TD>BGG Rank</TD><TD>BGG Rating</TD><TD>Your Rating</TD><TD>Users Rating</TD><TD>Utilisation</TD></TR>
+</thead><tbody>
+{% for row in pogo %}
+<TR class="{{row.clazz}}"><TD><A HREF="{{row.url}}">{{row.name}}</A></td><td>{{row.plays}}</td><td>{{row.rank}}</td><td>{{row.average|floatformat:"1"}}</td><td>{{row.rating}}</td><td>{{row.usersrated}}</td><td>{{row.utilisation}}%</td></tr>
+{% endfor %}
+</tbody></table>
+</div>

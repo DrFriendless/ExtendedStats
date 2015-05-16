@@ -1,0 +1,108 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Favourite Games for Number of Players for {{geek.username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<div id="numplayers" class="section tablesection">
+<h1>Favourite Games for Number of Players</h1>
+
+These tables are based on the BGG polls for best and recommended numbers of players. A game only makes it to a list if it is best or recommended for more votes than it is not recommended. I'm not sure how well that actually works. Scrabble, which is easily best with 2 players, is still recommended for 3 and 4 players. As an experienced player, I don't agree, but who am I to argue with the Wisdom of Crowds? Please discuss this problem on the Extended Stats mailing list.
+<P>
+
+<h2>For One Player</h2>
+<table class="sortable shaded" id="players1">
+<thead>
+<tr><td>Game</td><td>Rating</td></tr>
+</thead>
+<tbody>
+{% for row in data.0 %}
+<TR>
+<TD><A HREF="{{row.url}}">{{row.name}}</TD></TD><td>{{row.rating}}</td></TR>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>For Two Players</h2>
+<table class="sortable shaded" id="players2">
+<thead>
+<tr><td>Game</td><td>Rating</td></tr>
+</thead>
+<tbody>
+{% for row in data.1 %}
+<TR>
+<TD><A HREF="{{row.url}}">{{row.name}}</TD></TD><td>{{row.rating}}</td></TR>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>For Three Players</h2>
+<table class="sortable shaded" id="players3">
+<thead>
+<tr><td>Game</td><td>Rating</td></tr>
+</thead>
+<tbody>
+{% for row in data.2 %}
+<TR>
+<TD><A HREF="{{row.url}}">{{row.name}}</TD></TD><td>{{row.rating}}</td></TR>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>For Four Players</h2>
+<table class="sortable shaded" id="players4">
+<thead>
+<tr><td>Game</td><td>Rating</td></tr>
+</thead>
+<tbody>
+{% for row in data.3 %}
+<TR>
+<TD><A HREF="{{row.url}}">{{row.name}}</TD></TD><td>{{row.rating}}</td></TR>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>For Five Players</h2>
+<table class="sortable shaded" id="players5">
+<thead>
+<tr><td>Game</td><td>Rating</td></tr>
+</thead>
+<tbody>
+{% for row in data.4 %}
+<TR>
+<TD><A HREF="{{row.url}}">{{row.name}}</TD></TD><td>{{row.rating}}</td></TR>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>For Six Players</h2>
+<table class="sortable shaded" id="players6">
+<thead>
+<tr><td>Game</td><td>Rating</td></tr>
+</thead>
+<tbody>
+{% for row in data.5 %}
+<TR>
+<TD><A HREF="{{row.url}}">{{row.name}}</TD></TD><td>{{row.rating}}</td></TR>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>For Seven or More Players</h2>
+<table class="sortable shaded" id="players7">
+<thead>
+<tr><td>Game</td><td>Rating</td></tr>
+</thead>
+<tbody>
+{% for row in data.6 %}
+<TR>
+<TD><A HREF="{{row.url}}">{{row.name}}</TD></TD><td>{{row.rating}}</td></TR>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+</body>
+</html>

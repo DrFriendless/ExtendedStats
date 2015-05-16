@@ -1,0 +1,16 @@
+<div id="unusual" class="section tablesection">
+
+<H1>The Most Unusual Games You Own</H1>
+    
+<TABLE class="sortable shaded" id="unusualtable">
+<thead><tr><td>Game</td><td>Users Rating</td><td>Users Owning</td></tr></thead>
+<tbody>
+{% for row in unusual %}
+<tr><td><A HREF="{{row.url}}">{{row.name}}</A></td>
+<td>{{row.usersrated}}</td>
+<td>{{row.usersowned}}</td>
+</tr>        
+{% endfor %}        
+</TBODY></TABLE>
+    
+</div>    

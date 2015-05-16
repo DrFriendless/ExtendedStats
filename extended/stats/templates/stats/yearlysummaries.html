@@ -1,0 +1,6 @@
+Yearly Summaries:<br>
+{% for row in playsYearsRows %}
+{% for year in row %}
+<A HREF="/dynamic/year/{{username}}/{{year}}">{{year}}</A>
+{% endfor %}<BR>
+{% endfor %}

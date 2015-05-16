@@ -1,0 +1,19 @@
+<div id="playrate" class="section">
+<H1>Plays by Rating</h1>
+
+<img border="0" type="image/png" usemap="#prmap" src="data:image/png,{{prdata}}">
+<map name="prmap">
+{% for row in prmap %}
+<area shape="circle" coords="{{row.x}},{{row.y}},{{row.radius}}" href="{{row.url}}"
+onMouseover="showtip(this, event, '{{row.name}}')"
+onMouseout="hidetip()">
+{% endfor %}
+</map>
+<P>
+This scatter plot relates the number of times you've played a game compared to the rating you gave it.
+Ideally we'd all always play 10s, but since that's not going to happen we can at least hope that the more
+we like a game the more we play it. The size of a circle corresponds to the number of games with that
+rating and that many plays. The number of plays is capped at 25 so the graph doesn't need to be
+infinitely tall. The green line across the graph is your average number of plays for games with that
+rating. The numbers used for that average are also capped at 25.
+</div>

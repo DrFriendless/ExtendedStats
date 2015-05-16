@@ -1,0 +1,125 @@
+/*==========================================
+ Common table
+==========================================*/
+
+table.listable {
+	border: 1px solid #666666;
+}
+
+table.listable thead tr td {
+	font-family: verdana, sans-serif;
+	font-size: 10px;
+    color: #000000;
+    font-weight: bold;
+	padding: 3px 8px;
+	border-left: 1px solid #D9D9D9;
+	border-bottom: 1px solid #D9D9D9;
+	background-color:#EEEEEE;
+}
+
+table.entry thead tr td {
+	font-family: verdana, sans-serif;
+	font-size: 10px;
+    color: #000000;
+    font-weight: bold;
+	padding: 3px 8px;
+	border-left: 1px solid #D9D9D9;
+	border-bottom: 1px solid #D9D9D9;
+	background-color:#EEEEEE;
+}
+
+table.listable tbody tr td {
+	font-family: verdana, sans-serif;
+	font-size: 10px;
+    color: #000000;
+	padding: 3px 8px;
+	border-left: 1px solid #D9D9D9;
+}
+
+table.listable tfoot tr td {
+	font-family: verdana, sans-serif;
+	font-size: 10px;
+    color: #000000;
+    font-weight: bold;
+	padding: 3px 8px;
+	border-left: 1px solid #D9D9D9;
+	border-top: 1px solid #D9D9D9;
+	background-color:#EEEEEE;
+}
+
+table.listable tbody tr.ruled td a {
+	color: #000066;
+}
+
+table.listable tbody tr.sectionheader td {
+	font-weight: bold;
+	padding: 3px 8px;
+	background-color:#D9D9D9;
+}
+
+/*==========================================
+ Sortable tables
+==========================================*/
+table.sortable thead tr td {
+	padding: 0px;
+	text-align: left;
+}
+
+table.sortable thead a.sortheader {
+	padding: 3px 8px;
+    color: #666666;
+    font-weight: bold;
+    text-decoration: none;
+    display: block;
+}
+
+table.sortable thead span.sortarrow {
+	padding-left: 5px;
+}
+
+/*==========================================
+ Greenbar tables
+==========================================*/
+
+/* Note: by placing this rule above the .selected rule
+   selected rows receive a style preference */
+table.greenbar tbody tr.even td {
+	background-color: #DBEEF7;
+}
+table.greenbargoodbad tbody tr.even td {
+	background-color: #DBEEF7;
+}
+table.greenbargoodbad tbody tr.good td {
+	background-color: #ccffff;
+}
+table.greenbargoodbad tbody tr.bad td {
+	background-color: #ffcccc;
+}
+table.greenbargoodbad tbody tr.goodeven td {
+	background-color: #88ffff;
+}
+table.greenbargoodbad tbody tr.badeven td {
+	background-color: #ffaaaa;
+}
+/*
+table.greenbar tbody tr.selected td {
+	background-color: #3399CC;
+	color: #ffffff;
+	font-weight: bold;
+	border-left: 1px solid #346DBE;
+	border-bottom: 1px solid #7DAAEA;
+}
+*/
+/*==========================================
+ Ruler tables
+==========================================*/
+
+table.ruler tbody tr.ruled td {
+	background-color: #3399CC;
+	color: #ffffff;
+	border-left: 1px solid #346DBE;
+}
+
+table.ruler tbody tr.ruled td a {
+	color: #ffffff;
+}

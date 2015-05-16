@@ -1,0 +1,173 @@
+{% if pbm %}
+<div id="pbmtimeline" class="section">
+<H1>Monthly Timeline</h1>
+
+<div id="timeline">
+<ul class="tl-events">
+<li class="welcome">
+<h2>This is what happened month by month through your gaming history!</h2>
+<P>Travel through time by dragging the timeline.</p>
+</li>
+
+{% for row in pbm %}
+<li class="first last">
+<h3>{{row.name}}</h3>
+<ul class="column">
+
+<li class="milestone">
+<a href="" hidefocus="">
+<span title="Plays" class="tl-icon" />
+<span class="tl-msg">
+<span class="tl-msg-inside">{{row.count}} plays of {{row.distinctCount}} distinct games</span>
+</span>
+</a>
+</li>
+
+{% if row.hotGamesTooltip %}
+<li class="milestone">
+<a href="" hidefocus="">
+<span title="Most played, etc" class="tl-icon" />
+<span class="tl-msg">
+<span class="tl-msg-inside"><B>Hot Games:</B> {{row.hotGamesTooltip}}</span>
+</span>
+</a>
+</li>
+{% endif %}
+
+{% if row.newNickelsTooltip %}
+<li class="milestone">
+<a href="" hidefocus="">
+<span title="Added to this year's nickel list" class="tl-icon" />
+<span class="tl-msg">
+<span class="tl-msg-inside"><B>Nickels:</B> {{row.newNickelsTooltip}}</span>
+</span>
+</a>
+</li>
+{% endif %}
+
+{% if row.newDimesTooltip %}
+<li class="milestone">
+<a href="" hidefocus="">
+<span title="Added to this year's dime list" class="tl-icon" />
+<span class="tl-msg">
+<span class="tl-msg-inside"><B>Dimes:</B> {{row.newDimesTooltip}}</span>
+</span>
+</a>
+</li>
+{% endif %}
+
+{% if row.newTooltip %}
+<li class="milestone">
+<a href="" hidefocus="">
+<span title="First-ever plays" class="tl-icon" />
+<span class="tl-msg">
+<span class="tl-msg-inside"><B>First plays:</B> {{row.newTooltip}}</span>
+</span>
+</a>
+</li>
+{% endif %}
+{% if row.newExpTooltip %}
+<li class="milestone">
+<a href="" hidefocus="">
+<span title="First-ever plays of expansions" class="tl-icon" />
+<span class="tl-msg">
+<span class="tl-msg-inside"><B>First expansion plays:</B> {{row.newExpTooltip}}</span>
+</span>
+</a>
+</li>
+{% endif %}
+
+</ul>
+</li>
+{% endfor %}
+</ul>
+</div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function () {        
+        $('#timeline').mousedown(function (event) {
+            $(this)
+                .data('down', true)
+                .data('x', event.clientX)
+                .data('scrollLeft', this.scrollLeft);
+                
+            return false;
+        }).mouseup(function (event) {
+            $(this).data('down', false);
+        }).mousemove(function (event) {
+            if ($(this).data('down') == true) {
+                this.scrollLeft = $(this).data('scrollLeft') + $(this).data('x') - event.clientX;
+            }
+        }).css({
+            'overflow' : 'hidden',
+            'cursor' : '-moz-grab'
+        });
+    });
+    
+    $(window).mouseout(function (event) {
+        if ($('#timeline').data('down')) {
+            try {
+                if (event.originalTarget.nodeName == 'BODY' || event.originalTarget.nodeName == 'HTML') {
+                    $('#timeline').data('down', false);
+                }                
+            } catch (e) {}
+        }
+    });
+</script>
+<style type="text/css" media="screen">
+<!--
+#timeline {
+    height: {{timelineHeight}}px;
+    margin-top: 10px;
+    padding: 20px;
+    overflow: auto;
+    /*cursor: -moz-grab !important;*/ /* should this be applied with JS? */
+    border: 2px solid lightblue;
+}
+
+.tl-events {
+    width: {{timelineWidth}}px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tl-events li {
+    float: left;
+    width: 300px;
+    margin-right: 10px;
+}
+
+.tl-events ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tl-events ul li a {
+    text-decoration: none;
+    color: #000;
+    background: lightblue;
+    border: 1px solid lightblue;
+    -moz-border-radius: 4px;
+    display: block;
+    margin: 5px 2px;
+    padding: 2px;
+}
+
+.tl-events ul li a:hover,
+.tl-events ul li a:focus {
+    outline: 0;
+    background: #C2CCE4;
+    border: 1px solid #B0BACF;
+}
+
+h1 {
+    margin: 8px 0;
+}
+-->
+</style>
+
+{% endif %}
+

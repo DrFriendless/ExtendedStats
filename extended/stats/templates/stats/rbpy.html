@@ -1,0 +1,15 @@
+<div id="rbpy" class="section">
+<H1>Ratings by Published Year</h1>
+
+<img border="0" type="image/png" usemap="#rbpymap" src="data:image/png,{{rbpydata}}">
+</img>
+<map name="rbpymap">
+{% for row in rbpymap %}
+<area shape="rect" coords="{{row.x1}},{{row.y1}},{{row.x2}},{{row.y2}}" href="{{row.url}}"
+onMouseover="showtip(this, event, '{{row.name}}')"
+onMouseout="hidetip()">
+{% endfor %}
+</map>
+<P>
+Do you like the old games better than the new games? This image only goes back 1995 - the year of Settlers - but it shows what ratings you've given to games from that year. The numbers at the top of the image are the number of games from that year that you've rated.
+</div>

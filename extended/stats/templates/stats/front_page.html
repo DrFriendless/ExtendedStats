@@ -1,0 +1,68 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>BGG Extended Stats</title>
+{% include 'stats/stylesheets.html' %}
+<meta name="verify-v1" content="+3e0bFRzlPJwu7btopQEg4rlOdbzxr8ly2RMKOfvemQ=" />
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+
+<H1>BGG Extended Stats</h1>
+Email friendless.farrell@gmail.com with your BoardGameGeek user ID if you'd like to be on the list.
+Typically I will add you very soon after receiving your mail and then notify you weeks later after your page is available.
+So don't wait for a response from me, just check every day until you find yourself there.
+There's a <A HREF="http://boardgamegeek.com/thread/478743/wheres-friendless-stats-site/page/1">thread on BGG</A> where we often discuss why the site is broken today :-).
+<P>
+By the way, I sometimes receive email calling me "Chris".
+I just figured out people are confusing me with the legendary game reviewer Chris Farrell.
+We're not the same people and we've never met. 
+While Chris was reviewing games in his youth, I was writing computer programs.
+That's why I write this site and he doesn't.
+
+<div id="fp_plays" class="section tablesection">
+<H1>The War Table</h1>
+
+Let's admit it - we all want to be at the top of the list.
+You can sort by different columns to see if you can get yourself there.
+When I compare myself to these guys I'm happy just to make the first page.
+Jim Carvin suggested the Previously Owned ranking because he thought he could be at the top of it.
+<P>
+The User column links to your personal page. Tooltips on the numeric columns show your rank for that particular statistic.
+<P>
+<table class="sortable shaded" id="fp_plays_table">
+<thead>
+<tr><td>User</td><td>Total Plays</td><td>Distinct Games</td><td>Owned</td><td>Want in Trade</td><td>Wishlist</td><td>For Trade</td>
+<td>Spiel des Jahre</td><td>BGG Top 50</td><td>Extended Stats Top 100</td><td>Most Voters</td><td>Previously Owned</td><td>Friendless</td>
+<td>CFM</td><td>0s</td><td>10s</td><td>H-Index</td></tr>
+</thead>
+<tbody>
+{% for row in playsData %}
+<tr>
+<td><A href="/dynamic/tabbed/{{row.geek}}">{{row.geek}}</A></td>
+<td class="number" title="{{row.playsRank}}">{{row.totalPlays}}</td>
+<td class="number" title="{{row.distinctRank}}">{{row.distinctGames}}</td>
+<td class="number" title="{{row.ownedRank}}">{{row.owned}}</td>
+<td class="number" title="{{row.wantRank}}">{{row.want}}</td>
+<td class="number" title="{{row.wishRank}}">{{row.wish}}</td>
+<td class="number" title="{{row.tradeRank}}">{{row.trade}}</td>
+<td class="number" title="{{row.sdjRank}}">{{row.sdj}}</td>
+<td class="number" title="{{row.top50Rank}}">{{row.top50}}</td>
+<td class="number" title="{{row.ext100Rank}}">{{row.ext100}}</td>
+<td class="number" title="{{row.mvRank}}">{{row.mv}}</td>
+<td class="number" title="{{row.prevOwnedRank}}">{{row.prevOwned}}</td>
+<td class="number" title="{{row.friendlessRank}}">{{row.friendless}}</td>
+<td class="number" title="{{row.cfmRank}}">{{row.cfm}}</td>
+<td class="number" title="{{row.zerosRank}}">{{row.zeros}}</td>
+<td class="number" title="{{row.tensRank}}">{{row.tens}}</td>
+<td class="number" title="{{row.hindexRank}}">{{row.hindex}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</plays>
+
+</body>
+</html>
+
+

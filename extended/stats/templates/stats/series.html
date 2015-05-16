@@ -1,0 +1,51 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Series Summaries for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<div id="series" class="section tablesection">
+<h1>Series Summaries for {{username}}</h1>
+
+<H2>Contents</h2>
+<table class="sortable shaded" id="seriesContents">
+<thead><td>Name</td><td>Rated</td><td>Owned</td><td>Total Rating</td><td>Mean Rating</td></thead>
+<tbody>
+{% for serie in series %}
+<tr>
+<Td><A HREF="#{{serie.name}}">{{serie.name}}</A></td><td>{{serie.count}}</td><td>{{serie.owned}}</td><td>{{serie.total}}</td><td>{{serie.mean}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% for serie in series %}
+<H2>{{serie.name}}</H2>
+<table class="sortable shaded" id="{{serie.name}}">
+<thead><tr>
+<td>Rank</td><td>Game</td><td>Rating</td><td>Plays</td><td>Owned</td><td>Want in Trade</td><td>For Trade</td><td>Wished</td><td>Year</td><td>Your Comment</td>
+</tr></thead>
+<tbody>
+{% for game in serie.games %}
+<tr>
+<td>{% if game.rank %}{{game.rank}}{% else %}&nbsp;{% endif %}</td>
+<TD><A HREF="{{game.url}}">{{game.name}}</TD>
+<td>{% if game.rating %}{{game.rating}}{% else %}&nbsp;{% endif %}</td>
+<td>{% if game.plays %}{{game.plays}}{% else %}&nbsp;{% endif %}</td>
+<td>{% if game.owned %}YES{% else %}&nbsp;{% endif %}</td>
+<td>{% if game.want %}YES{% else %}&nbsp;{% endif %}</td>
+<td>{% if game.trade %}YES{% else %}&nbsp;{% endif %}</td>
+<td>{% if game.wish %}YES{% else %}&nbsp;{% endif %}</td>
+<td>{{game.yearpublished}}</td>
+<td>{% if game.comment %}{{game.comment}}{% else %}&nbsp;{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endfor %}
+
+</div>
+</body>
+</html>

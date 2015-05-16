@@ -1,0 +1,42 @@
+/*==========================================
+  Green Bar Good Bad
+==========================================*/
+
+addEvent(window, "load", greenbargoodbad_init);
+
+function greenbargoodbad_init() {
+    // Find all tables with class greenbar and make them greenbar
+    if (!document.getElementsByTagName) return;
+    tbls = document.getElementsByTagName("table");
+    for (ti=0;ti<tbls.length;ti++) {
+		if (hasClassName(tbls[ti], "greenbargoodbad")) makeGreenbarGoodBad(tbls[ti]);
+    }
+}
+
+function makeGreenbarGoodBad(table) {
+	if (!table) return;
+	var trs = table.tBodies[0].rows;
+	for (var i = 0; i < trs.length; i++) {
+            removeClassName(trs[i], "even");
+            removeClassName(trs[i], "goodeven");
+            removeClassName(trs[i], "badeven");
+        }
+	for (var i = 0; i < trs.length; i += 2) {
+                if (hasClassName(trs[i], "good")) {
+                    addClassName(trs[i], "goodeven");
+                    continue;
+                }
+                if (hasClassName(trs[i], "bad")) {
+                    addClassName(trs[i], "badeven");
+                    continue;
+                }
+                addClassName(trs[i], "even");
+        };
+}
+
+
+
+
+
+
+

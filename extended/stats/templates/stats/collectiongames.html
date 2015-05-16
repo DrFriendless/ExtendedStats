@@ -1,0 +1,21 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Edit Collection {{collection.name}}</title>
+{% include 'stats/stylesheets.html' %}
+<script>
+function ajaxformSubmit(responseText, statusText, xhr, $form) {
+    if (responseText['success'] == true) {
+        alert("Hello " + responseText['name']);
+    }
+    // returning false inhibits the browser from opening a "Save As" dialog.
+    return false;
+}	
+</script>
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<h1>Edit Collection {{collection.name}}</h1>
+
+</body>
+</html>

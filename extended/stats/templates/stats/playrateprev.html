@@ -1,0 +1,16 @@
+<div id="playrateprev" class="section">
+{% if prevmap %}
+<H1>Plays by Rating for Games that You Previously Owned</h1>
+
+<img border="0" type="image/png" usemap="#prevmap" src="data:image/png,{{prevdata}}">
+<map name="prevmap">
+{% for row in prevmap %}
+<area shape="circle" coords="{{row.x}},{{row.y}},{{row.radius}}" href="{{row.url}}"
+onMouseover="showtip(this, event, '{{row.name}}')"
+onMouseout="hidetip()">
+{% endfor %}
+</map>
+{% endif %}
+<P>
+This graph is the same as the previous one, but only games that you previously owned and don't currently own are counted.
+</div>

@@ -1,0 +1,45 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>List</title>
+{% include 'stats/stylesheets.html' %}
+<script>
+function ajaxformSubmit( responseText, statusText, xhr, $form )
+{
+	if( responseText[ 'success' ] == true )
+	{
+		alert( "Hello " + responseText[ 'name' ] );
+	}
+
+        // returning false inhibits the browser from opening a "Save As" dialog.
+	return false;
+}	
+</script>
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<h1>{{title}}</h1>
+
+This is a test.
+
+<form id="ajaxform" method="get" action="/dynamic/submit/">
+	<p>
+		<input type="text" name="input" id="input" />
+		<input type="submit" value="Submit" />
+	</p>
+</form>
+
+<script type="text/javascript">
+	$( document ).ready( function()
+	{
+		$( '#ajaxform' ).ajaxForm(
+                        { success: ajaxformSubmit,
+                          dataType: 'json',
+                          clearForm : true,
+                          resetForm : true } );
+	} );
+	
+</script>
+
+</body>
+</html>

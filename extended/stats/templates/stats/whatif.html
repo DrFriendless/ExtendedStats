@@ -1,0 +1,47 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>What If... for {{geek.username}}</title>
+{% include 'stats/stylesheets.html' %}
+<script language="JavaScript" type="text/JavaScript" src="/scripts/whatif.js"></script>
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+
+<div id="whatif" class="section tablesection">
+<H1>What If...</h1>
+
+This page allows you to do experiments with your continuous Friendless metric and utilisation numbers. For example, what if I got rid of this game? What if I played all of these?
+
+The columns are:
+<UL>
+<LI>Game - clicking on the name of the game resets the row to its initial state
+<LI>Plays - how many plays you have recorded for this game
+<LI>Own - whether you own this game
+<LI>Hypothetical Plays - how many plays you might have. Clicking on the cell increases this number by one. The Hypothetical CFM and utilisation are then recalculated.
+<LI>Hypothetical Own - whether you own this game. Clicking on the cell toggles this value. The Hypothetical CFM and utilisation are then recalculated.
+<LI>Modified - whether the row has been modified. Click on the game name to reset it.
+</UL>
+
+<P><div id="cfm">Real CFM</div>
+<P><div id="util">Real Utilisation</div>
+<P><div id="hcfm">Hypothetical CFM</div>
+<P><div id="hutil">Hypothetical Utilisation</div>
+<P>
+
+<table class="sortable shaded" id="whatiftab"><thead>
+<tr><td>Game</td><td>Plays</td><td>Own</td><td>Hypothetical Plays</td><td>Hypothetical Own</td><TD>Modified</TD></tr>
+</thead><tbody>
+{% for game in games %}
+<TR>
+<td class="clear">{{game.name}}</TD>
+<TD class="plays">{{game.plays}}</TD>
+<TD class="own">{{game.own}}</TD>
+<TD class="hplays">{{game.plays}}</TD>
+<TD class="hown">{{game.own}}</TD>
+<TD></TD>
+</TR>
+{% endfor %}
+</tbody></table>
+
+</div>

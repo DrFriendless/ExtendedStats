@@ -1,0 +1,82 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Extended Stats for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>Extended Stats for {{username}}</h1>
+
+
+<div id="contents">
+<table><thead><tr><td>On This Page</td><td>On This Site</td><td>On BoardGameGeek</td></tr></thead>
+<tbody>
+<td>
+<ul class="BulletList">
+{% include 'stats/contentslist.html' %}
+</ul>
+</td>
+<td><ul>
+<LI><A HREF="/dynamic/yearcomparison/{{username}}">Yearly Comparison</A>
+<LI><A HREF="/dynamic/whatif/{{username}}">What If...</A>
+<LI><A HREF="/dynamic/plays/{{username}}">All Plays by Date</A>
+<LI><A HREF="/dynamic/plays/{{username}}/totals">All Plays by Game</A>
+<LI><A HREF="/dynamic/locations/{{username}}">Plays by Location</A>
+<LI><A HREF="/dynamic/checklist/{{username}}">Collection Checklist</A>
+<LI><A HREF="/dynamic/updates/{{username}}">Update Schedule</A>
+<form name="input" action="{% url "stats.views.quickRefresh" username %}" method="post">
+{% csrf_token %}
+<input type="submit" value="Refresh" />
+</form>
+<LI><A HREF="/dynamic/numplayers/{{username}}">Favourite Games for Numbers of Players</A>
+<LI><A HREF="/dynamic/crazy/{{username}}">Crazy Recommendations (slow)</A>
+<LI><A HREF="/dynamic/multiyear/{{username}}">Games Played in Multiple Years</A>
+<LI><A HREF="/dynamic/dimesbydesigner/{{username}}">Dimes By Designer</A>
+<LI>Yearly Summaries:<br>
+{% for row in playsYearsRows %}
+{% for year in row %}
+<A HREF="/dynamic/year/{{username}}/{{year}}">{{year}}</A>
+{% endfor %}<BR>
+{% endfor %}
+<LI><A HREF="/dynamic/series/{{username}}">Series Summaries</A>
+<LI><A HREF="/dynamic/cat/{{username}}/designer">Designers</A>
+<LI><A HREF="/dynamic/cat/{{username}}/publisher">Publishers</A>
+<LI><A HREF="/dynamic/cat/{{username}}/mechanic">Mechanics</A>
+<LI><A HREF="/dynamic/cat/{{username}}/category">Categories</A>
+<LI><A HREF="/dynamic/playscsv/{{username}}">All Plays (CSV)</A>
+</ul></td>
+<td><ul>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=gamesownedbyyear&username={{username}}">Games Owned By Year</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=gamesownedbydesigner&username={{username}}">Games Owned By Designer</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=toprated&username={{username}}">Your Top Games</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=largestdisparities&username={{username}}">Largest Disparities</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=underrated&username={{username}}">Underrated Games</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=overrated&username={{username}}">Overrated Games</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=numplays&sortdir=desc&own=0&played=1">Most Played Games You Don't Own</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&own=0&rated=1">Favourite Games You Don't Own</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&minplays=1&maxplays=1&own=1">You Like It, You Own It, You've Only Played It Once</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{username}}?own=1&played=0">You Own It and You Haven't Played It</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{username}}?minplays=1&maxplays=1&own=1">You Own It and You've Only Played It Once</A>
+<LI><A HREF="http://boardgamegeek.com/plays/fiveanddime/user/{{username}}">Nickel and Dime for All Time</A>
+</ul>
+<div>
+<h2>On Other Stats Sites</h2>
+<ul>
+<LI><A HREF="http://bggtools.com/?u={{username}}&Selection=Collection">Rick Baptist's Collection Valuation</A>
+<LI><A HREF="http://lautapeliopas.fi/bgg/collection.php?user1={{username}}">Mikko Saari's BGG Collection Rarity</A>
+</ul>
+</div>
+
+
+</td>
+</tbody></table>
+</div>
+
+{% include 'stats/contentsbody.html' %}
+
+
+</body>
+</html>
+

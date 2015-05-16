@@ -1,0 +1,95 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Category Summary for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<div id="categories" class="section tablesection">
+<h1>Category Summary for {{username}}</h1>
+
+<ul>
+<li><A HREF="#summarytitle">Summary Table</A>
+<li><A HREF="#ownedtitle">Games Owned</A>
+<li><A HREF="#graphs">Correlation Graphs</A>
+</ul>
+
+<H2 id="summarytitle">Categories</H2>
+The <A HREF="http://www.boardgamegeek.com/geeklist/37832">Whitmore Rating</A> was inspired by Kevin Whitmore.
+<P>
+
+<table class="sortable shaded" id="summary">
+<thead><tr>
+<td>Name</td><td>Number Rated</td><td>Average Rating</td><td>Owned</td><td>Avg Rating for Owned</td><td>Favourite Game</td><td>Plays</td><td>Hours Played</td><td>Whitmore Rating</td>
+</tr></thead>
+<tbody>
+{% for row in rows %}
+<tr>
+{% if row.url %}
+<td><A HREF="{{row.url}}">{{row.name}}</A></td>
+{% else %}
+<td>{{row.name}}</td>
+{% endif %}
+<td>{% if row.count %}{{row.count}}{% else %}&nbsp;{% endif %}</td>
+<td>{% if row.rating %}{{row.rating}}{% else %}&nbsp;{% endif %}</td>
+<td>{% if row.owned %}{{row.owned}}{% else %}&nbsp;{% endif %}</td>
+<td>{% if row.avgOwned %}{{row.avgOwned}}{% else %}&nbsp;{% endif %}</td>
+<td>{% if row.favid %}
+<A HREF="{{row.favgame.url}}">{{row.favgame.name}}</A>
+{% else %}
+&nbsp;
+{% endif %}</td>
+<td>{% if row.plays %}{{row.plays}}{% else %}&nbsp;{% endif %}</td>
+<td>{% if row.plays %}{{row.hoursPlayed}}{% else %}&nbsp;{% endif %}</td>
+<td>{% if row.whitmore %}{{row.whitmore}}{% else %}&nbsp;{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<H2 id="ownedtitle">Games Owned</H2>
+
+<table class="sortable shaded" id="owned">
+<thead><tr>
+<td>Category</td><td>Games Owned</td>
+</tr></thead>
+<tbody>
+{% for row in rows %}
+{% if row.collection %}
+<tr>
+{% if row.url %}
+<td><A HREF="{{row.url}}">{{row.name}}</A></td>
+{% else %}
+<td>{{row.name}}</td>
+{% endif %}
+<td>
+{% for g in row.collection %}
+<A HREF="{{g.url}}">{{g.name}}</A>{% if not forloop.last %}, {% endif %}
+{% endfor %}
+</td>
+</tr>
+{% endif %}
+{% endfor %}
+</tbody>
+</table>
+
+<div id="graphs">
+<H2>Correlation Graphs</H2>
+<table>
+{% for row in toGraph %}
+<tr>
+{% for cat in row %}
+<td>
+<h3>{{cat}}</h3>
+<img src="/dynamic/image/cat/{{username}}/category/{{cat}}">
+</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+</div>
+
+</div>
+</body>
+</html>

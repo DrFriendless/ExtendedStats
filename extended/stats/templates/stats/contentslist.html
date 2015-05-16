@@ -1,0 +1,12 @@
+{% for feature in contents %}
+<LI class="{{feature.cssClass}}">
+{% if feature.contentsFile %}
+{% include feature.contentsFile %}
+{% else %}
+{% if feature.tag %}
+<A HREF="#{{feature.tag}}">{{feature.title}}</A>
+{% else %}
+{{feature.title}}
+{% endif %}
+{% endif %}
+{% endfor %}

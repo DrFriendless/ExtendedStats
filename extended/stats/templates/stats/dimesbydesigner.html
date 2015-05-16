@@ -1,0 +1,20 @@
+<div id="dimesbydesigner" class="section tablesection">
+<H1>Dimes by Designer</h1>
+These are all designers for which you've recorded 10 or more plays.
+<P>
+<table class="sortable shaded" id="dimesdesignertable"><thead>
+<tr><td>Designer</td><td>Total Plays</td><td>Plays of Base Games</td><td>Plays of Expansions</td><td>Distinct Total</td><td>Distinct Games</td><td>Distinct Expansions</td><td>Games</td></tr></thead>
+<tbody>
+{% for row in designerDimes %}
+<TR>
+<td><A href="http://www.boardgamegeek.com/person/{{row.bggid}}">{{row.name}}</A></td><td>{{row.totalPlays}}</td><td>{{row.baseGamePlays}}</td><td>{{row.expansionPlays}}</td><td>{{row.totalCount}}</td><td>{{row.baseGameCount}}</td><td>{{row.expansionCount}}</td>
+<td>
+{% for game in row.games %}
+{{game.plays}} plays of <A HREF="{{game.url}}">{{game.name}}</A>{% if not forloop.last %}, {% endif %} 
+{% endfor %}
+</td>
+</TR>
+{% endfor %}
+</tbody></table>
+</div>
+

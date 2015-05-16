@@ -1,0 +1,20 @@
+{% if pbm %}
+<div id="pbmever" class="section tablesection">
+<H1>Plays By Month (Ever)</h1>
+
+The month column links to a summary of plays for the month. The "percent played" number refers to the percentage of your current collection that you had ever played at that time.
+<P>
+<table class="sortable shaded" id="pbmevertable"><thead>
+<tr><td>Month</td><td>Plays</td><td>New  Nickels</td><td>New Dimes</td><td>New Quarters</td><td>New Dollars</td><td>Plays Ever</td><td>Distinct  Ever</td><td>H-Index YTD</td><td>H-Index Ever</td><td>Percent Played</td><td>Days Played On</td></tr>
+</thead><tbody>
+{% for row in pbm %}
+{% if row.january %}
+<tr class="underline">
+{% else %}
+<tr>
+{% endif %}
+<td><A HREF="/dynamic/plays/{{username}}/{{row.year}}/{{row.month}}/totals">{{row.name}}</A></td><td>{{row.count}}</td><td title="{{row.everNickelsTooltip}}">{{row.newNickelsEver}}</td><td title="{{row.everDimesTooltip}}">{{row.newDimesEver}}</td><td title="{{row.everQuartersTooltip}}">{{row.newQuartersEver}}</td><td title="{{row.everDollarsTooltip}}">{{row.newDollarsEver}}</td><td>{{row.playsEver}}</td><td>{{row.distinctEver}}</td><td>{{row.hindexToDate}}</td><td>{{row.hindexEver}}</td><td>{{row.percentPlayed|floatformat}}</td><td>{{row.daysPlayed}}</td></tr>
+{% endfor %}
+</tbody></table>
+</div>
+{% endif %}

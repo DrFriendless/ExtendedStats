@@ -1,0 +1,19 @@
+<div id="multiyear" class="section">
+<H1>Games Played In Multiple Years</h1>
+
+<table class="sortable" id="mytable"><thead>
+<tr><td>Game</td>
+{% for year in myyears %}
+<td>{{year}}</td>
+{% endfor %}
+</tr>
+</thead><tbody>
+{% for row in multiyear %}
+<TR>
+{% for item in row %}
+<td bgcolor="{{item.colour}}">{{item.value}}</td>
+{% endfor %}
+</TR>
+{% endfor %}
+</tbody></table>
+</div>

@@ -1,0 +1,226 @@
+// From: http://www.kryogenix.org/code/browser/sorttable/
+// By:   Stuart Langridge
+// Modified by Ian Bicking, 3 Nov 2003
+// Changes:
+//   * Use a sortval="val" attribute in TD tags to override sorting by
+//     the cell contents.
+//   * Use sortsuppress="1" attribute in the column header to suppress
+//     sorting by that column.
+// Modified by Justin Walduck, Dec 2004
+//   * Now uses thead, tbody, tfoot to determine sortable portion of table
+//   * Will run the greenbar function after a sort if needed
+
+addEvent(window, "load", sortables_init);
+
+var SORT_COLUMN_INDEX;
+var ARROW_UP = '<img src="/images/sort_up.gif" width="7" height="9" align="absmiddle" border="0">';
+var ARROW_DOWN = '<img src="/images/sort_down.gif" width="7" height="9" align="absmiddle" border="0">';
+var ARROW_NONE = '<img src="/images/sp.gif" width="7" height="9" align="absmiddle" border="0">';
+
+function sortables_init() {
+    // Find all tables with class sortable and make them sortable
+    if (!document.getElementsByTagName) return;
+    tbls = document.getElementsByTagName("table");
+    for (ti=0;ti<tbls.length;ti++) {
+        if ( hasClassName( tbls[ti], "sortable" ) && (tbls[ti].id)) {
+            ts_makeSortable(tbls[ti]);
+        }
+    }
+}
+
+function ts_makeSortable(table) {
+	if (table.tHead && table.tHead.rows && table.tHead.rows.length > 0) {
+        var firstRow = table.tHead.rows[0]; // Find the first row of the header
+    }
+
+    if (!firstRow) return;
+
+    // We have a header row: make its contents clickable links
+    for (var i=0;i<firstRow.cells.length;i++) {
+        var cell = firstRow.cells[i];
+        var txt = ts_getInnerText(cell);
+        if (cell.getAttribute('sortsuppress')) continue;
+        cell.innerHTML = '<a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">'+txt+'<span class="sortarrow">'+ARROW_NONE+'</span></a>';
+    }
+}
+
+function ts_getInnerText(el) {
+	if (typeof el == "string") return el.trim();
+	if (typeof el == "undefined") return el;
+	if (el.innerText) return el.innerText.trim();	//Not needed but it is faster
+	var str = "";
+
+	var cs = el.childNodes;
+	for (var i = 0; i < cs.length; i++) {
+		switch (cs[i].nodeType) {
+			case 1: //ELEMENT_NODE
+				str += ts_getInnerText(cs[i]).trim();
+				break;
+			case 3:	//TEXT_NODE
+				str += cs[i].nodeValue.trim();
+				break;
+		}
+	}
+	return str;
+}
+
+function ts_resortTable(lnk) {
+    // get the span
+    var span;
+    for (var ci=0;ci<lnk.childNodes.length;ci++) {
+        if (lnk.childNodes[ci].tagName && lnk.childNodes[ci].tagName.toLowerCase() == 'span') span = lnk.childNodes[ci];
+    }
+    var spantext = ts_getInnerText(span);
+    var td = lnk.parentNode;
+    var column = td.cellIndex;
+    var table = getParent(td,'TABLE');
+    var row_count = 0;
+    var test_row = 0; // Default test row is the first of the body
+    var i, el;
+
+    // Find a test row which is not a section header and not a blnk cell
+    if (table.tBodies[0].rows.length <= 1) return;
+    for (i=0; i<table.tBodies[0].rows.length; i++) {
+      if (!hasClassName( table.tBodies[0].rows[i], "sectionheader" ) && ts_getInnerText(table.tBodies[0].rows[i].cells[column]) != "") {
+        test_row = i;
+        break;
+      }
+    }
+
+	// If the cell has the sortval attribute use the sortval attributes for the cells to sort them (alpha-numeric search)
+    var sortval = table.tBodies[0].rows[test_row].cells[column].getAttribute('sortval');
+
+    if (typeof(sortval) !='undefined' && sortval)
+    {
+      sortfn = ts_sort_sortval;
+    } else {
+      var itm = ts_getInnerText(table.tBodies[0].rows[test_row].cells[column]);
+      sortfn = ts_sort_caseinsensitive;
+      if (itm.match(/^\d\d[\/-]\d\d[\/-]\d\d\d\d$/)) sortfn = ts_sort_date;
+      if (itm.match(/^\d\d[\/-]\d\d[\/-]\d\d$/)) sortfn = ts_sort_date;
+      if (itm.match(/^[�$]/)) sortfn = ts_sort_currency;
+      if (itm.match(/^[-+]?[\d\.]+$/)) sortfn = ts_sort_numeric;
+    }
+    SORT_COLUMN_INDEX = column;
+    var firstRow = new Array();
+    var newRows = new Array();
+    for (i=0;i<table.tBodies[0].rows[0].length;i++) {
+      firstRow[i] = table.tBodies[0].rows[0][i];
+    }
+    for (j=0;j<table.tBodies[0].rows.length;j++) {
+      // We don't sort section/folder rows, so we skip them here:
+	  if (!hasClassName( table.tBodies[0].rows[j], "sectionheader" )) {
+        newRows[row_count] = table.tBodies[0].rows[j];
+        row_count++;
+      }
+    }
+
+    newRows.sort(sortfn);
+
+    if (span.getAttribute("sortdir") == 'up') {
+        ARROW = ARROW_DOWN;
+        span.setAttribute('sortdir','down');
+    } else {
+        ARROW = ARROW_UP;
+        newRows.reverse();
+        span.setAttribute('sortdir','up');
+    }
+
+    // We appendChild rows that already exist to the tbody, so it moves them rather than creating new ones don't do sortbottom rows
+    for (i=0;i<newRows.length;i++) { if ( !hasClassName( newRows[i], 'sortbottom' ) ) table.tBodies[0].appendChild(newRows[i]);}
+    // do sortbottom rows only
+    for (i=0;i<newRows.length;i++) { if ( hasClassName( newRows[i], 'sortbottom' ) ) table.tBodies[0].appendChild(newRows[i]);}
+
+    // Delete any other arrows there may be showing
+    var allspans = document.getElementsByTagName("span");
+    for (var ci=0;ci<allspans.length;ci++) {
+        if (allspans[ci].className == 'sortarrow') {
+            if (getParent(allspans[ci],"table") == getParent(lnk,"table")) { // in the same table as us?
+                allspans[ci].innerHTML = ARROW_NONE;
+            }
+        }
+    }
+
+    span.innerHTML = ARROW;
+	// Greenbar the resulting table
+    if (hasClassName( table, "greenbar" ) && typeof makeGreenbar == 'function' ) makeGreenbar(table);
+    if (hasClassName( table, "bluebar" ) && typeof makeBluebar == 'function' ) makeBluebar(table);
+    if (hasClassName( table, "shaded" ) && typeof makeShaded == 'function' ) makeShaded(table);
+}
+
+function getParent(el, pTagName) {
+	if (el == null) return null;
+	else if (el.nodeType == 1 && el.tagName.toLowerCase() == pTagName.toLowerCase())	// Gecko bug, supposed to be uppercase
+		return el;
+	else
+		return getParent(el.parentNode, pTagName);
+}
+
+function ts_sort_date(a,b) {
+    // y2k notes: two digit years less than 50 are treated as 20XX, greater than 50 are treated as 19XX
+    aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]);
+    bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
+    if (aa.length == 10) {
+        dt1 = aa.substr(6,4)+aa.substr(3,2)+aa.substr(0,2);
+    } else {
+        yr = aa.substr(6,2);
+        if (parseInt(yr) < 50) { yr = '20'+yr; } else { yr = '19'+yr; }
+        dt1 = yr+aa.substr(3,2)+aa.substr(0,2);
+    }
+    if (bb.length == 10) {
+        dt2 = bb.substr(6,4)+bb.substr(3,2)+bb.substr(0,2);
+    } else {
+        yr = bb.substr(6,2);
+        if (parseInt(yr) < 50) { yr = '20'+yr; } else { yr = '19'+yr; }
+        dt2 = yr+bb.substr(3,2)+bb.substr(0,2);
+    }
+    if (dt1==dt2) return 0;
+    if (dt1<dt2) return -1;
+    return 1;
+}
+
+function ts_sort_currency(a,b) {
+    aa = parseFloat(ts_getInnerText(a.cells[SORT_COLUMN_INDEX]).replace(/[^0-9.]/g,''));
+    bb = parseFloat(ts_getInnerText(b.cells[SORT_COLUMN_INDEX]).replace(/[^0-9.]/g,''));
+	if (isNaN(aa)) aa = 0;
+	if (isNaN(bb)) bb = 0;
+    return aa - bb;
+}
+
+function ts_sort_numeric(a,b) {
+    aa = parseFloat(ts_getInnerText(a.cells[SORT_COLUMN_INDEX]));
+    bb = parseFloat(ts_getInnerText(b.cells[SORT_COLUMN_INDEX]));
+	if (isNaN(aa)) aa = 0;
+    if (isNaN(bb)) bb = 0;
+    return aa-bb;
+}
+
+function ts_sort_caseinsensitive(a,b) {
+    aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]).toLowerCase();
+    bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]).toLowerCase();
+    if (aa==bb) return 0;
+    if (aa == '') return 1;
+    if (bb == '') return -1;
+    if (aa<bb) return -1;
+    return 1;
+}
+
+function ts_sort_sortval(a,b) {
+    aa = a.cells[SORT_COLUMN_INDEX].getAttribute('sortval');
+    bb = b.cells[SORT_COLUMN_INDEX].getAttribute('sortval');
+    if (aa==bb) return 0;
+    if (aa == '') return 1;
+    if (bb == '') return -1;
+    if (aa<bb) return -1;
+    return 1;
+}
+
+function ts_sort_default(a,b) {
+    aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]);
+    bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
+    if (aa==bb) return 0;
+    if (aa == '') return 1;
+    if (bb == '') return -1;
+    if (aa<bb) return -1;
+    return 1;
+}

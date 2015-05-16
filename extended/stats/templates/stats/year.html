@@ -1,0 +1,65 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Yearly Statistics for {{username}} for {{year}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>Yearly Statistics for {{username}} for {{year}}</h1>
+
+<div id="contents">
+<table>
+<tbody>
+<td><ul>
+<LI><A HREF="/dynamic/calendar/{{username}}/{{year}}/playCount/all">Plays Calendar</A>
+{% if bestDays %}
+<LI><A HREF="#bestdays">Best Days in Gaming</A>
+{% endif %}
+{% if designerDimes %}
+<LI><A HREF="#dimesbydesigner">Dimes by Designer</A>
+{% endif %}
+{% if ndd %}
+<LI><A HREF="#ndd">Nickels and Dimes</A>
+{% endif %}
+{% if playedLastYear %}
+<LI><A HREF="#ply">Played More Than Once Last Year But Not This Year</A>
+{% endif %}
+{% if florence %}
+<LI><A HREF="#florence">Florence Nightingale Gamer Characterisation</A>
+{% endif %}
+{% if morePieDefault %}
+<LI><A HREF="#morepie">Mike Hulsebus-style Pie Chart</A>
+{% endif %}
+<LI><A HREF="/dynamic/plays/{{username}}/{{year}}/totals">All Plays for {{year}}</A>
+</ul></td>
+</tbody></table>
+</div>
+
+{% if bestDays %}
+{% include 'stats/bestdays.html' %}
+{% endif %}
+
+{% if designerDimes %}
+{% include 'stats/dimesbydesigner.html' %}
+{% endif %}
+
+{% if ndd %}
+{% include 'stats/nickeldime.html' %}
+{% endif %}
+
+{% if playedLastYear %}
+{% include 'stats/playedlastyear.html' %}
+{% endif %}
+
+{% if florence %}
+{% include 'stats/florence.html' %}
+{% endif %}
+
+{% if morePieDefault %}
+{% include 'stats/morepie.html' %}
+{% endif %}
+</body>
+</html>
+

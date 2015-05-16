@@ -1,0 +1,12 @@
+<div id="featurelist" class="section tablesection">
+<H1>Feature Index</h1>
+In Extended Stats lingo, a feature is a table or other item that can be displayed by itself. 
+This is an automatically generated index of the simple features (complex features require parameters for which there are no defaults).
+<P>
+<ul>
+{% for row in features %}
+<LI><A HREF="/dynamic/choose/{{username}}/{{row.tag}}">{{row.title}}</A>
+{% endfor %}
+</ul>
+</div>
+

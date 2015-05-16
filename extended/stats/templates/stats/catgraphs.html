@@ -1,0 +1,79 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Correlation Graphs for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<h1>Correlation Graphs</h1>
+
+<h2>Ratings for All Games</h2>
+<img src="/dynamic/image/cat/{{username}}/All">
+
+<div id="designers">
+<H2>Ratings for Designers</H2>
+<table>
+{% for row in dessToGraph %}
+<tr>
+{% for cat in row %}
+<td>
+<h3>{{cat.name}}</h3>
+<img src="/dynamic/image/cat/{{username}}/designer/{{cat.id}}">
+</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+</div>
+
+<div id="publishers">
+<H2>Ratings for Publishers</H2>
+<table>
+{% for row in pubsToGraph %}
+<tr>
+{% for cat in row %}
+<td>
+<h3>{{cat.name}}</h3>
+<img src="/dynamic/image/cat/{{username}}/publisher/{{cat.id}}">
+</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+</div>
+
+<div id="categories">
+<H2>Ratings for Categories</H2>
+<table>
+{% for row in catsToGraph %}
+<tr>
+{% for cat in row %}
+<td>
+<h3>{{cat}}</h3>
+<img src="/dynamic/image/cat/{{username}}/category/{{cat}}">
+</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+</div>
+
+<div id="mechanics">
+<H2>Ratings for Mechanics</H2>
+<table>
+{% for row in mecsToGraph %}
+<tr>
+{% for cat in row %}
+<td>
+<h3>{{cat}}</h3>
+<img src="/dynamic/image/cat/{{username}}/mechanic/{{cat}}">
+</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Favourite Games for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<h1>Your Favourite Games</h1>
+
+Your <A HREF="http://www.boardgamegeek.com/thread/372896">correlation with BGG ratings</A> is <b>{{bggCorrelation}}</b>.
+Joe Huber points out that games with a small number of ratings bias this number upwards, as your contribution to the BGG average is relatively larger.
+Therefore, your correlation with BGG ratings for ranked (common) games only is <b>{{bggCorrelationRankedOnly}}</b>.
+<P>
+You <A HREF="http://www.mikkosgameblog.com/2010/12/whats-your-h-index/">H-index</A> is <b>{{hindex}}</b> - you've played {{hindex}} games {{hindex}} times.
+<P>
+
+<div id="contents">
+{% include 'stats/genericgamestable.html' %}
+</div>
+
+</body>
+</html>
+

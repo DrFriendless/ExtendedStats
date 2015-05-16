@@ -1,0 +1,12 @@
+<div class="TabbedPanels" id="tabs">
+<table><TR>
+{% if tab1 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/1">General</A>&nbsp;</TD>
+{% if tab2 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/2">Plays</A>&nbsp;</TD>
+{% if tab3 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/3">Collection Management</A>&nbsp;</TD>
+{% if tab4 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/4">Suggestions</A>&nbsp;</TD>
+</tr></table>
+</div>

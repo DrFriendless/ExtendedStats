@@ -1,0 +1,33 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Extended Stats for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>Florence Nightingale Gamer Characterisation</h1>
+
+<div id="contents">
+
+This diagram is inspired by Florence Nightingale's Polar Area Diagrams.
+The area of each colour is proportional to the number of games you have played with that BGG subdomain.
+Looking at this diagram, people can see at a glance what sort of, and how many, games you play.
+<P>
+
+{% for year in playsYears %}
+<h2>{{year}}</h2>
+<TABLE id="florencetable"><tbody>
+<TR><TD width=600><IMG id="florenceImage" SRC="/dynamic/plays/{{username}}/florence/{{year}}"></td>
+<TD width=200>
+<TABLE>
+{% for flo in florence %}
+<TR><TD bgcolor="{{flo.colour}}" width=20>&nbsp;</TD><TD>{{flo.name}}</TD></TR>
+{% endfor %}
+</TABLE>
+</TD>
+</tbody></TABLE>
+{% endfor %}
+
+</div>

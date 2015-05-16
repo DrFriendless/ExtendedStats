@@ -1,0 +1,92 @@
+/* Horizontal Tabbed Panels */
+.TabbedPanels {
+	margin: 0px;
+	padding: 0px;
+	clear: both;
+	width: 100%; /* IE Hack to force proper layout when preceded by a paragraph. (hasLayout Bug)*/
+}
+
+.TabbedPanelsTab {
+	position: relative;
+	top: 1px;
+	float: left;
+	padding: 6px 12px;
+	margin: 0px 1px 0px 0px;
+	background-color: bisque;
+	list-style: none;
+	border-left: solid 1px #CCC;
+	border-bottom: solid 1px #d8d8d8;
+	border-top: solid 1px #d8d8d8;
+	border-right: solid 1px #d8d8d8;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	cursor: pointer;	
+	text-align: center;
+	font-size: 16px;
+	font-weight: bold;	
+}
+
+.TabbedPanelsTabSelected {
+	position: relative;
+	top: 1px;
+	float: left;
+	padding: 6px 12px;
+	margin: 0px 1px 0px 0px;
+	background-color: #DBEEF7;
+	list-style: none;
+	border-left: solid 1px #CCC;
+	border-bottom: solid 1px #d8d8d8;
+	border-top: solid 1px #d8d8d8;
+	border-right: solid 1px #d8d8d8;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	cursor: pointer;	
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;	
+}
+
+.TabbedPanelsTab a {
+	color: black;
+	text-decoration: none;
+}
+
+.TabbedPanelsTabSelected a {
+	color: black;
+	text-decoration: none;
+}
+
+.BulletList {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;	
+}  
+
+.BulletList li {
+	background-repeat: no-repeat;
+	font-size: 13px;
+}
+
+li.ThisPage {
+	background-image: url(/images/bullet_down.png);
+	padding: 0 0 0 20px;
+	margin: .4em 0;
+}
+
+li.OtherPage {
+	background-image: url(/images/bullet_go.png);  
+	padding: 0 0 0 20px;
+	margin: .4em 0;
+}
+
+li.BGG {
+	background-image: url(/images/bgg.png);  
+	padding: 0 0 0 20px;
+	margin: .4em 0;
+}
+
+li.External {
+	background-image: url(/images/external.png);  
+	padding: 0 0 0 20px;
+	margin: .4em 0;
+}

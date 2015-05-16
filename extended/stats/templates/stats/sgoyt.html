@@ -1,0 +1,20 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Geeklist Summary for {{geeklist}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+
+<h1>Geeklist Summary for {{geeklist}}</h1>
+
+<div id="contents">
+{% for t in data %}
+{{t.gid}}, "{{t.user}}", "{{t.gamename}}"<br>
+{% endfor %}
+</div>
+
+</body>
+</html>
+

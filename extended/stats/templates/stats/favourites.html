@@ -1,0 +1,37 @@
+<div id="favourites" class="section tablesection">
+<H1>Your Favourite Games</h1>
+
+<ul>
+<LI>The Friendless Happiness Metric (FHM) is (rating * 5 + plays + months played * 4 + hours played).
+<LI>The Huber Happiness Metric is (HHM) ((rating - 4.5) * hours played).
+<LI>The Randy Cox not-Unhappiness Metric (R!UHM) is <A HREF="http://boardgamegeek.com/article/11554334#11554334">described here</A>.
+</ul>
+<P>
+Your <A HREF="http://www.boardgamegeek.com/thread/372896">correlation with BGG ratings</A> is <b>{{bggCorrelation}}</b>.
+Joe Huber points out that games with a small number of ratings bias this number upwards, as your contribution to the BGG average is relatively larger.
+Therefore, your correlation with BGG ratings for ranked (common) games only is <b>{{bggCorrelationRankedOnly}}</b>.
+<P>
+You <A HREF="http://www.mikkosgameblog.com/2010/12/whats-your-h-index/">H-index</A> is <b>{{hindex}}</b> - you've played {{hindex}} games {{hindex}} times.
+<P>
+<table class="sortable shaded" id="favtable"><thead>
+<tr><td>Game</td><td>Rating</td><td>Plays</td><td>BGG Ranking</td><td>BGG Rating</td><td>First Played</td><td>Last Played</td><td>Months Played</TD><td>Hours Played</td><td>FHM</td><td>HHM</td><td>R!UHM</td><td>Year Published</td></tr></thead>
+<tbody>
+{% for row in favourites %}
+<TR>
+<td><A href="{{row.gameurl}}">{{row.gamename}}</A></td>
+{% if row.rating %}<td>{{row.rating}}</td>{% else %}<td>&nbsp;</td>{% endif %}
+<td>{{row.plays}}</td>
+<td>{{row.bggrank}}</td>
+<td>{{row.bggavg}}</td>
+{% if row.firstPlay %}<td>{{row.firstPlay|date:"d-m-Y"}}</td>{% else %}<td>&nbsp;</td>{% endif %}
+{% if row.lastPlay %}<td>{{row.lastPlay|date:"d-m-Y"}}</td>{% else %}<td>&nbsp;</td>{% endif %}
+<td>{{row.monthsPlayed}}</td>
+<td>{{row.hours}}</td>
+<td>{{row.fave}}</td>
+<td>{{row.huber}}</td>
+<td>{{row.randyCox}}</td>
+<td>{{row.year}}</td>
+</TR>
+{% endfor %}
+</tbody></table>
+</div>

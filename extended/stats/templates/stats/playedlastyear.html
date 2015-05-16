@@ -1,0 +1,17 @@
+<div id="ply" class="section tablesection">
+<h1>Played More Than Once Last Year But Not This Year</h1>
+
+<table class="sortable shaded" id="ply">
+<thead>
+<tr><td>Plays</td><td>Game</td></tr>
+</thead>
+<tbody>
+{% for row in playedLastYear %}
+<TR>
+<td>{{row.plays}}</td><TD><A HREF="{{row.url}}">{{row.name}}</TD></TD></TR>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+

@@ -1,0 +1,153 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Extended Stats for {{geek.username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>Extended Stats for {{geek.username}}</h1>
+
+This is the new dynamic user stats page.
+
+<div id="contents">
+<h1>Contents</h1>
+<table><thead><tr><td>On This Page</td><td>On This Site</td><td>On BoardGameGeek</td></tr></thead>
+<tbody>
+<td><ul>
+<LI><A HREF="#favourites">Your Favourite Games</A>
+<LI><A HREF="#playrate">Plays by Rating</A>
+{% if pbm %}
+<li><A HREF="#pbmtimeline">Plays by Month Timeline</A>
+<LI><A HREF="#pbm">Plays by Month (YTD)</A>
+<LI><A HREF="#pbmever">Plays by Month (Ever)</A>
+{% endif %}
+<LI><A HREF="#pbq">How Much Do You Play New Games?</A>
+{% if multiyear %}
+<LI><A HREF="#multiyear">Games Played in Multiple Years</A>
+{% endif %}
+{% if florence %}
+<LI><A HREF="#florence">Florence Nightingale Gamer Characterisation</A>
+{% endif %}
+<LI><A HREF="#mmmpie">Pie Charts for Morgan</A>
+{% if pogo %}
+<LI><A HREF="#pogo">Plays of Games Owned</A>
+{% endif %}
+{% if shouldPlay %}
+<LI><A HREF="#shouldplay">Games You Should Play Soon</A>
+{% endif %}
+{% if shouldPlayOwn %}
+<LI><A HREF="#shouldplayown">Games You Should Play Soon Which You Own</A>
+{% endif %}
+{% if least %}
+<LI><A HREF="#least">Why Do You Even Own These?</A>
+{% endif %}
+{% if bestDays %}
+<LI><A HREF="#bestdays">Best Days in Gaming</A>
+{% endif %}
+{% if designerDimes %}
+<LI><A HREF="#dimesbydesigner">Dimes by Designer</A>
+{% endif %}
+{% if ratingByRanking %}
+<li><A href="#ratingByRanking">Ratings by Ranking</A>
+{% endif %}
+{% if unusual %}
+<li><A href="#unusual">The Most Unusual Games You Own</A>
+{% endif %}
+</ul></td>
+<td><ul>
+<LI><A HREF="/stats/result_{{geek.username}}.html">Your OLD Stats Page</A>
+<LI><A HREF="/dynamic/plays/{{geek.username}}">All Plays by Date</A>
+<LI><A HREF="/dynamic/plays/{{geek.username}}/totals">All Plays by Game</A>
+<LI><A HREF="/dynamic/checklist/{{geek.username}}">Collection Checklist</A>
+<LI><A HREF="/dynamic/history/{{geek.username}}">Historical Data (CSV format)</A>
+<LI><A HREF="/dynamic/updates/{{geek.username}}">Update Schedule</A>
+<LI><A HREF="/dynamic/numplayers/{{geek.username}}">Favourite Games for Numbers of Players</A>
+<LI><A HREF="/dynamic/crazy/{{geek.username}}">Crazy Recommendations (slow)</A>
+<LI>Yearly Summaries:&nbsp;
+{% for year in playsYears %}
+<A HREF="/dynamic/year/{{geek.username}}/{{year}}">{{year}}</A>
+{% endfor %}
+<LI><A HREF="/dynamic/series/{{geek.username}}">Series Summaries</A>
+<LI><A HREF="/dynamic/cat/{{geek.username}}/designer">Designers</A>
+<LI><A HREF="/dynamic/cat/{{geek.username}}/publisher">Publishers</A>
+<LI><A HREF="/dynamic/cat/{{geek.username}}/mechanic">Mechanics</A>
+<LI><A HREF="/dynamic/cat/{{geek.username}}/category">Categories</A>
+</ul></td>
+<td><ul>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=gamesownedbyyear&username={{geek.username}}">Games Owned By Year</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=gamesownedbydesigner&username={{geek.username}}">Games Owned By Designer</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=toprated&username={{geek.username}}">Your Top Games</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=largestdisparities&username={{geek.username}}">Largest Disparities</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=underrated&username={{geek.username}}">Underrated Games</A>
+<LI><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=overrated&username={{geek.username}}">Overrated Games</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{geek.username}}?sort=numplays&sortdir=desc&own=0&played=1">Most Played Games You Don't Own</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{geek.username}}?sort=rating&sortdir=desc&own=0&rated=1">Favourite Games You Don't Own</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{geek.username}}?sort=rating&sortdir=desc&minplays=1&maxplays=1&own=1">You Like It, You Own It, You've Only Played It Once</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{geek.username}}?own=1&played=0">You Own It and You Haven't Played It</A>
+<LI><A HREF="http://boardgamegeek.com/collection/user/{{geek.username}}?minplays=1&maxplays=1&own=1">You Own It and You've Only Played It Once</A>
+<LI><A HREF="http://boardgamegeek.com/plays/fiveanddime/user/{{geek.username}}">Nickel and Dime for All Time</A>
+</ul></td>
+</tbody></table>
+</div>
+
+{% include 'playsbyrating.html' %}
+
+{% include 'favourites.html' %}
+
+{% if pbm %}
+{% include 'pbmtimeline.html' %}
+{% endif %}
+
+{% if pbm %}
+{% include 'pbm.html' %}
+{% endif %}
+
+{% include 'pbq.html' %}
+
+{% if multiyear %}
+{% include 'multiyear.html' %}
+{% endif %}
+
+{% if florence %}
+{% include 'florence.html' %}
+{% endif %}
+
+{% include 'morgan.html' %}
+
+{% if pogo %}
+{% include 'pogo.html' %}
+{% endif %}
+
+{% if shouldPlay %}
+{% include 'shouldplay.html' %}
+{% endif %}
+
+{% if shouldPlayOwn %}
+{% include 'shouldplayown.html' %}
+{% endif %}
+
+{% if least %}
+{% include 'least.html' %}
+{% endif %}
+
+{% if bestDays %}
+{% include 'bestdays.html' %}
+{% endif %}
+
+{% if designerDimes %}
+{% include 'dimesbydesigner.html' %}
+{% endif %}
+
+{% if ratingByRanking %}
+{% include 'ratingbyranking.html' %}
+{% endif %}
+
+{% if unusual %}
+{% include 'unusual.html' %}
+{% endif %}
+
+</body>
+</html>
+

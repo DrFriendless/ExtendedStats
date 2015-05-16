@@ -1,0 +1,3 @@
+Game Name,BGG ID,Date,Count
+{% for play in plays %}{{play.game.name}},{{play.game.bggid}},{{play.date}},{{play.count}}
+{% endfor %}

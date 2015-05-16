@@ -1,0 +1,58 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>BGG Extended Stats Rankings for {{title}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+
+<P>
+<A HREF="/stats/rankings.html">All</A>
+<P>
+{% for c in categories %}
+<A HREF="/dynamic/rankings/category/{{c}}">{{c}}</A>
+{% endfor %}
+<P>
+{% for c in mechanics %}
+<A HREF="/dynamic/rankings/mechanic/{{c}}">{{c}}</A>
+{% endfor %}
+
+<div id="rankings" class="section tablesection">
+<H1>Rankings for {{title}}</h1>
+These rankings are calculated quite simply - I just total up the ratings given to all games by the Extended Stats users. This results in a nice combination of hot games and classic games. This is maybe more in line with what new board gamers will expect to see as a list of top-ranked games than the BGG system which tends to favour heavy Euros.
+<P>
+The Normalised Ranking column is a different calculation of rankings. For each user, games are ordered in descending order of rating. The user's top-rated games all score 1.0. All other games score (c - n) / c where c is the user's number of rated games, and n is the number of games rated strictly higher by that user. This ranking consequently treats BGG ratings as relative values and places less emphasis on the actual value of those ratings. Note however that each user rating a game does contribute to its total, so the ranking does reward popularity.
+<P>
+<table class="sortable shaded" id="rankings_table">
+<thead>
+<tr><td>Ranking</td><td>Game</td><td>Score</td><td>Num. Ratings</td><td>BGG Ranking</td><td>BGG Rating</td><td>Normalised Ranking</td><td>Total Plays</td></thead>
+<tbody>
+{% for row in data %}
+<TR>
+<td>{{row.extrank}}</td>
+<td><A href="{{row.url}}">{{row.name}}</A></td>
+<td>{{row.score}}</td>
+<td>{{row.count}}</td>
+<td>{{row.rank}}</td>
+<td>{{row.average}}</td>
+<td>{{row.normrank}}</td>
+<td>{{row.totalPlays}}</td>
+</TR>
+{% endfor %}
+</tbody></table>
+</table>
+
+<P>
+This is some text which is easy to copy and paste into BGG:
+<PRE>
+Rankings for {{title}}
+
+{% for row in data %}{{row.extrank}}. {{row.name}}
+{% endfor %}
+</PRE>
+
+</body>
+</html>
+
+

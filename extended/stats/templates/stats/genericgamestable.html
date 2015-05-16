@@ -1,0 +1,127 @@
+<script type="text/javascript">
+function showHideColumn(colnum, checked) {
+    function showHide(index) {
+        if (colnum == index) {
+            if (checked) { $(this).show(); } else { $(this).hide(); }
+        }        if (colnum == index) {
+            if (checked) { $(this).show(); } else { $(this).hide(); }
+        }    
+    }
+    
+    $('#generictable thead td').each(showHide);
+    $('#generictable tbody tr').each(function() {
+        $(this).find('td').each(showHide);
+    });
+}
+
+function showHideNumberedColumn(colnum) {
+    var checked = false;
+    $('#columnManager input').each(function(index) {
+        if (index == colnum) { checked = this.checked; }
+    });
+    showHideColumn(colnum, checked);
+}
+
+function showHideColumnsAccordingToCheckboxes() {
+    $('#columnManager input').each(function(index) { showHideColumn(index, this.checked); });
+}
+
+function toggleColumnManagerVisibility() {
+    $('#columnManager').toggle();
+}
+
+function insertColumnManager(visibleColumns) {
+    var thead = $('#generictable thead td');
+    var c = 'Click to configure columns: <img align="center" src="/images/table_gear.png" alt="Configure Table Columns" onclick="toggleColumnManagerVisibility()">';
+    c += '<table class="shaded" id="columnManager"><thead><td>Enable / Disable Columns</td></thead>';
+    var before = '<tr><td><input type="checkbox" onclick="showHideNumberedColumn(';
+    var middle = '>';
+    var after = '</input></td></tr>';
+    var checkboxes = thead.each(function(index) {
+        var checked = '';
+        var name = $.text([this]);
+        if (name == "Name" | $.inArray(name, visibleColumns) >= 0) checked = ' checked';
+        c = c + before + index + ')" ' + checked + middle + name + after; 
+    });
+    c = c + '</table>';
+    $('#generictablediv').prepend(c);
+}
+
+$(document).ready(function() { 
+    insertColumnManager("{{visibleColumns}}".split(","));
+    showHideColumnsAccordingToCheckboxes();
+    $('#columnManager').hide();
+});
+
+function useSelection() {
+    var fragment = $('#selection').find('option:selected').val();
+    var url = "{{url}}/{{username}}/" + fragment;
+    window.location.href = url;
+}
+</script>
+
+<div id="favourites" class="section tablesection">
+<H1>{{title}}</h1>
+
+Use selection...
+<select id="selection">
+{% for s in selectors %}
+<option value="{{s.fragment}}">{{s.name}}</option>
+{% endfor %}    
+</select>
+<button onclick="useSelection()">Go</button>
+
+<ul>
+<LI>The Friendless Happiness Metric (FHM) is (rating * 5 + plays + months played * 4 + hours played).
+<LI>The Huber Happiness Metric is (HHM) ((rating - 4.5) * hours played).
+<LI>The Randy Cox not-Unhappiness Metric (R!UHM) is <A HREF="http://boardgamegeek.com/article/11554334#11554334">described here</A>.
+<li>The Should Play Metric is ((days since played) * rating^4).
+<li>The Why Do You Own This Metric is ((days since played) / rating^2).
+</ul>
+
+
+
+<P>
+<div id="generictablediv">
+<table class="sortable shaded" id="generictable"><thead>
+<tr><td>Name</td><td>Rating</td><td>Plays</td><td>BGG Ranking</td><td>BGG Rating</td><td>First Played</td><td>Last Played</td><td>Months Played</TD><td>Hours Played</td><td>FHM</td><td>HHM</td><td>R!UHM</td><td>Year Published</td><td>Days Since Played</td><td>Should Play Metric</td><td>Why Own Metric</td><td>Owned</td><td>For Trade</td><td>Want in Trade</td><td>Wishlist</td><td>Previously Owned</td><td>Want to Buy</td><td>Want to Play</td><td>Preordered</td><td>Utilisation</td><td>BGG#</td><td>Min Players</td><td>Max Players</td><td>Play Time</td><td>Users Rating</td><td>Users Owning</td><td>Subdomain</td><td>Weight</td></tr></thead>
+<tbody>
+{% for row in games %}
+<TR>
+<td><A href="{{row.gameurl}}">{{row.gamename}}</A></td>
+{% if row.rating %}<td>{{row.rating}}</td>{% else %}<td>&nbsp;</td>{% endif %}
+<td>{{row.plays}}</td>
+<td>{{row.bggrank}}</td>
+<td>{{row.bggavg}}</td>
+{% if row.firstPlay %}<td>{{row.firstPlay|date:"d-m-Y"}}</td>{% else %}<td>&nbsp;</td>{% endif %}
+{% if row.lastPlay %}<td>{{row.lastPlay|date:"d-m-Y"}}</td>{% else %}<td>&nbsp;</td>{% endif %}
+<td>{{row.monthsPlayed}}</td>
+<td>{{row.hours}}</td>
+<td>{{row.fave}}</td>
+<td>{{row.huber}}</td>
+<td>{{row.randyCox}}</td>
+<td>{{row.year}}</td>
+<td>{{row.sincePlayed}}</td>
+<td>{{row.shouldPlayScore}}</td>
+<td>{{row.whyOwn}}</td>
+<td>{{row.owned}}</td>
+<td>{{row.trade}}</td>
+<td>{{row.want}}</td>
+<td>{{row.wish}}</td>
+<td>{{row.prevowned}}</td>
+<td>{{row.wanttobuy}}</td>
+<td>{{row.wanttoplay}}</td>
+<td>{{row.preordered}}</td>
+<td>{{row.utilisation}}%</td>
+<td>{{row.bggid}}</td>
+<td>{{row.minPlayers}}</td>
+<td>{{row.maxPlayers}}</td>
+<td>{{row.playTime}}</td>
+<td>{{row.usersRated}}</td>
+<td>{{row.usersOwned}}</td>
+<td>{{row.subdomain}}</td>
+<td>{{row.weight}}</td>
+</TR>
+{% endfor %}
+</tbody></table>
+</div>

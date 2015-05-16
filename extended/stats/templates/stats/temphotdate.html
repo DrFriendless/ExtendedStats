@@ -1,0 +1,29 @@
+<h1>Temporal Hotness by Date</h1>
+
+<div id="thd" class="hotness">
+<table>
+<thead>
+<td>Total</td><td>Month</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td><td>29</td><td>30</td><td>31</td>
+</thead>
+<tbody>
+{% for month in thd %}
+<tr><td class="{{month.cssClass}}">{{month.count}}</td><td>{{month.name}}</td>
+{% for d in month.data %}
+<td class="{{d.cssClass}}">{{d.count}}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<P>
+This table implements an analysis <A href="http://boardgamegeek.com/image/1247651/randy-cox">designed by Randy Cox</A>.
+For each date of the year, how many games have you ever played on that date?
+<P>
+<table>
+<tr><td class="class1">1+ standard deviations below the mean</td></tr>
+<tr><td class="class2">0.5 - 1 standard deviations below the mean</td></tr>
+<tr><td class="class3">within 0.5 standard deviations of the mean</td></tr>
+<tr><td class="class4">0.5 - 1 standard deviations above the mean</td></tr>
+<tr><td class="class5">1+ standard deviations above the mean</td></tr>
+</table>
+</div>

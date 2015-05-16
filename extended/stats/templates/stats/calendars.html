@@ -1,0 +1,37 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Extended Stats for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>Calendars for {{username}}</h1>
+
+<div class="calendar">
+<table>
+{% for row in months %}
+<tr>
+{% for month in row %}
+<td>
+<table class="cal">
+<tr><thead><td colspan="7">{{month.name}}</td></thead></tr>
+<tr><thead><td>Sun</td><td>Mon</td><td>Tue</td><td>Wed</td><td>Thu</td><td>Fri</td><td>Sat</td></thead></tr>
+{% for row in month.rows %}
+<tr>
+{% for day in row %}
+<td bgcolor="{{day.colour}}" title="{{day.tooltip}}">{{day.date}}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+</div>
+</body>
+</html>
+

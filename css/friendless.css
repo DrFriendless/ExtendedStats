@@ -1,0 +1,67 @@
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 0.7em;
+}
+
+td {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+a {
+	color: #0000CC;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+h1 {
+	font-size: 1.5em;
+}
+
+table.listInColumns tbody td {
+	vertical-align: top;
+	padding: 0;
+}
+
+table.listInColumns ol {
+	margin: 0 0 0 3em;
+	padding: 0;
+}
+
+table.listInColumns ol li {
+	margin: 0;
+	margin-bottom: 1px;
+	padding: 3px 5px;
+}
+
+table.listInColumns ul {
+	margin: 0;
+	padding: 0;
+}
+
+table.listInColumns ul li {
+	list-style: none;
+	margin: 0;
+	margin-bottom: 1px;
+	padding: 3px 5px;
+}
+
+table.listInColumns li, table.listInColumns li a {
+	color: #666666;
+}
+
+table.listInColumns li.played, table.listInColumns li.played a {
+	color: #000000;
+	font-weight: bold;
+}
+
+table.series td.owned, table.listInColumns td.owned, table.entry td.owned a {
+	color: #000000;
+	font-weight: bold;
+}
+
+table.listInColumns li.notplayed, table.listInColumns li.notplayed a {
+	color: #999999;
+}

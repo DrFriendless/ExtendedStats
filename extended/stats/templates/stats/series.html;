@@ -1,0 +1,29 @@
+<html>
+<head>
+{% include 'pretitle.html' %}
+<title>Series Summaries for {{geek.username}}</title>
+{% include 'stylesheets.html' %}
+</head>
+<body>
+{% include 'navbar.html' %}
+<div id="crazy" class="section tablesection">
+<h1>Crazy Recommendations for {{geek.username}}</h1>
+
+The Crazy Recommendations algorithm assesses games based on whether they share various characteristics with games you rate 9 or higher. There is no popularity factor, so this algorithm avoids the fault of recommending Agricola and Puerto Rico to everyone. This listing includes games that are recommended but you've already rated, expansions, and even books. However there are 20 actual games listed for you that you neither own nor have rated - they're coloured black and are bold. If an entry really annoys you, you can rate the game a "Don't Buy This For Me" on your BGG wishlist, and it will no longer appear in the Crazy Recommendations when the changes are noticed.
+<P>
+
+<table class="sortable shaded" id="crazytable">
+<thead>
+<tr><td>Game</td><td>Score</td><td>Categories</td><td>Mechanics</td><td>Designers</td><td>Min Players</td><td>Max Players</td><td>Play Time</td><td>Owned</td><td>Rating</td></tr>
+</thead>
+<tbody>
+{% for row in rows %}
+<TR {% if row.found %}class="found"{% endif %}>
+<TD><A HREF="{{row.gameurl}}">{{row.gamename}}</TD></TD><td>{{row.total}}</td><td>{{row.category}}</td><td>{{row.mechanic}}</td><td>{{row.designer}}</td><td>{{row.minplayers}}</td><td>{{row.maxplayers}}</td><td>{{row.playtime}}</td><td>{{row.owned}}</td><td>{{row.rating}}</td></TR>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+</body>
+</html>

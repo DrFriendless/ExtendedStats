@@ -1,0 +1,19 @@
+<div id="least" class="section tablesection">
+<H1>Why Do You Even Own These Games?</h1>
+These are your least loved games, judging from the poor rating you give them and the time since you've played them.
+<P>
+<table class="sortable shaded" id="leasttable"><thead>
+<tr><td>Game</td><td>Rating</td><td>Last Played</td><td>Days Since Last Play</td><td>For Trade</td></tr></thead>
+<tbody>
+{% for row in least %}
+<TR>
+<td><A href="{{row.url}}">{{row.name}}</A></td>
+<td>{{row.rating}}</td>
+<td>{{row.lastPlay|date:"d-m-Y"}}</td>
+<td>{{row.daysSince}}</td>
+<td>{% if row.trade %}Yes{% endif %}</td>
+</TR>
+{% endfor %}
+</tbody></table>
+</div>
+

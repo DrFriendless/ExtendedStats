@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>Extended Stats for {{geek.username}}</title>
+{% include 'stats/ipod_stylesheets.html' %}
+</head>
+<body>
+
+
+<div id="home">
+<div class="toolbar"><h1>{{geek.username}}</h1></div>
+
+<ul class="edgetoedge">
+<LI><A HREF="#favourites">Your Favourite Games</A>
+<LI><A HREF="#shouldplay">Games To Play Soon</A>
+<LI><A HREF="#pbm">Plays Year to Date</A>
+<LI><A HREF="#pbmever">Plays All Time</A>
+<LI><A HREF="#pogo">Plays of Games Owned</A>
+</ul>
+</div>
+
+<div id="favourites">
+<div class="toolbar"><h1>Favourites</h1><a class="button back" href="#">Back</a></div>
+
+<ul class="metal">
+{% for row in favourites %}
+<LI><p class="ct">{{row.bggrank}}. {{row.gamename}}</p>
+<p class="c1">{{row.plays}} plays in {{row.monthsPlayed}} months<br>
+First: {{row.firstPlay}}, last: {{row.lastPlay}}</p>
+<p class="c2">{{row.hours}} hours played</p>
+{% endfor %}
+</ul>
+
+</div>
+
+<div id="shouldplay">
+<div class="toolbar"><h1>Play Soon</h1><a class="button back" href="#">Back</a></div>
+
+<ul class="metal">
+{% for row in shouldPlayOwn %}
+<LI><p class="ct">{{row.gamename}}</p>
+<p class="c1">Rated {{row.rating}}</p>
+<p class="c2">Last {{row.lastPlayed}}, {{row.sincePlayed}} days ago</p>
+{% endfor %}
+</ul>
+
+</div>
+
+<div id="pbm">
+<div class="toolbar"><h1>Plays YTD</h1><a class="button back" href="#">Back</a></div>
+
+<ul class="metal">
+{% for row in pbm %}
+<LI><p class="ct">{{row.name}}</p>
+<p class="c1">{{row.count}} plays of {{row.distinctCount}} games,<br>{{row.newNickels}} new nickels, {{row.newDimes}} new dimes</p>
+<p class="c2">Tally: {{row.countYtd}} plays, {{row.distinctYtd}} games, {{row.newYtd}} new</p>
+{% endfor %}
+</ul>
+
+</div>
+
+<div id="pbmever">
+<div class="toolbar"><h1>Plays Ever</h1><a class="button back" href="#">Back</a></div>
+
+<ul class="metal">
+{% for row in pbm %}
+<LI><p class="ct">{{row.name}}</p>
+<p class="c1">{{row.newNickelsEver}} nickels, {{row.newDimesEver}} dimes, {{row.newQuartersEver}} quarters<br>
+{{row.percentPlayed|floatformat}}% of collection played</p>
+<p class="c2">Tally: {{row.playsEver}} plays, {{row.distinctEver}} games</p>
+{% endfor %}
+</ul>
+
+</div>
+
+<div id="pogo">
+<div class="toolbar"><h1>Owned Plays</h1><a class="button back" href="#">Back</a></div>
+
+<ul class="metal">
+{% for row in pogo %}
+<LI><p class="ct">{{row.rank}}. {{row.name}}</p>
+<p class="c1">{{row.plays}} plays, rated {{row.rating}}<br>
+{{row.utilisation}}% utilisation</p>
+<p class="c2"></p>
+{% endfor %}
+</ul>
+
+</div> 
+
+</body>
+</html>
+

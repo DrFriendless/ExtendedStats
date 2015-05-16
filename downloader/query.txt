@@ -1,0 +1,1 @@
+select name from games where bggid not in (select game from geekgames where geek = 'Friendless' and rating > 0) and bggid not in (select gameId from gameCategories where category = 'Expansion for Base-game') order by bayesAverage desc 

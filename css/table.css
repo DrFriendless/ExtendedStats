@@ -1,0 +1,71 @@
+div.tableContainer {
+    width: 99%;     /* table width will be 99% of this*/
+    height: 500px;  /* must be greater than tbody*/
+    overflow: auto;
+    margin: 0 auto;
+    }
+
+div.tableContainer table {
+    width: 99%;     /*100% of container produces horiz. scroll in Mozilla*/
+    border: none;
+    background-color: #f7f7f7;
+    }
+
+div.tableContainer table>tbody {  /* child selector syntax which IE6 and older do not support*/
+    overflow: auto;
+    height: 430px;
+    overflow-x: hidden;
+    }
+
+div.tableContainer thead tr    {
+    position:relative;
+    top: expression(offsetParent.scrollTop); /*IE5+ only*/
+    }
+
+div.tableContainer thead td, div.tableContainer thead th {
+    text-align: center;
+    font-size: 12px;
+    background-color: oldlace;
+    color: steelblue;
+    font-weight: bold;
+    border-top: solid 1px #d8d8d8;
+    }
+
+div.tableContainer td  {
+    color: #000;
+    padding-right: 2px;
+    font-size: 12px;
+    text-align: right;
+    border-bottom: solid 1px #d8d8d8;
+    border-left: solid 1px #d8d8d8;
+    }
+
+div.tableContainer tr.even td {
+    color: #000;
+    background-color: seashell;
+    padding-right: 2px;
+    font-size: 12px;
+    text-align: right;
+    border-bottom: solid 1px #d8d8d8;
+    border-left: solid 1px #d8d8d8;
+    }
+
+div.tableContainer table tfoot tr { /*idea of Renato Cherullo to help IE*/
+      position: relative;
+      overflow-x: hidden;
+      top: expression(parentNode.parentNode.offsetHeight >=
+      offsetParent.offsetHeight ? 0 - parentNode.parentNode.offsetHeight + offsetParent.offsetHeight + offsetParent.scrollTop : 0);
+      }
+
+
+div.tableContainer tfoot td    {
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    background-color: papayawhip;
+    color: steelblue;
+    border-top: solid 1px slategray;
+    }
+
+div.tableContainer td:last-child {padding-right: 20px;} /*prevent Mozilla scrollbar from hiding cell content*/
+div.tableContainer tr.even td:last-child {padding-right: 20px;} /*prevent Mozilla scrollbar from hiding cell content*/

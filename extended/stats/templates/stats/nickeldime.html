@@ -1,0 +1,95 @@
+<div id="ndd" class="section tablesection">
+<h1>Nickel and Dime</h1>
+
+{% if ndd.dollars %}
+<h2>Dollars</h2>
+<table class="sortable shaded" id="dollars">
+<thead>
+<tr><td>Plays</td><td>Game</td></tr>
+</thead>
+<tbody>
+{% for row in ndd.dollars %}
+<TR>
+<td>{{row.plays}}</td><TD><A HREF="{{row.url}}">{{row.name}}</TD></TD></TR>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+{% if ndd.halfdollars %}
+<h2>Half-Dollars</h2>
+<table class="sortable shaded" id="halfdollars">
+<thead>
+<tr><td>Plays</td><td>Game</td></tr>
+</thead>
+<tbody>
+{% for row in ndd.halfdollars %}
+<TR>
+<td>{{row.plays}}</td><TD><A HREF="{{row.url}}">{{row.name}}</TD></TD></TR>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+{% if ndd.quarters %}
+<h2>Quarters</h2>
+<table class="sortable shaded" id="quarters">
+<thead>
+<tr><td>Plays</td><td>Game</td></tr>
+</thead>
+<tbody>
+{% for row in ndd.quarters %}
+<TR>
+<td>{{row.plays}}</td><TD><A HREF="{{row.url}}">{{row.name}}</TD></TD></TR>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+{% if ndd.dimes %}
+<h2>Dimes</h2>
+<table class="sortable shaded" id="dimes">
+<thead>
+<tr><td>Plays</td><td>Game</td></tr>
+</thead>
+<tbody>
+{% for row in ndd.dimes %}
+<TR>
+<td>{{row.plays}}</td><TD><A HREF="{{row.url}}">{{row.name}}</TD></TD></TR>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+{% if ndd.nickels %}
+<h2>Nickels</h2>
+<table class="sortable shaded" id="nickels">
+<thead>
+<tr><td>Plays</td><td>Game</td></tr>
+</thead>
+<tbody>
+{% for row in ndd.nickels %}
+<TR>
+<td>{{row.plays}}</td><TD><A HREF="{{row.url}}">{{row.name}}</TD></TD></TR>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+{% if ndd.nearly %}
+<h2>Nearly a Nickel</h2>
+<table class="sortable shaded" id="nearly">
+<thead>
+<tr><td>Plays</td><td>Game</td></tr>
+</thead>
+<tbody>
+{% for row in ndd.nearly %}
+<TR>
+<td>{{row.plays}}</td><TD><A HREF="{{row.url}}">{{row.name}}</TD></TD></TR>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+</div>
+

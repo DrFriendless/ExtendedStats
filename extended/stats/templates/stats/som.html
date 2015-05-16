@@ -1,0 +1,17 @@
+<div class="section som">
+<H1>Self-Organising Map of Plays</h1>
+
+<object border="0" type="image/png" usemap="#sommap" data="data:image/png,{{data}}">
+</object>
+<map name="sommap">
+{% for row in sommap %}
+<area shape="rect" coords="{{row.x1}},{{row.y1}},{{row.x2}},{{row.y2}}" href="{{row.url}}"
+onMouseover="showtip(this, event, '{{row.name}}')"
+onMouseout="hidetip()">
+{% endfor %}
+</map>
+<P>
+There were {{details.iterations}} iterations and each iteration took {{details.duration}} seconds.
+
+{% include 'imgmaptooltip.html' %}
+</div>

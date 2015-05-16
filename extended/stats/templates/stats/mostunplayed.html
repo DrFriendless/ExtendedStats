@@ -1,0 +1,16 @@
+<div id="mostunplayed" class="section tablesection">
+<H1>Most Played Games That You Haven't Played</h1>
+
+These are the games that have been played most by other people that you haven't played at all.
+<P>
+<table class="sortable shaded" id="muptable"><thead>
+<tr><td>Game</td><td>Plays</td></tr></thead>
+<tbody>
+{% for row in mostUnplayed %}
+<TR>
+<td><A href="{{row.url}}">{{row.name}}</A></td>
+<td>{{row.totalPlays}}</td>
+</TR>
+{% endfor %}
+</tbody></table>
+</div>

@@ -1,0 +1,78 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Create New Collection</title>
+{% include 'stats/stylesheets.html' %}
+<script>
+function ajaxformSubmit(responseText, statusText, xhr, $form) {
+    if (responseText['success'] == true) {
+        alert("Hello " + responseText['name']);
+    }
+    // returning false inhibits the browser from opening a "Save As" dialog.
+    return false;
+}	
+
+function newGroup() {
+    var table = document.getElementById("groupsTable");
+    var row = table.insertRow(0);
+    var cell = row.insertCell(0);
+    cell.innerHTML = "Group Name: <input type=\"text\" name=\"Group Name\" id=\"groupName\" value=\"New Group\"/><br>Description:<br><textarea name=\"Group Description\" id=\"groupDescription\" cols=\"60\" rows=\"9\"/>New group description</textarea><button type=\"button\" onclick=\"deleteGroup(this)\">Remove Group</button>";
+    allocateGroupIDs();
+}
+
+function allocateGroupIDs() {
+    $("#groupsTable").find('tr').each(function(index) {
+        $(this).find('input').attr('name', "groupName" + index);
+        $(this).find('textarea').attr('name', "groupDescription" + index);
+    });
+}
+
+
+$(document).ready(function() { allocateGroupIDs() });
+
+function deleteGroup(r) {
+    var i = r.parentNode.parentNode.rowIndex;
+    document.getElementById('groupsTable').deleteRow(i);
+}
+</script>
+</head>
+<body>
+{% include 'navbar.html' %}
+<h1>Edit Collection</h1>
+
+On this page you can edit the description of the collection and the groups in it.
+If you remove groups containing games, those games will be lost from the collection.
+Nothing in collections affects anything on BoardGameGeek.
+
+<form id="collectionForm" method="get" action="/dynamic/saveCollection/{{username}}">
+<H2>Collection Details</h2>
+<p>
+Name: <input type="text" name="Name" id="collectionName" value="{{collectionName}}"/><br>
+Description:<br><textarea name="Description" id="collectionDescription" cols=60 rows=9>{{collectionDescription}}</textarea><br>
+<button type="button" onclick="newGroup()">Add New Group</button><br>
+<input type="submit" value="Save New Collection"/><br>
+</p><p>
+<H2>Groups</h2>
+<table id="groupsTable">
+{% for group in groups %}
+<tr><td>
+Group Name: <input type="text" name="groupName" value="{{group.name}}"/><br>
+Description:<br><textarea name="groupDescription" cols="60" rows="9"/>{{group.description}}</textarea>
+<button type="button" onclick="deleteGroup(this)">Remove Group</button>
+</td></tr>
+{% endfor %}
+</table>
+</p>
+</form>
+
+<!--
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#collectionForm').ajaxForm(
+            { success: ajaxformSubmit, dataType: 'json', clearForm : true, resetForm : true } );
+	});
+	
+</script>
+-->
+</body>
+</html>

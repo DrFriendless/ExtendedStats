@@ -1,0 +1,15 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>List</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<h1>{{title}}</h1>
+
+{% for x in items %}
+{{x}}<br>
+{% endfor %}
+</body>
+</html>

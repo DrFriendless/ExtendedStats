@@ -1,0 +1,43 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>View Selections</title>
+{% include 'stats/stylesheets.html' %}
+<script>
+function fixTabClasses() {
+    $('#tabs td').each(function(index, node) { $(node).addClass((node.id == "{{tab.index}}") ? "TabbedPanelsTabSelected" : "TabbedPanelsTab"); });
+}
+
+$(document).ready(function() { 
+    fixTabClasses();
+});
+</script>
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<P>
+<div id="summary" class="section tablesection">
+<h1>Summary</h1>
+<table class="sortable shaded" id="summarytable">
+<thead><tr><td>Group</td><td>Count</td><td>Rated Count</td><td>Mean Rating</td><td>Sum of Ratings</td><td>Total Plays</td><td>Mean Plays</td><td>Median Plays</td><td>H-Index</td></tr></thead><tbody>
+{% for group in tabs %}
+<tr><td>{{group.name}}</td><td>{{group.count}}</td><td>{{group.rated}}</td><td>{{group.rating}}</td><td>{{group.sumrating}}</td><td>{{group.plays}}</td><td>{{group.meanPlays}}</td><td>{{group.medianPlays}}</td><td>{{group.hindex}}</td></tr>
+{% endfor %}
+</tbody></table>
+</div>
+
+<P>
+<hr>
+<div class="TabbedPanels" id="tabs">
+<table><TR>
+{% for g in tabs %}
+<TD id="{{g.index}}"><A HREF="/dynamic/selections/{{username}}/{{fragment}}/{{g.index}}">{{g.name}}</A>&nbsp;</TD>
+{% endfor %}
+</tr></table>
+</div>
+<P>
+
+{% include 'stats/contents.html' %}
+
+</body>
+</html>

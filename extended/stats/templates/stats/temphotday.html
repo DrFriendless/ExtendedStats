@@ -1,0 +1,30 @@
+<h1>Temporal Hotness by Day</h1>
+
+<div id="thday" class="hotness">
+<table>
+<thead>
+<td>Total</td><td>Year</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td><td>Sunday</td>
+</thead>
+<tbody>
+{% for year in thday %}
+<tr><td class="{{year.cssClass}}">{{year.count}}</td><td>{{year.name}}</td>
+{% for d in year.data %}
+<td class="{{d.cssClass}}">{{d.count}}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<P>
+This table implements an analysis suggested by polychrotid.
+For each day of the week, how many games have you played on that day?
+I extended the idea to see how that changed over the years.
+<P>
+<table>
+<tr><td class="class1">1+ standard deviations below the mean</td></tr>
+<tr><td class="class2">0.5 - 1 standard deviations below the mean</td></tr>
+<tr><td class="class3">within 0.5 standard deviations of the mean</td></tr>
+<tr><td class="class4">0.5 - 1 standard deviations above the mean</td></tr>
+<tr><td class="class5">1+ standard deviations above the mean</td></tr>
+</table>
+</div>

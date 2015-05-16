@@ -1,0 +1,22 @@
+{% if playRatings %}
+<div id="pr" class="section tablesection">
+
+<H1>Ratings of Plays</H1>
+
+This section is for people who gather ratings for each play from the players. For all plays of each game, I count how many ratings have been given, and what the total of those ratings is (a useful combination of popularity and high rating). The average is exactly the mean of those two.
+    
+<TABLE class="sortable shaded" id="prtable">
+<thead><tr><td>Game</td><td>Plays</td><td>Users Rating</td><td>Total Rating</td><td>Average Rating</td></tr></thead>
+<tbody>
+{% for row in playRatings %}
+<tr><td><A HREF="{{row.url}}">{{row.name}}</A></td>
+<td>{{row.count}}</td>
+<td>{{row.raters}}</td>
+<td>{{row.total}}</td>
+<td>{{row.average}}</td>
+</tr>        
+{% endfor %}        
+</TBODY></TABLE>
+    
+</div>    
+{% endif %}

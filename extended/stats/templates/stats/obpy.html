@@ -1,0 +1,15 @@
+<div id="obpy" class="section">
+<H1>Games Owned by Published Year</h1>
+
+<img border="0" type="image/png" usemap="#obpymap" src="data:image/png,{{obpydata}}">
+</img>
+<map name="obpymap">
+{% for row in obpymap %}
+<area shape="rect" coords="{{row.x1}},{{row.y1}},{{row.x2}},{{row.y2}}" href="{{row.url}}"
+onMouseover="showtip(this, event, '{{row.name}}')"
+onMouseout="hidetip()">
+{% endfor %}
+</map>
+<P>
+When it comes to liking games from a particular year, do you put your money where your mouth is? How many games from each year do you actually own? White boxes represent unrated games that you own.
+</div>

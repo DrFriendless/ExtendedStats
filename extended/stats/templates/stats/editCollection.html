@@ -1,0 +1,370 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Edit Collection</title>
+{% include 'stats/stylesheets.html' %}
+<script>
+var scrollTop;
+
+function drop(event, ui) {
+    $('#manageTable').find('.groupTable').css('border', '');
+    var draggable = ui.draggable;
+    var sourceGroupIndex = draggable.parent().attr('index');
+    var destGroupIndex = $(this).attr('index');
+    if (sourceGroupIndex == destGroupIndex) return;
+    var srcGroup = _.find(model.groups, function(arg) { return arg.index == sourceGroupIndex; })
+    var destGroup = _.find(model.groups, function(arg) { return arg.index == destGroupIndex; })
+    var bggid = draggable.attr('id');
+    var first = _.find(srcGroup.games, function(game) { return game.id == bggid; });
+    srcGroup.games.splice(srcGroup.games.indexOf(first), 1);
+    destGroup.games.push(first);
+    rerender();
+}
+
+function over(event, ui) { $(this).css('border', '2px solid darkblue'); }
+
+function out(event, ui) { $(this).css('border', ''); }
+
+function makeGamesDraggable() {
+    $('#manageTable').find('.groupTable').droppable({
+        drop: drop, over: over, out: out
+    });  
+    $('#manageTable').find('td.game').draggable({
+        start: function(event, ui) {
+            scrollTop = document.body.scrollTop;
+        }    
+    });   
+}
+
+function addWorkingCellsToRows() {
+    /* make sure there's one expandable cell on the end of each row, and
+     * one drop target on any row without any games.
+     */
+    $('#manageTable').find('td.expandable').remove();
+    $('#manageTable').find('td.dropTarget').remove();
+    $('#manageTable').find('.groupTable').each(function(index) {    
+        if (this.rows.length == 0) {
+            row = this.insertRow(n);
+            row.addClass('.gameRow');
+        }
+        if (this.rows[0].cells.length == 0) {
+	    var cell = this.rows[0].insertCell(0);
+	    cell.innerHTML = '<td>Drop here...</td>';        
+	    $(cell).addClass('dropTarget');
+        }     
+    });    
+    $('#manageTable').find('.gameRow').each(function(index) {
+        var cell = this.insertCell(this.cells.length);
+        cell.innerHTML ='';
+        $(cell).css('width', 'auto');  
+        $(cell).addClass('expandable');        
+    });
+}
+
+function getGames(table) {
+    var games = [];
+    $(table).find("td.game").each(function(index) {
+	games.push(this.id);
+    });
+    return games;
+}
+
+function saveChanges() {
+    var data = { geek : "{{username}}", collection : {{index}}, model : JSON.stringify(model) };
+    $('#saveButton').attr('disabled','disabled');
+    notify("saving");
+    $.ajax({ type: 'POST', url: '/dynamic/saveManageCollection/', async: true, data : data,
+        complete : function(jqxhr, status) { notify(status); $('#saveButton').removeAttr('disabled'); }});  
+}
+
+function notify(s) {
+    $('#info').text(s);
+}	
+
+function quickAdd(index) {
+    scrollTop = document.body.scrollTop;
+    var $td = $('#td' + index);
+    var $select = $td.find("select");    
+    var url = "/dynamic/selector/{{username}}/" + $select.val();
+    var g = group(index);
+    notify("loading");
+    $.ajax({url : url, async:true}).done(function(data) {
+        g.games = g.games.concat(data);
+        notify("done");
+	rerender();
+    });  
+}
+
+function quickAddExtra(index) {
+    scrollTop = document.body.scrollTop;
+    var set = makeSetOfAllGamesInAllGroups();
+    var g = group(index);
+    getSelectorGames(index, function(data) {
+	$(data).each(function(i, game) { if (!set.contains(game)) g.games.push(game); });
+	rerender();  
+    });    
+}
+
+function quickRemove(index) {
+    scrollTop = document.body.scrollTop;
+    var g = group(index);
+    getSelectorGames(index, function(data) {
+	var set = makeSet(data);
+	var newGames = [];
+	$(g.games).each(function(j, game) { if (!set.contains(game)) newGames.push(game); });
+	g.games = newGames;
+	rerender();  
+    });    
+}
+
+function makeSetOfAllGamesInAllGroups() {
+    var sets = _.map(model.groups, function(g) { return makeSet(g.games); });
+    sets.contains = function(game) { return _.some(this, function(x) { return x.contains(game); }); }
+    return sets;
+}
+
+function makeSet(games) {
+    var set = [];
+    $(games).each(function(index, g) { set.push(g.id); });
+    set.contains = function(game) { return _.contains(this, game.id); }    
+    return set;
+}
+
+function sort(games) {
+    games.sort(function(g1, g2) { 
+        if (g1.name < g2.name) {
+            return -1;
+        } else if (g2.name < g1.name) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
+}
+
+function getSelectorGames(index, consequence) {
+    var $td = $('#td' + index);
+    var $select = $td.find("select");    
+    var url = "/dynamic/selector/{{username}}/" + $select.val();
+    notify("loading");
+    var d;
+    $.ajax({url : url, async:true}).done(function(data) {
+        notify("done");
+	consequence(data);
+    });  
+}
+
+function quickRetain(index) {
+    scrollTop = document.body.scrollTop;
+    var g = group(index);
+    getSelectorGames(index, function(data) {
+	var set = makeSet(data);
+	var newGames = [];
+	$(g.games).each(function(j, game) { if (set.contains(game)) newGames.push(game); });
+	g.games = newGames;
+	rerender();  
+    });
+}
+
+function quickDelete(index) {
+    scrollTop = document.body.scrollTop;
+    group(index).games = [];
+    rerender();
+}
+
+function edit(elementId) {
+    $("#" + elementId).hide(0);
+    $("#" + elementId + "_edit").show();
+    $("#" + elementId + "_edit").keypress(function(e) { 
+        scrollTop = document.body.scrollTop;
+        return onkeypress(e, elementId + "_edit"); 
+    });
+}
+
+function group(index) {
+    return _.find(model.groups, function(arg) { return arg.index == index; })
+}
+
+function onkeypress(e, id) {
+    var event = e || window.event;
+    var charCode = event.which || event.keyCode;
+    if (charCode == '13') { save(id); }
+}
+
+function save(elementId) {
+    var s = $("#" + elementId).val();
+    if (elementId.indexOf("group") == 0) {
+        var gindex = parseInt(elementId.substring(5));
+        group(gindex).name = s;
+    } else if (elementId.indexOf("description") == 0) {
+        var gindex = parseInt(elementId.substring(11));
+        group(gindex).description = s;
+    } else if (elementId.indexOf("title") == 0) {
+        model.name = s;
+    } else if (elementId.indexOf("desc") == 0) {
+        alert("desc");
+        model.description = s;
+    } else {
+        alert("edit " + elementId);
+    }
+    rerender();
+}
+
+var model;
+var SELECTORS = [{% for s in sels %}{name: "{{s.name}}", fragment: "{{s.fragment}}"},{% endfor %}];
+
+function loadModel() {
+    var url = "/dynamic/collection/{{username}}/{{index}}";
+    $.ajax({url : url, dataType : "json"}).done(function(data) {
+         model = data;
+         rerender();
+    });
+}
+
+function rerender() {
+    $('#title').empty();
+    $('#title').text("Organise Collection " + model.name);
+    $('#title').prepend(pencil("title"));
+    $('#title').show();
+    $('#title_edit').attr("value", model.name);
+    $('#title_edit').hide();
+    $('#desc').empty();
+    $('#desc').text(model.description);
+    $('#desc').prepend(pencil("desc"));
+    $('#desc').show();
+    $('#desc_edit').text(model.description);
+    $('#desc_edit').hide();
+    var $table = $('#manageTable');
+    $table.empty();
+    model.groups = _.sortBy(model.groups, function(group) { return group.index; });
+    $(model.groups).each(function(index, group) {
+        sort(group.games);
+        $table.append(renderGroup(group));
+    }) ;
+    makeGamesDraggable();
+    addWorkingCellsToRows();
+    $('html, body').animate({ scrollTop: scrollTop }, 10);    
+}
+
+function displayClicked(checkbox) {
+    var index = parseInt(checkbox.id.substring(7));
+    var g = group(index);
+    g.display = checkbox.checked;
+    scrollTop = document.body.scrollTop;
+    rerender();
+}
+
+function renderGroupButtons(group) {
+    var checked = group.display ? " checked" : "";
+    var result = 'Display <input type="checkbox" id="display' + group.index +'"' + checked + ' onchange="displayClicked(this)"/>';    
+    result += "<select>";
+    $(SELECTORS).each(function(index, s) {
+        result += '<option value="' + s.fragment + '">' + s.name + '</option>';
+    });
+    result += "</select>";
+    result += '<button onclick="quickAdd(' + group.index + ')">Add</button> <button onclick="quickRetain(' + group.index + ')">Retain</button> <button onclick="quickAddExtra(' + group.index + ')">Add Extra</button> <button onclick="quickRemove(' + group.index + ')">Remove</button> <button onclick="quickDelete(' + group.index + ')">Delete All</button>';
+    return result;
+}
+
+function pencil(name) {
+    var pencil = '<img src="/images/pencil.png" onclick=edit("' + name + '")>&nbsp;';
+    return pencil;
+}
+
+function addGroup() {
+    var gids = _.map(model.groups, function(g) { return g.index; });
+    var n = 0;
+    while (_.contains(gids, n)) { n = n + 1; }
+    g = { index : n, name : "New Group", description : "New group description", display : 1, games: [] };
+    model.groups.push(g);
+    rerender();
+}
+
+/* Index in the list of groups of the group with the given index. */
+function indexOfGroup(groupIndex) {
+    var i = -1;
+    $(model.groups).each(function(index, g) { if (g.index == groupIndex) i = index; });
+    return i;
+}
+
+function groupup(index) {
+    scrollTop = document.body.scrollTop;
+    if (index == model.groups[0].index) return;
+    var i = indexOfGroup(index);
+    var t = model.groups[i-1].index;
+    model.groups[i-1].index = model.groups[i].index;
+    model.groups[i].index = t;
+    rerender();
+}
+
+function groupdown(index) {
+    scrollTop = document.body.scrollTop;
+    if (index == model.groups[model.groups.length-1].index) return;
+    var i = indexOfGroup(index);
+    var t = model.groups[i+1].index;
+    model.groups[i+1].index = model.groups[i].index;
+    model.groups[i].index = t;
+    rerender();
+}
+
+function renderGroup(group) {
+    var upDownWidget = '<img src="/images/arrow_up.png" onclick=groupup(' + group.index + ')>&nbsp;<img src="/images/arrow_down.png" onclick=groupdown(' + group.index + ')>';
+    var tableContent = '<tr class="gameRow" index=' + group.index + '>';
+    var n = 0;
+    $(group.games).each(function(index, game) {
+        if ((n + 1) * 90 > $(window).width()) {
+            tableContent = tableContent + '</tr><tr class="gameRow" index=' + group.index + '>';
+            n = 0;
+        }
+        tableContent = tableContent + '<td class="game" id="' + game.id + '">' + game.name + '</td>';
+        n = n + 1;
+    });
+    tableContent += '</tr>';
+    var nameEditorId = "group" + group.index + "_edit";
+    var descriptionEditorId = "description" + group.index + "_edit";
+    var groupEditor = '<input hidden="true" id="' + nameEditorId + '" type="text" value="' + group.name + '" onblur=save("' + nameEditorId + '")>';
+    var descriptionEditor = '<textarea hidden="true" cols=80 rows=3 id="' + descriptionEditorId + '" onblur=save("' + descriptionEditorId + '")>' + group.description + '</textarea>';
+    var content = '<h2 id="group' + group.index + '">' + upDownWidget + pencil("group" + group.index) + group.name + '</h2>' + groupEditor + 
+    '<P id="description' + group.index + '">' + pencil("description" + group.index) + group.description + '</p>' + descriptionEditor +'<br>' + 
+    renderGroupButtons(group) +
+    '<table class="groupTable" id="group' + group.index + '" index=' + group.index + '><tbody>' + tableContent + '</tbody><table/>';
+    var tr = '<tr class="manageRow"><td id="td' + group.index + '">' + content + '</td></tr>';
+    return tr;
+}
+
+$(document).ready(function() { 
+    loadModel();
+    notify("Ready");
+});
+</script>
+</head>
+<body>
+{% include 'navbar.html' %}
+<h1 id="title">Loading...</h1>
+<input hidden="true" id="title_edit" type="text" value="this is a bug too" onblur='save("title_edit")'><br>
+<A HREF="/dynamic/collections/{{username}}">Collections</A>
+<A HREF="/dynamic/editCollection/{{username}}/{{index}}">Edit</A>
+<A HREF="/dynamic/viewCollection/{{username}}/{{index}}/0">View</A>
+<P id="desc">This is a bug three.</p><br>
+<textarea hidden="true" cols=80 rows=3 id="desc_edit" onblur='save("desc_edit")'>This is a bug four.</textarea><br>
+On this page you can move games between groups of the collection. No changes you make are written back to the database until you click Save.
+<ul>
+<LI>"the selection" - the games indicated by the current entry in the combo box.
+<li>Add - add the selection of games to the current group.
+<li>Retain - remove all games other than the selection from the current group.
+<LI>Delete All - remove all games from the current group.
+<LI>Add Extra - add to the current group any games from the selection which are not in any group.
+</ul>
+<P>
+<button id="saveButton" onclick="saveChanges()">Save Changes</button>
+<button id="addGroupButton" onclick="addGroup()">Add Group</button>
+<div id="info"></div>
+
+<div id="collection" class="collection">
+<table id="manageTable" class="collectionTable" width="100%">
+<tbody></tbody>
+</table>
+</div>
+
+</body>
+</html>

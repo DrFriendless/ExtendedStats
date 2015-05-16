@@ -1,0 +1,34 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Collections for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+<h1>Collections for {{username}}</h1>
+
+These are the collections you've defined.
+<p>
+
+<ul>
+{% for coll in colls %}
+<LI>{{coll.name}}
+{% if coll.deleteAllowed %}<A HREF="/dynamic/deleteCollection/{{username}}/{{coll.index}}">Delete</A>{% endif %}
+<A HREF="/dynamic/editCollection/{{username}}/{{coll.index}}">Edit</A>
+<A HREF="/dynamic/viewCollection/{{username}}/{{coll.index}}/0">View</A>
+{% if coll.groups %}
+<ul>
+{% for group in coll.groups %}
+<li>{{group.name}} ({{group.count}})
+{% endfor %}
+</ul>
+{% endif %}
+{% endfor %}
+</ul>
+<br>
+<A href="/dynamic/editCollection/{{username}}/{{newIndex}}">Create New Collection</A>
+
+</body>
+</html>

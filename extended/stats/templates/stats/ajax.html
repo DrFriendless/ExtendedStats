@@ -1,0 +1,40 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Extended Stats for {{geek.username}}</title>
+{% include 'stats/stylesheets.html' %}
+<script language="JavaScript" type="text/JavaScript" src="/scripts/jquery.jform.js"></script>
+<script type="text/javascript">
+	$( document ).ready( function()
+	{
+		$( '#ajaxform' ).ajaxForm(
+                        { success: ajaxformSubmit,
+                          dataType: 'json',
+                          clearForm : true,
+                          resetForm : true } );
+	} );
+	
+function ajaxformSubmit( responseText, statusText, xhr, $form )
+{
+	if( responseText[ 'success' ] == true )
+	{
+		alert( "Added item: " + responseText[ 'pk' ] );
+	}
+
+        // returning false inhibits the browser from opening a "Save As" dialog.
+	return false;
+}	
+</script>
+</head>
+<body>
+<h1>Test</h1>
+
+<form id="ajaxform" method="get" action="/ajax/submit/">
+	<p>
+		<input type="text" name="input" id="input" />
+		<input type="submit" value="Submit" />
+	</p>
+</form>
+
+</body>
+</html>

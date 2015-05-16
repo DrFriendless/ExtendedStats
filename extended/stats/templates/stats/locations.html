@@ -1,0 +1,45 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Play Locations for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>Play Locations for {{username}}</h1>
+
+This page was Almecho's idea! The row colouring is way too complicated for me to figure out at the moment.
+
+<div id="locations" class="section tablesection">
+
+<table class="sortable shaded" id="playlocations">
+<thead><tr><td>Location</td><td>Plays</td><td>#</td><td>Game</td><td>Dates</td></tr></thead>
+<tbody>
+{% for loc in locations %}
+{% for game in loc.games %}
+<tr>
+{% if game.first %}
+<td rowspan={{game.rowspan}}>{{loc.location}}</td>
+<td rowspan={{game.rowspan}}>{{loc.count}}</td>
+{% endif %}
+<td><b>{{game.count}}</b></td>
+<td>
+{% if game.first %}<hr>{% endif %}
+<A HREF="{{game.game.url}}">{{game.game.name}}</A>
+</td>
+<td>
+{% for date in game.dates %}<A HREF="/dynamic/plays/{{username}}{{date.url}}">{{date.name}}</A> {% endfor %}
+</td>
+</tr>
+{% endfor %}
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+
+</body>
+</html>
+

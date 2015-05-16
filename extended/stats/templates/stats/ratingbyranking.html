@@ -1,0 +1,27 @@
+<div id="ratingByRanking" class="section">
+
+<H1>Rating By Ranking</H1>
+This table has one cell for each game in the BGG rankings. 
+If you have rated that game, the cell is coloured with the BGG colour for that rating. This lets you see highly ranked games you don't like, and lowly rated games you do like.
+Most cells have tooltips telling you what the game at that rank is.
+There can be anomalies as the download process can observe different games at the same rank at different times - the BGG rankings may differ from the data used to calculate this table.
+<P>
+There's a tooltip on the row header summarising your feelings on the games.
+Due to the observation errors mentioned above, some rows won't have exactly 100 games.
+<P>    
+    
+<TABLE border=1 cellspacing=0 id="rbrtable"><tbody>
+{% for row in ratingByRanking %}
+<tr><td title="{{row.count}} rated, {{row.average}} avg, {{row.elements}} games">{{row.base}}</td>
+{% for datum in row.data %}
+{% if datum %}
+<TD width=8 bgcolor="{{datum.colour}}" title="{{datum.name}}">&nbsp;</TD>
+{% else %}
+<TD width=8 bgcolor="#ffffff">&nbsp;</TD>
+{% endif %}                
+{% endfor %}
+</tr>        
+{% endfor %}        
+</TBODY></TABLE>
+    
+</div>    

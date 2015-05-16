@@ -1,0 +1,249 @@
+body { 
+    margin: 0; 
+    padding: 0 20px; 
+    font: 1em "Trebuchet MS", verdana, arial, sans-serif; 
+    font-size: 85%; 
+}
+
+div, ul, li {
+    zoom: 1;
+}
+
+ul ul,
+ul ul li {
+    zoom: 0;
+}
+
+div.calendar thead {
+    text-align: center;
+    font-weight: bold;
+}
+
+div.calendar table.cal td {
+    line-height: 20px; 
+}
+
+#contents thead td {
+    text-align: center;
+    font-weight: bold;
+}
+
+div.hotness td.class0 {
+    background-color: white;
+    color: white;
+}
+div.hotness td.class1 {
+    background-color: khaki;
+}
+div.hotness td.class2 {
+    background-color: palegreen;
+}
+div.hotness td.class3 {
+    background-color: lime;
+}
+div.hotness td.class4 {
+    background-color: springgreen;
+}
+div.hotness td.class5 {
+    background-color: forestgreen;
+    color: white;
+}
+
+div.tablesection thead td, div.tablesection thead th {
+    text-align: center;
+    background-color: bisque;
+    color: darkslategray;
+    font-weight: bold;
+    border-top: solid 1px #d8d8d8;
+}
+
+div.tablesection tbody tr td {
+    text-align: left;
+    font-weight: normal;
+    border-bottom: solid 0px #d8d8d8;
+    border-top: solid 0px #d8d8d8;
+    border-left: solid 0px #d8d8d8;    
+}
+
+#fp_plays td.number {
+    text-align: center;
+}
+
+div.tablesection tbody tr td {
+    background-color: ivory;
+    color: darkgreen;
+}
+
+div.tablesection tbody tr.bad td {
+    background-color: lightsalmon;
+    color: darkgreen;
+}
+
+div.tablesection tbody tr.good td {
+    background-color: lightblue;
+    color: darkgreen;     
+}
+
+div.tablesection tbody tr.even td {
+	background-color: #DBEEF7;
+}
+
+div.tablesection tbody tr.good.even td {
+	background-color: medium turquoise;
+}
+div.tablesection tbody tr.bad.even td {
+	background-color: pink;
+}
+
+div.tablesection tbody tr.bad a {
+    color: darkslateblue;
+}
+
+div.tablesection tbody tr.good a {
+    color: darkslateblue;    
+}
+
+div.tablesection tbody a {
+    text-decoration: none;
+    color: slateblue;
+}
+div.tablesection tbody a.sale {
+    color: red;
+}
+
+div.tablesection tr.underline td { border-bottom: 1px solid #0000b0;  }
+
+div.colouredtablesection tbody tr.even td {
+    background-color: #DBEEF7;
+}
+
+div.colouredtablesection table tr td {
+    padding: 0;
+}
+
+div.navbar table {
+    background-color: lightblue;
+    font-weight: bold;
+    border-top: solid 2px darkslateblue;    
+    border-bottom: solid 2px darkslateblue;    
+    border-right: solid 2px darkslateblue;    
+    border-left: solid 2px darkslateblue;    
+}
+
+div.navbar a {
+   color: darkslategray;
+}
+
+table.sortable thead span.sortarrow {
+    padding-left: 5px;
+}
+
+#crazytable tr.found a {
+    color: black;
+    font-weight: bold;
+}
+
+#consistencytable {
+    font-size: 11;
+}
+
+tr.exciting td a {
+    font-weight: bold;
+}
+
+div.hidden tr.boring {
+    display: none;
+}
+
+div.display tr.boring {
+    display: table-row;
+}
+
+div.hidden input.show {
+  display: inline;
+}
+
+div.hidden input.hide {
+  display: none;
+}
+
+div.display input.show {
+  display: none;
+}
+
+div.display input.hide {
+  display: inline;
+}
+
+div.collection table.groupTable {
+    table-layout: fixed;
+    width: 100%;
+}
+
+td.trash table.groupTable {
+    background-color: pink;
+}
+
+td.uncategorised table.groupTable {
+    background-color: lightgray;
+}
+
+td.plays0 {
+    color: white;
+}
+
+td.plays1 {
+    color: red;
+}
+
+td.plays2 {
+    color: orange;
+}
+
+td.plays3 {
+    color: yellow;
+}
+
+td.plays4 {
+    color: yellowgreen;
+}
+
+td.plays5 {
+    color: green;
+}
+
+td.plays6 {
+    color: darkgreen;
+}
+
+div.collection td.game {
+    background-color: lightblue;
+    color: black;
+    font-size: 10;
+    width: 80px;
+    height: 50px;
+    border: 2px solid darkblue;
+    overflow: hidden;
+}
+
+div.collection td.dropTarget {
+    background-color: yellow;
+    color: black;
+    font-size: 12;
+    width: 80px;
+    height: 50px;
+    border: 2px solid orange;
+}
+
+#info {
+   color: darkgreen;
+   position: fixed;
+   top: 50px;
+   left: 910px;
+   width: 80px;
+   height: 30px;
+   border: 2px solid darkgreen;
+   text-align: center;
+   vertical-align: middle;
+   line-height: 30px;    
+}

@@ -1,0 +1,402 @@
+<html>
+<head>
+<title>Silverton Price Chart</title>
+<!-- This file and the associated silverton.css file are the work of John Farrell (friendless.farrell@gmail.com) and are released
+     to the public domain.
+ -->
+<script language="JavaScript" type="text/JavaScript" src="jquery.js"></script> 
+<style media="screen" type="text/css">
+body { 
+    background-image:url('background.jpg');
+    background-size:100% 100%;
+}
+
+.title {
+    font-size: 130%;
+}
+.subtitle {
+    font-size: 90%;
+}
+
+.gold {
+    color: goldenrod;
+}
+.silver {
+    color: darkgray;
+}
+.lumber {
+    color: brown;
+}
+.coal {
+    color: coalgrey;
+}
+.winter {
+    background-color: purple;
+    color: white;
+}
+
+#pricetable {
+    position:absolute;
+    left:5%;
+    top:8%;
+    width: 90%;
+    background-color: white;
+}
+
+#buttontable {
+    position:absolute;
+    left:12%;
+    top:80%;
+    width:30%;
+    height:10%;
+    background-color: white;
+}
+
+#buttontable td {
+    border: 2px solid black;
+    overflow: hidden;
+    text-align: center;
+    width: 10%;
+}
+
+#pricetable td {
+    border: 2px solid black;
+    overflow: hidden;
+    width: 7%; 
+    text-align: center;
+}
+</style>
+<script>
+function dieFunc(d6, soldFactor, idnFactor) {
+    return function(sold, idn, h) {
+        if (h.random == undefined) {
+            h.random = nd6(d6);
+        }
+        var tot = h.random + Math.ceil(soldFactor * sold) - idnFactor * idn;
+        return tot;
+    }
+}
+
+var goldChanges = [ '<=1', '+2', '<=3', '+1', '<=5', '+0', '<=7', '-1', '>7', '-2'  ];
+var denverSilverChanges = [ '<1', '+5', '==1', '+4', '==2', '+3', '==3', '+2', '<6', '+1', '<8', '+0',
+    '<10', '-1', '<12', '-2', '==12', '-3', '==13', '-4', '==14', '-5', '==15', '-6', '>15', '-7'];
+var slcSilverChanges = [ '<=1', '+3', '==2', '+2', '==3', '+1', '<6', '+0', '<8', '-1', '<10', '-2', '<12', '-3', '>=12', '-4'];
+var lumberChanges = [ '<2', '+3', '<4', '+2', '<6', '+1', '==6', '+0', '<9', '-1', '<11', '-2', '<13', '-3', '>=13', '-4'];
+var coalChanges = [ '<2', '+3', '<4', '+2', '<6', '+1', '<9', '+0', '<11', '-1', '<13', '-2', '>=13', '-3' ];
+
+function normal() {
+    // nothing to do
+}
+
+function slcsolo() {
+    for (var i=0; i<chart.length; i++) {
+        chart[i].visible = true;
+    }
+    index.silverdenver.start = index.silverdenver.start - 2;
+    index.lumberdenver.start = index.lumberdenver.start - 2;
+    index.lumberpueblo.start = index.lumberpueblo.start - 2;
+    index.lumbersantafe.start = index.lumbersantafe.start - 2;
+    index.coaldenver.start = index.coaldenver.start - 2;
+    index.coalpueblo.start = index.coalpueblo.start - 2;
+    index.coalsantafe.start = index.coalsantafe.start - 2;
+}
+
+function denversolo() {
+    for (var i=0; i<chart.length; i++) {
+        chart[i].visible = true;
+    }
+    index.silverslc.start = index.silverslc.start - 2;
+    index.lumberslc.start = index.lumberslc.start - 2;
+    index.lumbersantafe.start = index.lumbersantafe.start - 2;
+    index.coalslc.start = index.coalslc.start - 2;
+    index.coalsantafe.start = index.coalsantafe.start - 2;
+}
+
+var chart = [
+    { id: "gold", commodity: "Gold", location: "Any Market", prices: [3000, 3500, 4000, 4500, 5000, 5000, 5500, 6000, 6500, 7000], 
+      start:4, max:9999999, minPlayers: 1, increment: 0.25, roll: dieFunc(1, 4, 0), changes: goldChanges },
+    { id: "silverdenver", commodity: "Silver", location: "Denver", prices: [1000, 1200, 1600, 1800, 2000, 2000, 2000, 2400, 3000, 4000], 
+      start:5, max:9999999, minPlayers: 1, increment: 0.5, roll: dieFunc(2, 2, 1), changes: denverSilverChanges },
+    { id: "silverslc", commodity: "Silver", location: "SLC", prices: [1000, 1200, 1600, 1800, 2000, 2000, 2000, 2400, "X", "X"], 
+      start:4, max:3, minPlayers: 4, increment: 0.5, roll: dieFunc(1, 2, 0), changes: slcSilverChanges },
+    { id: "lumberdenver", commodity: "Lumber", location: "Denver", prices: ["X", 200, 300, 400, 500, 600, 800, 1000, "X", "X"], 
+      start:4, max:10, minPlayers: 1, increment: 1, roll: dieFunc(2, 1, 1), changes: lumberChanges },
+    { id: "lumberslc", commodity: "Lumber", location: "SLC", prices: ["X", "X", "X", 400, 500, 600, 800, 1000, 1200, 1500], 
+      start:5, max:8, minPlayers: 2, increment: 1, roll: dieFunc(2, 1, 1), changes: lumberChanges },
+    { id: "lumberpueblo", commodity: "Lumber", location: "Pueblo", prices: ["X", 200, 300, 400, 500, 600, 800, 1000, "X", "X"], 
+      start:4, max:6, minPlayers: 2, increment: 1, roll: dieFunc(2, 1, 1), changes: lumberChanges },
+    { id: "lumbersantafe", commodity: "Lumber", location: "Santa Fe", prices: [150, 200, 300, 400, 500, 600, 800, "X", "X", "X"], 
+      start:3, max:6, minPlayers: 4, increment: 1, roll: dieFunc(2, 1, 1), changes: lumberChanges },
+    { id: "coaldenver", commodity: "Coal", location: "Denver", prices: ["X", "X", 150, 200, 300, 300, 400, 500, 600, 700], 
+      start:5, max:16, minPlayers: 1, increment: 1, roll: dieFunc(2, 0.5, 1), changes: coalChanges },
+    { id: "coalslc", commodity: "Coal", location: "SLC", prices: [100, 100, 150, 200, 300, 300, 400, 500, "X", "X"], 
+      start:4, max:16, minPlayers: 2, increment: 1, roll: dieFunc(2, 0.5, 1), changes: coalChanges },
+    { id: "coalpueblo", commodity: "Coal", location: "Pueblo", prices: [100, 100, 150, 200, 300, 300, 400, "X", "X", "X"], 
+      start:3, max:16, minPlayers: 1, increment: 1, roll: dieFunc(2, 0.5, 1), changes: coalChanges },
+    { id: "coalsantafe", commodity: "Coal", location: "Santa Fe", prices: ["X", 100, 150, 200, 300, 300, 400, 500, 600, "X"], 
+      start:4, max:16, minPlayers: 3, increment: 1, roll: dieFunc(2, 0.5, 1), changes: coalChanges }
+    ];
+
+var idn = [ 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, -1 ];
+var index = {};
+var history = [];
+var numPlayers = 2;
+var round = 0;
+
+function nd6(n) {
+    if (n == 0) return 0;
+    if (n == 1) return d6();
+    return d6() + nd6(n-1);
+}
+
+function d6() {
+    return Math.ceil(Math.random() * 6);
+}
+
+function newEmpty() {
+    var x = { random: undefined, sold: [], priceIndex: undefined, total:undefined };
+    for (var i=0; i<numPlayers; i++) {
+        x.sold[i] = 0;
+    }
+    return x;
+} 
+
+function applyPriceChange(prices, initial, effect) {
+    var current = initial;
+    if (effect.indexOf('+') == 0) {
+        for (var i=0; i<parseInt(effect); i++) {
+            if (current + 1 < prices.length && prices[current+1] != 'X') {
+                current = current + 1;
+            } else {
+                break;
+            }
+        }
+    } else if (effect.indexOf('-') == 0) {
+        for (var i=0; i>parseInt(effect); i--) {
+            if (current > 0 && prices[current-1] != 'X') {
+                current = current - 1;
+            } else {
+                break;
+            }        
+        }
+    } else {
+        throw("Invalid effect: " + effect);
+    }
+    return current;
+}
+
+function newRound() {
+    if (round > 0) {
+	/* Finish the old round */
+	/* Reset the price indexes to their original values */
+	initPrices();
+	for (var i=0; i<chart.length; i++) {
+	    var c = chart[i];
+	    var h = history[round-1][c.id];
+	    var total = 0;
+	    for (var j=0; j<h.sold.length; j++) {
+		total = total + h.sold[j];
+	    }
+	    h.total = total;
+	    var r = c.roll(total, history[round-1].idn, h);
+	    var cs = c.changes;
+	    for (var j=0; j<cs.length; j = j + 2) {
+	        var cond = cs[j];
+	        var effect = cs[j+1];
+	        if (eval('' + r + cond)) {
+	            var pi = applyPriceChange(c.prices, h.priceIndex, effect);
+	            h.priceIndex = pi;
+	            break;
+	        }
+	    }
+	}    
+    }
+    /* Start the new round */
+    round = round + 1;
+    if (history[round-1] == undefined) {    
+        /* Create new round information */
+        var o = {};
+        o.idn = idn[round-1];      
+        for (var i=0; i<chart.length; i++) {
+	    var c = chart[i];
+	    o[c.id] = newEmpty();
+        }
+        history[round-1] = o;
+    }
+    initPrices();
+    renderRound();
+}
+
+function initPrices() {
+    /* Copy across prices */
+    for (var i=0; i<chart.length; i++) {
+	var c = chart[i];    
+	var h = history[round-1][c.id];
+	if (round == 1) {
+	    h.priceIndex = c.start;
+	} else {
+	    h.priceIndex = history[round-2][c.id].priceIndex;
+	}
+    }
+}
+
+function prevRound() {
+    if (round <= 1) {
+        throw "Can't go back before beginning of game!";
+    }
+    round = round - 1;
+    renderRound();
+}
+
+function plus(key, playerNum) {
+    var r = history[round-1];
+    var commodity = index[key];
+    r[key].sold[playerNum] = r[key].sold[playerNum] + commodity.increment;
+    if (r[key].sold[playerNum] > commodity.max) {
+        alert("Exceeded sales maximum");
+    }
+    renderRound();
+}
+
+function minus(key, playerNum) {
+    var r = history[round-1];
+    var commodity = index[key];
+    if (r[key].sold[playerNum] > 0) {
+        r[key].sold[playerNum] = r[key].sold[playerNum] - commodity.increment;
+    }
+    renderRound();
+}
+
+function renderNum(n) {
+    if (Math.floor(n) == n) return n;
+    var intPart = "";
+    if (Math.floor(n) > 0) intPart = intPart + Math.floor(n);
+    var fracPart = n - Math.floor(n);
+    if (fracPart == 0.25) {
+        fracPart = '&frac14;';
+    } else if (fracPart == 0.5) {
+        fracPart = '&frac12;';
+    } else {
+        fracPart = '&frac34;';
+    }
+    return intPart + fracPart;
+}
+
+function setEnabled(object, enabled) {
+    if (enabled) {
+        object.removeAttr('disabled');
+    } else {
+        object.attr('disabled', 'disabled');
+    }
+}
+
+function renderRound() {
+    var r = history[round-1];
+    for (var i=0; i<chart.length; i++) {
+        var c = chart[i];
+        for (var j=0; j<numPlayers; j++) {
+            var key = c.id + j;
+            $('#' + key + ' :first-child').html(renderNum(r[c.id].sold[j]));
+        }
+        $('#' + c.id).text('$' + c.prices[r[c.id].priceIndex]);
+    }
+    var winter = round % 4 == 0;
+    if (winter) {
+        $('#winter').html('' + round + '<br>WINTER');        
+        $('#winter').addClass('winter');        
+    } else {
+        $('#winter').text("Round " + round);
+        $('#winter').removeClass('winter');
+    }
+    var lastRound = (round == 24);
+    setEnabled($('#newRound'), !lastRound);
+    var firstRound = (round == 1);
+    setEnabled($('#prevRound'), !firstRound);
+}
+
+function makeButtons(id, playerNum) {
+    var b = '<td id="' + id + playerNum + '"><div>0</div>';
+    b = b + '<button onclick=\'plus("' + id + '", ' + playerNum + ')\'>+</button>';
+    b = b + '<button onclick=\'minus("' + id + '", ' + playerNum + ')\'>-</button>';
+    b = b + '</td>';
+    return b;
+}
+
+function makeIndex() {
+    for (var i=0; i<chart.length; i++) {
+        var c = chart[i];
+        c.class = c.commodity.toLowerCase();
+        index[c.id] = c;
+    }
+}
+
+function build() {
+    $('#pricetable thead tr').append('<td></td>');    
+    $('#pricetable tbody tr').append('<td>Price</td>');    
+    for (var i=0; i<chart.length; i++) {
+        var c = chart[i];
+        if (!c.visible) continue;
+        $('#pricetable thead tr').append('<td class="' + c.class + '"><div class="title">' + c.commodity + '</div><br><div class="subtitle">' + c.location + '</div></td>');
+        $('#pricetable tbody tr').append('<td id="' + c.id + '"class="' + c.class + '">0</td>'); 
+    }
+    for (var i=0; i<numPlayers; i++) {
+        var row = '<tr><td>Player ' + (i+1) + '</td>';
+	for (var j=0; j<chart.length; j++) {
+	    var c = chart[j];
+            if (!c.visible) continue;
+	    row = row + makeButtons(c.id, i);
+	}
+	row = row + '</tr>';
+	$('#pricetable tbody').append(row);
+    }
+}
+
+function start(players, modifier) {
+    makeIndex();
+    for (var i=0; i<chart.length; i++) {
+        var c = chart[i];
+        c.visible = (players >= c.minPlayers);
+    }
+    numPlayers = players;
+    eval(modifier + '()');
+    build();
+    $('#starttable').hide();
+    $('#pricetable').show();
+    $('#buttontable').show();
+    newRound();    
+}
+
+$(document).ready(function() { 
+    $('#starttable').show();
+    $('#pricetable').hide();
+    $('#buttontable').hide();
+});
+</script>
+</head>
+<body>
+<table id="pricetable">
+<thead><tr></tr></thead>
+<tbody><tr></tr></tbody>
+</table>
+
+<table id="buttontable"><tbody><tr>
+<td><button id="prevRound" onclick="prevRound()">Previous Round</button></td>
+<td><button id="newRound" onclick="newRound()">End Round</button></td>
+<td id="winter"></td>
+</tr></tbody></table>
+
+<table id="starttable"><tbody>
+<tr><td><button onclick="start(1, 'normal')">Denver $30000 Solitaire</button></td><tr>
+<tr><td><button onclick="start(1, 'normal')">Denver $50000 Solitaire</button></td><tr>
+<tr><td><button onclick="start(1, 'slcsolo')">Salt Lake City $50000 Solitaire</button></td><tr>
+<tr><td><button onclick="start(1, 'denversolo')">Denver Campaign Solitaire</button></td><tr>
+<tr><td><button onclick="start(2, 'normal')">Golden Spike 2 Player</button></td><tr>
+<tr><td><button onclick="start(3, 'normal')">Golden Spike 3 Player</button></td><tr>
+<tr><td><button onclick="start(2, 'normal')">2 Player</button></td><tr>
+<tr><td><button onclick="start(3, 'normal')">3 Player</button></td><tr>
+<tr><td><button onclick="start(4, 'normal')">4 Player</button></td><tr>
+<tr><td><button onclick="start(5, 'normal')">5 Player</button></td><tr>
+<tr><td><button onclick="start(6, 'normal')">6 Player</button></td><tr>
+</tbody></table>
+</body>
+</html>

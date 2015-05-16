@@ -1,0 +1,14 @@
+<div id="playlogging" class="section">
+<H1>Dazeysan's Splendiferous Play-Logging Utility</h1>
+
+kataclysm and Dazeysan have done some work on hacking the BGG play-logging utility to be customisable to include your frequently used locations and opponents. I've added some support for extracting the data that utility will use from your logged plays.
+
+The step by step instructions are in this <A HREF="http://boardgamegeek.com/geeklist/165200/a-trick-for-quicker-logging-dazeysans-splendiferou">geeklist</A>.
+
+<h2>Cut and Paste</h2>
+Copy and paste this text into the play logging widget:<br>
+<textarea cols=80 rows=20>
+[[{% for loc in locations %}"{{loc}}"{% if forloop.last %}{% else %},{% endif %}{%endfor%}], {% for player in players %}["{{player.username}}", "{{player.name}}", "{{player.colour}}"]{% if forloop.last %}{% else %}, {% endif %}{% endfor %}]
+</textarea>
+
+</div>

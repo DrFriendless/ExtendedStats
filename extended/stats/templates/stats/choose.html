@@ -1,0 +1,31 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Extended Stats for {{geek.username}}</title>
+{% include 'stats/stylesheets.html' %}
+<link rel="stylesheet" type="text/css" href="/css/tabbed.css">
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+
+<div id="choose">
+<H1>Dynamically Generated Page</h1>
+{{param}}
+<div id="contents">
+<ul class="BulletList">
+{% for feature in contents %}
+<LI class="ThisPage"><A HREF="#{{feature.tag}}">{{feature.title}}</A>
+{% endfor %}
+</ul>
+<P>
+{% for feature in contents %}
+{% include feature.htmlFile %}
+{% endfor %}
+
+</ul>
+</div>
+</div>
+
+</body>
+</html>

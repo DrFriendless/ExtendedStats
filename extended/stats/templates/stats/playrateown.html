@@ -1,0 +1,14 @@
+<div id="playrateown" class="section">
+<H1>Plays by Rating for Games that You Own</h1>
+
+<img border="0" type="image/png" usemap="#promap" src="data:image/png,{{prodata}}">
+<map name="promap">
+{% for row in promap %}
+<area shape="circle" coords="{{row.x}},{{row.y}},{{row.radius}}" href="{{row.url}}"
+onMouseover="showtip(this, event, '{{row.name}}')"
+onMouseout="hidetip()">
+{% endfor %}
+</map>
+<P>
+This graph is the same as the previous one, but only games that you own are counted.
+</div>

@@ -1,0 +1,228 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Extended Stats for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>Extended Stats for {{username}}</h1>
+
+<div class="TabbedPanels" id="tabs">
+<table><TR>
+{% if tab1 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/1">General</A>&nbsp;</TD>
+{% if tab2 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/2">Plays</A>&nbsp;</TD>
+{% if tab3 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/3">Collection Management</A>&nbsp;</TD>
+{% if tab4 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/4">Play Suggestions</A>&nbsp;</TD>
+{% if tab5 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/5">Other Perspectives</A>&nbsp;</TD>
+{% if tab6 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/6">User-Customisable</A>&nbsp;</TD>
+{% if tab7 %}<TD class="TabbedPanelsTabSelected">{% else %}<TD class="TabbedPanelsTab">{% endif %}
+<A HREF="/dynamic/tabbed/{{username}}/7">Feature Index</A>&nbsp;</TD>
+</tr></table>
+</div>
+
+{% if tab7 %}
+{% else %}
+<H1>Contents</h1>
+{% endif %}
+
+{% if tab1 %}
+<div id="contents">
+<ul class="BulletList">
+<LI class="ThisPage"><A HREF="#favourites">Your Favourite Games</A>&nbsp;&nbsp;&nbsp;<A HREF="/dynamic/favourites/{{username}}"><img src="/images/eye.png" alt=""/> Full List</A>
+<LI class="ThisPage"><A HREF="#new">Rate of Play of Games New To You</A>
+<LI class="ThisPage"><A HREF="#fpvr">First Played Date vs Rating</A>
+<LI class="ThisPage"><A HREF="#rbpy">Ratings By Published Year</A>
+<LI class="ThisPage"><A HREF="#fgbpy">Favourite Games By Published Year</A>
+<LI class="ThisPage"><A HREF="#obpy">Games Owned By Published Year</A>
+<LI class="ThisPage"><A HREF="#lag">Lag Between Publication and Playing</A>
+<LI class="ThisPage"><A HREF="#lifetime">Lifetime of Games</A>
+<LI class="ThisPage"><A HREF="#lbr">Lifetime of Games by Rating</A>
+{% if florence %}
+<LI class="ThisPage"><A HREF="#florence">Florence Nightingale Gamer Characterisation</A>
+{% endif %}
+<LI class="ThisPage"><A HREF="#mmmpie">Pie Charts for Morgan</A>
+{% if bestDays %}
+<LI class="ThisPage"><A HREF="#bestdays">Best Days in Gaming</A>
+{% endif %}
+{% if ratingByRanking %}
+<LI class="ThisPage"><A href="#ratingByRanking">Ratings by Ranking</A>
+{% endif %}
+{% if playsByRanking %}
+<LI class="ThisPage"><A href="#playsByRanking">Plays by Ranking</A>
+{% endif %}
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=gamesownedbyyear&username={{username}}">Games Owned By Year Published</A>
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=largestdisparities&username={{username}}">Largest Disparities</A>
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=underrated&username={{username}}">Underrated Games</A>
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=overrated&username={{username}}">Overrated Games</A>
+<LI class="OtherPage">{% include 'stats/yearlysummaries.html' %}
+<LI class="OtherPage"><A HREF="/dynamic/updates/{{username}}">Update Schedule</A>
+<form name="input" action="{% url "stats.views.quickRefresh" username %}" method="post">
+{% csrf_token %}
+<input type="submit" value="Refresh" />
+</form>
+</ul>
+</div>
+
+{% include 'stats/favourites.html' %}
+{% include 'stats/new.html' %}
+{% include 'stats/fpvr.html' %}
+{% include 'stats/rbpy.html' %}
+{% include 'stats/fgbpy.html' %}
+{% include 'stats/obpy.html' %}
+{% include 'stats/lag.html' %}
+{% include 'stats/lifetime.html' %}
+{% include 'stats/lbr.html' %}
+
+{% if florence %}
+{% include 'stats/florence.html' %}
+{% endif %}
+
+{% include 'stats/morgan.html' %}
+
+{% if bestDays %}
+{% include 'stats/bestdays.html' %}
+{% endif %}
+
+{% if ratingByRanking %}
+{% include 'stats/ratingbyranking.html' %}
+{% endif %}
+{% if playsByRanking %}
+{% include 'stats/playsByRanking.html' %}
+{% endif %}
+
+{% endif %}
+
+{% if tab2 %}
+{% include 'stats/contents.html' %}
+{% endif %}
+
+{% if tab3 %}
+<div id="contents">
+What should you own? What should you not own?
+<P>
+<ul class="BulletList">
+{% if pogo %}
+<LI class="ThisPage"><A HREF="#pogo">Plays of Games Owned</A>
+{% endif %}
+<LI class="ThisPage"><A HREF="#pbpy">Plays of Games Owned By Published Year</A>
+{% if shouldPlay %}
+<LI class="ThisPage"><A HREF="#shouldplay">Games You Should Play Soon</A>
+{% endif %}
+{% if shouldPlayOwn %}
+<LI class="ThisPage"><A HREF="#shouldplayown">Games You Should Play Soon Which You Own</A>
+{% endif %}
+{% if least %}
+<LI class="ThisPage"><A HREF="#least">Why Do You Even Own These?</A>
+{% endif %}
+{% if unusual %}
+<li class="ThisPage"><A href="#unusual">The Most Unusual Games You Own</A> <A HREF="/dynamic/unusual/{{username}}"><img src="/images/eye.png" alt=""/> Full List</A>
+{% endif %}
+<LI class="OtherPage"><A HREF="/dynamic/checklist/{{username}}">Collection Checklist</A>
+<LI class="OtherPage"><A HREF="/dynamic/whatif/{{username}}">What If...</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=numplays&sortdir=desc&own=0&played=1">Most Played Games You Don't Own</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&own=0&rated=1">Favourite Games You Don't Own</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&minplays=1&maxplays=1&own=1">You Like It, You Own It, You've Only Played It Once</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?own=1&played=0">You Own It and You Haven't Played It</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?minplays=1&maxplays=1&own=1">You Own It and You've Only Played It Once</A>
+<LI class="External"><A HREF="http://bggtools.com/?u={{username}}&Selection=Collection">Rick Baptist's Collection Valuation</A>
+<LI class="External"><A HREF="http://lautapeliopas.fi/bgg/collection.php?user1={{username}}">Mikko Saari's BGG Collection Rarity</A>
+</ul>
+</div>
+
+{% if pogo %}
+{% include 'stats/pogo.html' %}
+{% include 'stats/pogotable.html' %}
+{% endif %}
+
+{% include 'stats/pbpy.html' %}
+{% endif %}
+
+{% if shouldPlay %}
+{% include 'stats/shouldplay.html' %}
+{% endif %}
+
+{% if shouldPlayOwn %}
+{% include 'stats/shouldplayown.html' %}
+{% endif %}
+
+{% if least %}
+{% include 'stats/least.html' %}
+{% endif %}
+
+{% if unusual %}
+{% include 'stats/unusual.html' %}
+{% endif %}
+
+{% if tab4 %}
+<div id="contents">
+What should you play?
+<P>
+<ul class="BulletList">
+{% if mostUnplayed %}
+<LI class="ThisPage"><A HREF="#mostunplayed">Most Played Games That You Haven't Played</A>
+{% endif %}
+<LI class="OtherPage"><A HREF="/dynamic/numplayers/{{username}}">Favourite Games for Numbers of Players</A>
+<LI class="OtherPage"><A HREF="/dynamic/crazy/{{username}}">Crazy Recommendations (slow)</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=numplays&sortdir=desc&own=0&played=1">Most Played Games You Don't Own</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&own=0&rated=1">Favourite Games You Don't Own</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&minplays=1&maxplays=1&own=1">You Like It, You Own It, You've Only Played It Once</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?own=1&played=0">You Own It and You Haven't Played It</A>
+<LI class="External">Brad Beattie's board game menus:
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=1">1 Player</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=2">2 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=3">3 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=4">4 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=5">5 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=6">6 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=7">7 Players</A>
+</ul>
+</div>
+
+{% if mostUnplayed %}
+{% include 'stats/mostunplayed.html' %}
+{% endif %}
+{% endif %}
+
+{% if tab5 %}
+<div id="contents">
+Other ways of slicing and dicing your collection.
+<P>
+<ul class="BulletList">
+<LI class="OtherPage"><A HREF="/dynamic/multiyear/{{username}}">Games Played in Multiple Years</A>
+<LI class="OtherPage"><A HREF="/dynamic/dimesbydesigner/{{username}}">Dimes By Designer</A>
+<LI class="OtherPage"><A HREF="/dynamic/series/{{username}}">Series Summaries</A>
+<LI class="OtherPage"><A HREF="/dynamic/locations/{{username}}">Plays By Location</A>
+<LI class="OtherPage"><A HREF="/dynamic/cat/{{username}}/designer">Designers</A>
+<LI class="OtherPage"><A HREF="/dynamic/cat/{{username}}/publisher">Publishers</A>
+<LI class="OtherPage"><A HREF="/dynamic/cat/{{username}}/mechanic">Mechanics</A>
+<LI class="OtherPage"><A HREF="/dynamic/cat/{{username}}/category">Categories</A>
+<LI class="OtherPage"><A HREF="/dynamic/selections/{{username}}/owned/%22Owned%22/prevowned/owned/minus/%22Previously%20Owned%22/want/wishlist/1234/wanttobuy/wanttoplay/or/or/or/prevowned/minus/owned/minus/%22Wanted%22/columns/Name,Rating,Utilisation,Plays,First%20Played,Months%20Played,Last%20Played/1">Owned vs Previously Owned</A>
+<LI class="OtherPage"><A HREF="/dynamic/selections/{{username}}/category/Print%20&%20Play/mechanic/Paper-and-Pencil/or/%22Print%20and%20Play%20etc%22/1">Print and Play Games to explore</LI>
+<LI class="OtherPage"><A HREF="/dynamic/selections/{{username}}/lpiy/2005/lpiy/2006/lpiy/2007/lpiy/2008/lpiy/2009/lpiy/2010/lpiy/2011/lpiy/2012/lpiy/2013/lpiy/2014/1">Games Grouped by the Year You Last Played Them</A>
+<LI class="OtherPage"><A HREF="/dynamic/selections/{{username}}/owned/columns/Name,Weight/1">Games You Own With Weight</A>
+<LI class="OtherPage"><A HREF="/dynamic/playlogging/{{username}}">Dazeysan's Splendiferous Play-Logging Utility</A>
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=gamesownedbydesigner&username={{username}}">Games Owned By Designer</A>
+</ul>
+</div>
+
+{% endif %}
+
+{% if tab6 %}
+{% include 'stats/userfaves.html' %}
+{% endif %}
+
+{% if tab7 %}
+{% include 'stats/featurelist.html' %}
+{% endif %}
+
+</body>
+</html>
+
