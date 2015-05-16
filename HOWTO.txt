@@ -11,6 +11,8 @@ sudo apt-get install apache2
 sudo apt-get install mysql-server (remember the database password)
 sudo apt-get install mysql-client
 sudo apt-get install python-django
+sudo apt-get install libapache2-mod-wsgi
+sudo apt-get install python-imaging
 
 3. Get the Extended Stats code from github.
 
@@ -24,3 +26,14 @@ create database extended;
 5. Edit usernames.txt to have the correct set of users.
 
 6. Edit sitedata.py to tell the program about the directory structure.
+
+7. Edit settings.py so that Django knows who the webmaster is.
+
+8. Edit wsgi.py to tell Django what the Python path has to be.
+
+9. Configure the web server.
+
+sudo cp stats.conf /etc/apache2/conf-enabled/
+sudo service apache2 restart
+
+10. Look to see if it's working!
