@@ -3,39 +3,23 @@
 import sys
 sys.path.append(".")
 
-BETWEEN_POPULATES = 300
+BETWEEN_POPULATES = 540
 
 def loadGameFiles(db):
     import time, populateFiles
-    while True:
-        finish = time.time() + BETWEEN_POPULATES
-        populateFiles.main(db, finish)
-        wait = finish - time.time()
-        if wait > 0:
-            print "Rest for", wait
-            time.sleep(wait)
+    finish = time.time() + BETWEEN_POPULATES
+    populateFiles.main(db, finish)
 
-def readUserNames(db):
-    usernames = db.execute("select username from geeks")
-    usernames = [ u[0] for u in usernames if len(u[0]) > 0 ]
-    if "debug" in sys.argv:
-        # testing
-        usernames = debugUsers
-        pass
-    return usernames
-
-import sys, mydb, sitedata
+import sys, mydb, logging, sitedata, time
+logging.basicConfig(filename=sitedata.logfile,level=logging.DEBUG)
+logging.info("Downloader starts at %s" % (time.ctime(),))
 toFix = sys.argv[1:]
-toFix = [ x for x in toFix if x != "debug" ]
-debugUsers = sitedata.debugUsers + [ x for x in toFix if x not in sitedata.debugUsers ]
 db = mydb.MyDB()
 for geek in toFix:
     print db.execute("update files set lastUpdate = null where geek = '%s' and processMethod != 'processGame'" % geek)
     print "Reset %s" % geek
 db.close()
-while True:
-    db = mydb.MyDB()
-    usernames = readUserNames(db)
-    loadGameFiles(db)
-    db.close()
+db = mydb.MyDB()
+loadGameFiles(db)
+db.close()
 

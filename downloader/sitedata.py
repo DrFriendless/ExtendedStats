@@ -4,6 +4,7 @@
 cfgdir = "/home/john/subjects/geek/"
 dbdir = "/home/john/subjects/geek/db/"
 resultdir= "/home/john/subjects/geek/static/"
+logfile = "/home/john/subjects/geek/downloader.log"
 
 # the password for the database
 password = "basilisk"
@@ -16,9 +17,6 @@ dbuser = "root"
 
 # the name of the database
 dbname = "extended"
-
-# users subject to testing - must be an enrolled user
-debugUsers = ["Friendless", "Almecho"]
 
 # the internet-visible address of this service - used for when the downloader wants to copy stuff
 # from the dynamic web site

@@ -25,7 +25,7 @@ def readGameIds(db):
     return ret
 
 def processPlayed(db, filename, geek, url):     
-    import calendar, plays, datetime, stat, library
+    import calendar, plays, datetime, stat, library, logging
     existing = db.execute("select count(*) from monthsplayed where geek = '%s'" % geek)
     noneBefore = existing[0][0] == 0l
     toAdd = []
@@ -56,7 +56,7 @@ def processPlayed(db, filename, geek, url):
                 try:
                     pd = datetime.date(y, m, calendar.monthrange(y,m)[1])
                 except calendar.IllegalMonthError:
-                    print "IllegalMonthError", y, m, data                
+                    logging.error("IllegalMonthError %d %d %s" % (y, m, `data`))                
                 daysSince = (library.TODAY - pd).days
             if daysSince <= 3: 
                 tillNext = '24:00:00'
@@ -94,7 +94,7 @@ def processPlayed(db, filename, geek, url):
         return 1
     
 def processPlays(db, filename, geek, url):
-    import datetime, calendar, plays, stat, library
+    import datetime, calendar, plays, stat, library, logging
     library.deleteFileIfBad(filename)
     try:
         ps = library.DictOfLists()
@@ -109,28 +109,27 @@ def processPlays(db, filename, geek, url):
             endDate = datetime.datetime(year, month, calendar.monthrange(year, month)[1], 23)
         except ValueError:
             if year != 0 or month != 0:
-                print "That's a bad date", year, month
+                logging.warning("That's a bad date %d %d" % (year, month))
                 return 1
         try:
             numEntries = plays.processPlaysFile(db, geek, filename, ps)
             soFar = 100
             page = 2
             while soFar < numEntries:
-                print "--- more entries from", filename, geek, url, soFar, numEntries, page
+                logging.debug("more entries from %s %s %s %d %d %d" % (filename, geek, url, soFar, numEntries, page))
                 filename2 = filename[:-4] + "_page%d.xml" % page
                 url2 = url + "&page=%d" % page
                 r = library.getFile(url2, filename2)
                 if r == 0:
-                    print "Failed to download page %d of %s." % (page, url)
+                    logging.error("Failed to download page %d of %s." % (page, url))
                     return 0                
                 plays.processPlaysFile(db, geek, filename2, ps)
                 page = page + 1
                 soFar = soFar + 100
         except socket.error:
-            import traceback
-            traceback.print_exc()
+            logging.exception('')
             return 0
-        print "Processing plays from %s" % filename
+        logging.info("Processing plays from %s" % filename)
         if startDate is not None:        
             sql = "delete from plays where geek = %s and playDate between %s and %s"
             db.execute(sql, [geek, startDate, endDate])
@@ -145,11 +144,11 @@ def processPlays(db, filename, geek, url):
             try:
                 (y, m, d) = (int(fields[0]), int(fields[1]), int(fields[2]))
             except ValueError:
-                print "Invalid date", date
+                logging.error("Invalid date %s" % `date`)
                 import sys
                 sys.exit(0)
             if m != month or y != year:
-                print "Skipping Aldie's bug: games played in %d-%02d listed under entry for %d-%02d" % (y, m, year, month)
+                logging.warning("Skipping Aldie's bug: games played in %d-%02d listed under entry for %d-%02d" % (y, m, year, month))
                 continue
             if y == 0 and m == 0:
                 d = '0000-00-00'
@@ -161,7 +160,7 @@ def processPlays(db, filename, geek, url):
         frontpage.updateFrontPageData(db, geek)
         return 1
     except OSError:
-        print "Couldn't find", filename
+        logging.exception('')
         return 0
     
 class PlayerRecKey(object):
@@ -227,89 +226,24 @@ def _writeOpponentsToDB(db, geek, playerRecs, month, year):
         db.execute(s, binds)
 
 def processCollection(db, filename, geek, url):
+    import logging
     try:
         dom = xml.dom.minidom.parse(filename)
     except xml.parsers.expat.ExpatError, e:
-        print "Error parsing XML in file %s" % filename, e
+        logging.exception('')
         return 0
     if len(dom.getElementsByTagName("items")) == 0:
-        print "no items in %s" % filename
+        logging.warning("no items in %s" % filename)
         return 0
     db.execute("delete from geekgames where geek = '%s'" % geek)
-    try:
-        numpages = int(dom.getElementsByTagName("items")[0].getAttribute("numpages"))
-    except ValueError:
-        addGamesFromFile(db, filename, geek)
-        import frontpage
-        frontpage.updateFrontPageData(db, geek)        
-        return 1
-    for pn in range(numpages):
-        p = str(pn+1)
-        url = COLLECTION_URL % geek + "&page=" + p
-        dest = sitedata.dbdir + "collection_%s_page%s.xml" % (geek, p)
-        r = library.getFile(url, dest)
-        if r == 0:
-            return 0
-        fixAmpersandsInXml(dest)
-        addGamesFromFile(dest, geek)
+    addGamesFromFile(db, dom, geek)
     import frontpage
-    frontpage.updateFrontPageData(geek)        
+    frontpage.updateFrontPageData(db, geek)        
     return 1
-    
-def processMarket(db, filename, geek, url):
-    import library
-    data = []
-    f = file(filename)  
-    for line in f.readlines():
-        if line.find("<div class='storeheader'>") >= 0:
-            gameid = library.between(line, '/game/', '"')
-        elif line.find("More Info...") >= 0:
-            itemid = library.between(line, 'itemid=', '"')
-            if itemid and gameid:
-                data.append((geek, gameid, itemid))
-    sql = "delete from market where geek = %s"
-    db.execute(sql, [geek])
-    for (geek, gameid, itemid) in data:
-        sql = "insert into market (geek, gameid, itemid) values (%s, %s, %s)"
-        db.execute(sql, [geek, gameid, itemid])
-    return 1    
-    
-def processUser(db, filename, geek, url):
-    import library
-    f = file(filename)
-    changes = 0
-    sql = "select count(*) from users where geek = %s"
-    data = db.execute(sql, [geek])
-    if int(data[0][0]) == 0:
-        sql = "insert into users (geek) values (%s)"
-        db.execute(sql, [geek])
-    for line in f.readlines():
-        if line.find("/images/user/") > 0:
-            n = int(library.between(line, "/images/user/", "/"))
-            sql = "update users set bggid = %s where geek = %s"
-            db.execute(sql, [n, geek])  
-            changes = changes + 1
-        if line.find("/users?country=") > 0:
-            s = library.between(line, "country=", '"')
-            sql = "update users set country = %s where geek = %s"
-            if s == "Australia":
-                filename = "market_%s.html" % geek
-                recordFile(db, filename, MARKET_URL % geek, "processMarket", geek, "User marketplace data")
-            db.execute(sql, [s, geek])  
-            changes = changes + 1  
-        if changes == 2:
-            break
-    f.close()
-    return changes
 
-def addGamesFromFile(db, filename, geek):
+def addGamesFromFile(db, dom, geek):
     import mydb
     owned = {}
-    try:
-        dom = xml.dom.minidom.parse(filename)
-    except xml.parsers.expat.ExpatError, e:
-        print "Error parsing XML in file %s" % filename, e
-        return 0
     if len(dom.getElementsByTagName("items")) == 0:
         return 0
     games = dom.getElementsByTagName("items")[0]
@@ -377,13 +311,59 @@ def addGamesFromFile(db, filename, geek):
                 tag.geek = geek
                 tag.game = game.game
                 tag.tag = getText(tagNode).encode('utf8')
-                print tag.geek, tag.game, tag.tag
                 if tag.tag.startswith("own:"):
                     continue
                 db.saveRow(tag, "geekgametags", "geek = '%s' and game = %d" % (tag.geek, tag.game))
         except IndexError:
             # no tags
             pass
+    
+def processMarket(db, filename, geek, url):
+    import library
+    data = []
+    f = file(filename)  
+    for line in f.readlines():
+        if line.find("<div class='storeheader'>") >= 0:
+            gameid = library.between(line, '/game/', '"')
+        elif line.find("More Info...") >= 0:
+            itemid = library.between(line, 'itemid=', '"')
+            if itemid and gameid:
+                data.append((geek, gameid, itemid))
+    sql = "delete from market where geek = %s"
+    db.execute(sql, [geek])
+    for (geek, gameid, itemid) in data:
+        sql = "insert into market (geek, gameid, itemid) values (%s, %s, %s)"
+        db.execute(sql, [geek, gameid, itemid])
+    return 1    
+    
+def processUser(db, filename, geek, url):
+    import library
+    f = file(filename)
+    changes = 0
+    sql = "select count(*) from users where geek = %s"
+    data = db.execute(sql, [geek])
+    if int(data[0][0]) == 0:
+        sql = "insert into users (geek) values (%s)"
+        db.execute(sql, [geek])
+    for line in f.readlines():
+        if line.find("/images/user/") > 0:
+            n = int(library.between(line, "/images/user/", "/"))
+            sql = "update users set bggid = %s where geek = %s"
+            db.execute(sql, [n, geek])  
+            changes = changes + 1
+        if line.find("/users?country=") > 0:
+            s = library.between(line, "country=", '"')
+            sql = "update users set country = %s where geek = %s"
+            if s == "Australia":
+                filename = "market_%s.html" % geek
+                recordFile(db, filename, MARKET_URL % geek, "processMarket", geek, "User marketplace data")
+            db.execute(sql, [s, geek])  
+            changes = changes + 1  
+        if changes == 2:
+            break
+    f.close()
+    return changes
+
 
 def getExistingRating(db, geek, bggid):
     sql = "select rating from geekgames where geek = '%s' and game = %d" % (geek, bggid)
@@ -400,27 +380,27 @@ def getNodeText(node):
     return rc
 
 def _readFile(game, id, filename):
-    import library
+    import library, logging
     game.expands = []
     try:
         dom = xml.dom.minidom.parse(filename)
     except xml.parsers.expat.ExpatError:
         if library.deleteFileIfBad(filename):
-            print "Unable to parse %s" % filename
-            import traceback
-            traceback.print_exc()
+            logging.error("Unable to parse %s" % filename)
+            logging.exception('')
         return None
     except IOError:
-        print "File %s is bad" % filename
+        logging.error("File %s is bad" % filename)
         return None
     gameNode = dom.getElementsByTagName("boardgames")
     if gameNode is None or gameNode == []:
-        print "No game in file %s" % filename
-        raise NoSuchGame(filename)
+        # 503 temporarily unavailable        
+        logging.warning("No game in file %s" % filename)
+        return None
     try:
         names = dom.getElementsByTagName("name")
         if names is None or names == []:
-            print "No such game as %s" % str(id)
+            logging.warning("No such game as %s" % str(id))
             raise NoSuchGame(filename)
         for n in names:
             if str(n.getAttribute("primary")) == "true":
@@ -445,18 +425,18 @@ def _readFile(game, id, filename):
     try:
         stats = dom.getElementsByTagName("statistics")[0]
     except IndexError:
-        print "No stats found in file %s" % filename
+        logging.warning("No stats found in file %s" % filename)
         stats = None
     if stats:
         try:
             ratings = stats.getElementsByTagName("ratings")[0]
         except IndexError:
-            print "No ratings found in file %s" % filename
+            logging.warning("No ratings found in file %s" % filename)
             ratings = None
         try:
             ranks = stats.getElementsByTagName("rank")
         except IndexError:
-            print "No ranks found in file %s" % filename
+            logging.warning("No ranks found in file %s" % filename)
             ranks = None
     else:
         ratings = None
@@ -616,15 +596,15 @@ def processGame(db, filename, geek, url):
     return 1
 
 def refreshFile(db, filename, url, method, geek):
-    import library
+    import library, logging
     global theNumbers
     if url:
-        print "%s Processing %s %s" % (time.strftime("%H:%M:%S"), filename, `theNumbers`)
+        logging.info("%s Processing %s %s" % (time.strftime("%H:%M:%S"), filename, `theNumbers`))
         dest = sitedata.dbdir + filename
         try:
             r = library.getFile(url, dest)
         except IOError:
-            print "IOError"
+            logging.exception('')
             return 0
         if r == 0:
             return 0
@@ -632,7 +612,7 @@ def refreshFile(db, filename, url, method, geek):
         dest = None
     import os
     if dest is not None and not os.access(dest, os.R_OK):
-        print dest, "inaccessible"
+        logging.warning("%s inaccessible" % dest)
         return 0
     result = eval("%s(db, '%s', '%s', '%s')" % (method, dest, geek, url), globals(), locals())
     if result and (dest is not None):
@@ -643,9 +623,10 @@ def refreshFile(db, filename, url, method, geek):
     return result
 
 def updateFiles(db, records, index, finish):
-    import time
+    import time, logging
     global theNumbers
     for record in records:
+        time.sleep(1)
         if finish is not None and time.time() > finish:
             break
         try:
@@ -654,7 +635,7 @@ def updateFiles(db, records, index, finish):
                 db.execute("update files set lastUpdate = now() where url = %s", [record[1]])
                 db.execute("update files set nextUpdate = addtime(lastUpdate, tillNextUpdate) where url = %s", [record[1]])
             else:
-                print "DIDN'T PROCESS %s" % record[1]
+                logging.warning("DIDN'T PROCESS %s" % record[1])
         except NoSuchGame:
             db.execute("delete from files where url = %s", [record[1]])
         theNumbers[index] = theNumbers[index] - 1
@@ -810,8 +791,9 @@ def recordFile(db, filename, url, processMethod, geek, description):
         db.execute(sql2, args)
 
 def populateFiles(db):
+    import logging
     usernames = readUserNames()
-    print "%d users" % len(usernames)
+    logging.info("%d users" % len(usernames))
     for u in usernames:
         ensureGeek(db, u)
         uu = urllib.quote(u)
@@ -822,7 +804,7 @@ def populateFiles(db):
         filename = "%s_profile.html" % u
         recordFile(db, filename, PROFILE_URL % uu, "processUser", u, "User's profile")
     bggids = readGameIds(db)
-    print "%d games" % len(bggids)
+    logging.info("%d games" % len(bggids))
     shouldDeleteGames = []
     for id in bggids:
         filename = "%d.xml" % id
@@ -834,16 +816,15 @@ def populateFiles(db):
     db.execute(sql)
     
 def copyDynamicPageToStatic(destFilename, srcFilename):
-    import urllib, sitedata
+    import urllib, sitedata, logging
     dest = sitedata.resultdir + destFilename
     src = sitedata.site + srcFilename
-    print "Save %s to %s" % (src, dest)
+    logging.info("Save %s to %s" % (src, dest))
     try:
         urllib.urlretrieve(src, dest)
         return 1
     except IOError:
-        import traceback
-        traceback.print_exc()
+        logging.exception('')
         return 0    
     
 def processFrontPage(db, filename, geek, url):  
@@ -966,16 +947,13 @@ def deleteUsers(db, users):
     db.execute("delete from geeks where username in (%s)" % users)
 
 def main(db, finish):
-    #dbexec(db, "alter table games add column expansion int unsigned not null default 0")
-    #dbexec(db, "update files set lastUpdate = null where processMethod = 'processTop50'")
-    #dbexec(db, "delete from files where processMethod = 'processCollection' and url like '%all=1'")
-    #dbexec(db, "delete from files")
+    import logging
     usernames = readUserNames()
     inlist = ", ".join([("'%s'" % u) for u in usernames])
     oldUsers = db.execute("select username from geeks where username not in (%s)" % inlist)
     if len(oldUsers) > 0:
 	deleteList = ", ".join([("'%s'" % u) for u in oldUsers])
-	print "These users should be deleted:", deleteList
+	logging.info("These users should be deleted: %s" % `deleteList`)
 	deleteUsers(db, deleteList)
     populateFiles(db)
     refreshFiles(db, finish)
@@ -995,7 +973,8 @@ def getGame(id, db):
             populateFiles.addGame(db, id)
             g = Game(id, db)
         except NotInDatabase:
-            print "Couldn't add game %d to the database" % id
+            import logging
+            logging.error("Couldn't add game %d to the database" % id)
             return None
     except NoSuchGame:
         return None
@@ -1054,9 +1033,4 @@ class Game:
 
     def __cmp__(self, other):
         return cmp(self.name.lower(), other.name.lower())
-    
-if __name__ == "__main__":
-    import time
-    main(time.time() + 300)
-    
     

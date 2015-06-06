@@ -516,7 +516,7 @@ def findLinesBetween(lines, start, end):
     
 def deleteFileIfBad(filename):    
     "Return whether the file exists now or not."
-    import os
+    import os, logging
     if os.access(filename, os.R_OK):
         f = open(filename)
         content = f.read()
@@ -524,32 +524,32 @@ def deleteFileIfBad(filename):
         bad2 = len(content) == 0
         f.close()
         if bad1:
-            print "Deleting BGG down file %s" % filename
+            logging.warning("Deleting BGG down file %s" % filename)
             os.remove(filename)
             return False
         elif bad2:
-            print "Deleting zero length file %s" % filename
+            logging.warning("Deleting zero length file %s" % filename)
             os.remove(filename)
             return False
         return True
     return False
 
 def downloadFile(url, filename, verbose=False):
-    import subprocess, time
+    import subprocess, time, logging
     try:
         t = time.time()
         subprocess.check_call(["/usr/bin/curl", "--compressed", "-s", "--max-time", "300", "-o", filename, url])
         t2 = time.time()
-        print "took", (t2-t)
+        logging.info("took %f" % (t2-t))
         return 1
     except subprocess.CalledProcessError:
-        print "curl failed to get %s" % url
+        logging.warning("curl failed to get %s" % url)
         return 0
             
 def getFile(url, filename, verbose=False):
-    import os, stat, time, sys
+    import logging
     deleteFileIfBad(filename)
-    print "Retrieving %s" % url
+    logging.info("Retrieving %s" % url)
     url = url.replace(' ', '%20')
     if not downloadFile(url, filename, verbose):
         return 0
