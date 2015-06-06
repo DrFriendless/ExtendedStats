@@ -22,6 +22,8 @@ git clone https://github.com/DrFriendless/ExtendedStats extended
 
 mysql -u root -p (type in the password)
 create database extended;
+(import the schema from database_schema.sql but I forget the command, something like this:
+mysql extended -u root -p <database_schema.sql
 
 5. Edit usernames.txt to have the correct set of users.
 
@@ -31,9 +33,11 @@ create database extended;
 
 8. Edit wsgi.py to tell Django what the Python path has to be.
 
-9. Configure the web server.
+9. Create the db and result directories in extended.
+
+10. Configure the web server.
 
 sudo cp stats.conf /etc/apache2/conf-enabled/
 sudo service apache2 restart
 
-10. Look to see if it's working!
+11. Look to see if it's working!
