@@ -14,7 +14,9 @@ framework.
 
 """
 import os, sys
-sys.path.append('/home/john/subjects/geek/extended')
+# figure it out from this file's location - this avoids having to edit this file during installation
+dir = os.path.split(os.path.split(os.path.realpath(__file__))[0])[0]
+sys.path.append(dir)
 
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 # if running multiple sites in the same mod_wsgi process. To fix this, use
