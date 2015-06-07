@@ -13,7 +13,8 @@ GAME_URL = "http://boardgamegeek.com/xmlapi/boardgame/%d&stats=1"
 MARKET_URL = "http://www.boardgamegeek.com/geekstore.php3?action=viewuser&username=%s"
 
 def readUserNames():
-    uf = open(sitedata.cfgdir + "usernames.txt")
+    import os
+    uf = open(os.path.join(sitedata.cfgdir, "usernames.txt"))
     usernames = [ line.strip() for line in uf.readlines() ]
     uf.close()
     usernames = [ u for u in usernames if len(u) > 0 ]
@@ -596,11 +597,11 @@ def processGame(db, filename, geek, url):
     return 1
 
 def refreshFile(db, filename, url, method, geek):
-    import library, logging
+    import library, logging, os
     global theNumbers
     if url:
         logging.info("%s Processing %s %s" % (time.strftime("%H:%M:%S"), filename, `theNumbers`))
-        dest = sitedata.dbdir + filename
+        dest = os.path.join(sitedata.dbdir, filename)
         try:
             r = library.getFile(url, dest)
         except IOError:
@@ -782,7 +783,7 @@ def recordFile(db, filename, url, processMethod, geek, description):
         else:
             try:
                 import os, stat
-                mtime = os.stat(sitedata.dbdir + filename)[stat.ST_MTIME]
+                mtime = os.stat(os.path.join(sitedata.dbdir, filename))[stat.ST_MTIME]
                 sql2 = "insert into files (filename, url, processMethod, geek, lastupdate, tillNextUpdate, description) values (%s, %s, %s, %s, FROM_UNIXTIME(%s), %s, %s)" 
                 args = [filename, url, processMethod, geek, mtime, till, description]
             except OSError:
@@ -816,9 +817,9 @@ def populateFiles(db):
     db.execute(sql)
     
 def copyDynamicPageToStatic(destFilename, srcFilename):
-    import urllib, sitedata, logging
-    dest = sitedata.resultdir + destFilename
-    src = sitedata.site + srcFilename
+    import urllib, sitedata, logging, os
+    dest = os.path.join(sitedata.resultdir, destFilename)
+    src = os.path.join(sitedata.site, srcFilename)
     logging.info("Save %s to %s" % (src, dest))
     try:
         urllib.urlretrieve(src, dest)
@@ -878,7 +879,7 @@ def readMetadata():
     import library
     series = {}
     expansions = []
-    f = file(sitedata.cfgdir + "metadata.txt")
+    f = file(os.path.join(sitedata.cfgdir, "metadata.txt"))
     for line in f.readlines():
         line = line.strip()
         if line.find('#') >= 0:

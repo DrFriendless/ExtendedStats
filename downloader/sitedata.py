@@ -1,10 +1,18 @@
 # configuration for a particular stats site
+import os, sys
 
+downloaderDir = os.path.split(os.path.realpath(__file__))[0]
+installDir = os.path.split(downloaderDir)[0]
 # the directory where the configuration files (e.g. usernames.txt) are stored
-cfgdir = "/home/john/subjects/geek/"
-dbdir = "/home/john/subjects/geek/db/"
-resultdir= "/home/john/subjects/geek/static/"
-logfile = "/home/john/subjects/geek/downloader.log"
+cfgdir = installDir
+dbdir = os.path.join(installDir, "db")
+resultdir= os.path.join(installDir, "static")
+logfile = os.path.join(installDir, "downloader.log")
+
+if not os.path.exists(dbdir):
+    os.makedirs(dbdir)
+if not os.path.exists(resultdir):
+    os.makedirs(resultdir)
 
 # the password for the database
 password = "basilisk"
