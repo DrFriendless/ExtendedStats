@@ -10,8 +10,11 @@ def loadGameFiles(db):
     finish = time.time() + BETWEEN_POPULATES
     populateFiles.main(db, finish)
 
-import sys, mydb, logging, sitedata, time
-logging.basicConfig(filename=sitedata.logfile,level=logging.DEBUG)
+import sys, mydb, logging, logging.handlers, sitedata, time
+handler = logging.handlers.RotatingFileHandler(sitedata.logfile, maxBytes=100000000, backupCount=5)
+logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().addHandler(handler)
+
 logging.info("Downloader starts at %s" % (time.ctime(),))
 toFix = sys.argv[1:]
 db = mydb.MyDB()
