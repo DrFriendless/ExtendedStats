@@ -22,3 +22,6 @@ timezone = "Australia/Brisbane"
 
 # tell the web server what language to use
 language = "en-uk"
+
+# pause between BGG hits in seconds, to avoid 503 errors
+bggPause = 0.5
