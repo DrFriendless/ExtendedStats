@@ -5,16 +5,19 @@ sys.path.append(".")
 
 BETWEEN_POPULATES = 540
 
-def loadGameFiles(db):
+def loadGameFiles(db, rec):
     import time, populateFiles
     finish = time.time() + BETWEEN_POPULATES
-    populateFiles.main(db, finish)
+    populateFiles.main(db, finish, rec)
 
 import sys, mydb, logging, logging.handlers, sitedata, time
 handler = logging.handlers.RotatingFileHandler(sitedata.logfile, maxBytes=10000000, backupCount=5)
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger().addHandler(handler)
 
+import downloaderrecord
+rec = downloaderrecord.DownloaderRecord()
+rec.start()
 logging.info("Downloader starts at %s" % (time.ctime(),))
 if not os.path.exists(sitedata.dbdir):
     logging.info("Making data directory %s" % sitedata.dbdir)
@@ -30,6 +33,8 @@ for geek in toFix:
     print "Reset %s" % geek
 db.close()
 db = mydb.MyDB()
-loadGameFiles(db)
+loadGameFiles(db, rec)
+rec.finish()
+db.execute(rec.toSQL())
 db.close()
-
+logging.info(str(rec))

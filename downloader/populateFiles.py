@@ -595,17 +595,20 @@ def processGame(db, filename, geek, url):
     _saveToDatabase(db, game)
     return 1
 
-def refreshFile(db, filename, url, method, geek):
-    import library, logging, os, sitedata
+def refreshFile(db, filename, url, method, geek, rec):
+    import library, logging, os, sitedata, time
     global theNumbers
     if url:
         logging.info("%s Processing %s %s" % (time.strftime("%H:%M:%S"), filename, `theNumbers`))
         dest = os.path.join(sitedata.dbdir, filename)
         try:
+            s = time.time()
             r = library.getFile(url, dest)
-        except IOError:
+        except IOError: 
+            rec.wait(time.time()-s)
             logging.exception('')
             return 0
+        rec.wait(time.time()-s)
         if r == 0:
             return 0
     else:
@@ -622,8 +625,8 @@ def refreshFile(db, filename, url, method, geek):
             pass
     return result
 
-def updateFiles(db, records, index, finish):
-    import time, logging
+def updateFiles(db, records, index, finish, rec):
+    import time, logging, sitedata
     global theNumbers
     for record in records:
         time.sleep(1)
@@ -631,18 +634,22 @@ def updateFiles(db, records, index, finish):
             break
         try:
             db.execute("update files set lastattempt = now() where url = %s", [record[1]])
-            if refreshFile(db, record[0], record[1], record[2], record[3]):
+            if refreshFile(db, record[0], record[1], record[2], record[3], rec):
                 db.execute("update files set lastUpdate = now() where url = %s", [record[1]])
                 db.execute("update files set nextUpdate = addtime(lastUpdate, tillNextUpdate) where url = %s", [record[1]])
+                rec.processFiles(1)
             else:
+                rec.failure()
                 logging.warning("DIDN'T PROCESS %s" % record[1])
         except NoSuchGame:
             db.execute("delete from files where url = %s", [record[1]])
+        time.sleep(sitedata.bggPause)
+        rec.pause(sitedata.bggPause)
         theNumbers[index] = theNumbers[index] - 1
             
 theNumbers = None            
 
-def refreshFiles(db, finishTime):
+def refreshFiles(db, finishTime, rec):
     global theNumbers
     sql = "select filename, url, processMethod, geek from files where lastUpdate is null order by lastattempt"
     files1 = db.execute(sql)
@@ -657,9 +664,9 @@ def refreshFiles(db, finishTime):
     if len(files3) == 0:
         reserveFor3 = 0
     theNumbers = [len(files1), len(files2), len(files3)]
-    updateFiles(db, files1, 0, finishTime - reserveFor3 - reserveFor2)
-    updateFiles(db, files2, 1, finishTime - reserveFor3)
-    updateFiles(db, files3, 2, finishTime)
+    updateFiles(db, files1, 0, finishTime - reserveFor3 - reserveFor2, rec)
+    updateFiles(db, files2, 1, finishTime - reserveFor3, rec)
+    updateFiles(db, files3, 2, finishTime, rec)
 
 def ts(t):
     s = time.localtime(t)
@@ -790,10 +797,8 @@ def recordFile(db, filename, url, processMethod, geek, description):
                 args = [filename, url, processMethod, geek, till, description]
         db.execute(sql2, args)
 
-def populateFiles(db):
-    import logging
+def populateFiles(db, rec):
     usernames = readUserNames()
-    logging.info("%d users" % len(usernames))
     for u in usernames:
         ensureGeek(db, u)
         uu = urllib.quote(u)
@@ -804,7 +809,7 @@ def populateFiles(db):
         filename = "%s_profile.html" % u
         recordFile(db, filename, PROFILE_URL % uu, "processUser", u, "User's profile")
     bggids = readGameIds(db)
-    logging.info("%d games" % len(bggids))
+    rec.usersAndGames(len(usernames), len(bggids))
     shouldDeleteGames = []
     for id in bggids:
         filename = "%d.xml" % id
@@ -946,7 +951,7 @@ def deleteUsers(db, users):
     db.execute("delete from files where geek in (%s)" % users)
     db.execute("delete from geeks where username in (%s)" % users)
 
-def main(db, finish):
+def main(db, finish, rec):
     import logging
     usernames = readUserNames()
     inlist = ", ".join([("'%s'" % u) for u in usernames])
@@ -955,8 +960,8 @@ def main(db, finish):
 	deleteList = ", ".join([("'%s'" % u) for u in oldUsers])
 	logging.info("These users should be deleted: %s" % `deleteList`)
 	deleteUsers(db, deleteList)
-    populateFiles(db)
-    refreshFiles(db, finish)
+    populateFiles(db, rec)
+    refreshFiles(db, finish, rec)
     
 allGames = {}
 
