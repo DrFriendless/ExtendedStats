@@ -1,21 +1,25 @@
 # Django settings for extended project.
 
+import os, sys
+dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, os.pardir)
+sys.path.append(dir)
+import sitesettings
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('John Farrell', 'friendless.farrell@gmail.com'),
+    #
 )
 
 MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'extended',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': 'root',
-        'PASSWORD': 'basilisk',
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': sitesettings.dbname,
+        'USER': sitesettings.dbuser,
+        'PASSWORD': sitesettings.password,
         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
     }
@@ -29,11 +33,11 @@ ALLOWED_HOSTS = []
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'Australia/Brisbane'
+TIME_ZONE = sitesettings.timezone
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-uk'
+LANGUAGE_CODE = sitesettings.language
 
 SITE_ID = 1
 
@@ -159,4 +163,4 @@ LOGGING = {
 }
 
 CSRF_FAILURE_VIEW='extended.csrf.wtf'
-CSRF_COOKIE_DOMAIN = 'friendlessstats.dtdns.net'
+CSRF_COOKIE_DOMAIN = sitesettings.domain

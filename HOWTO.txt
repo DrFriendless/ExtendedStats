@@ -29,19 +29,15 @@ mysql extended -u root -p <database_schema.sql
 
 5. Edit usernames.txt to have the correct set of users.
 
-6. Edit sitedata.py to tell the program about the directory structure.
+6. Edit sitesettings.py to tell the downloader and the web server everything they need to know.
 
-7. Edit settings.py so that Django knows who the webmaster is.
-
-8. Create the db and result directories in extended.
-
-9. Configure the web server.
+7. Configure the web server.
 
 sudo cp stats.conf /etc/apache2/conf-enabled/
 sudo service apache2 restart
 
-10. Edit the crontab to have a line like this (by running "sudo crontab -e"):
+8. Edit the crontab to have a line like this (by running "sudo crontab -e"):
 
 */10 * * * * /home/ubuntu/extended/downloader/downloader
 
-11. Look to see if it's working!
+9. Look to see if it's working!

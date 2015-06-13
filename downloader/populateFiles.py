@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import MySQLdb, sys, time, _mysql_exceptions, time, os, urllib, pickle, xml.dom.minidom, socket
-import sitedata
 from MySQLdb import Timestamp
 
 COLLECTION_URL = u"http://boardgamegeek.com/xmlapi2/collection?username=%s&brief=1&stats=1"
@@ -13,8 +12,8 @@ GAME_URL = "http://boardgamegeek.com/xmlapi/boardgame/%d&stats=1"
 MARKET_URL = "http://www.boardgamegeek.com/geekstore.php3?action=viewuser&username=%s"
 
 def readUserNames():
-    import os
-    uf = open(os.path.join(sitedata.cfgdir, "usernames.txt"))
+    import os, sitedata
+    uf = open(os.path.join(sitedata.installDir, "usernames.txt"))
     usernames = [ line.strip() for line in uf.readlines() ]
     uf.close()
     usernames = [ u for u in usernames if len(u) > 0 ]
@@ -581,11 +580,11 @@ def _saveToDatabase(db, game):
         saveGameExpands(db, game.id, game.expands)    
 
 def processGame(db, filename, geek, url):
-    import library
+    import library, sitedata
     game = library.Thing()
     game.subdomain = "boardgame"
     if "/" not in filename:
-        filename = sitedata.dbdir + filename
+        filename = os.path.join(sitedata.dbdir, filename)
     id = int(library.between(filename[filename.rfind('/'):], "/", "."))
     game.id = id
     if _readFile(game, id, filename) is None:
@@ -597,7 +596,7 @@ def processGame(db, filename, geek, url):
     return 1
 
 def refreshFile(db, filename, url, method, geek):
-    import library, logging, os
+    import library, logging, os, sitedata
     global theNumbers
     if url:
         logging.info("%s Processing %s %s" % (time.strftime("%H:%M:%S"), filename, `theNumbers`))
@@ -782,7 +781,7 @@ def recordFile(db, filename, url, processMethod, geek, description):
             args = [processMethod, geek, till, description]
         else:
             try:
-                import os, stat
+                import os, stat, sitedata
                 mtime = os.stat(os.path.join(sitedata.dbdir, filename))[stat.ST_MTIME]
                 sql2 = "insert into files (filename, url, processMethod, geek, lastupdate, tillNextUpdate, description) values (%s, %s, %s, %s, FROM_UNIXTIME(%s), %s, %s)" 
                 args = [filename, url, processMethod, geek, mtime, till, description]
@@ -830,7 +829,7 @@ def copyDynamicPageToStatic(destFilename, srcFilename):
     
 def processFrontPage(db, filename, geek, url):  
     # the dynamic front page is expensive to generate so we download it and save a static copy
-    import urllib, sitedata, socket
+    import urllib, socket
     socket.setdefaulttimeout(1200)
     result = 1
     result = result * copyDynamicPageToStatic("rankings.html", "dynamic/rankings/all")
@@ -879,7 +878,7 @@ def readMetadata():
     import library
     series = {}
     expansions = []
-    f = file(os.path.join(sitedata.cfgdir, "metadata.txt"))
+    f = file(os.path.join(sitedata.installDir, "metadata.txt"))
     for line in f.readlines():
         line = line.strip()
         if line.find('#') >= 0:
