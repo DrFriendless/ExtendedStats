@@ -569,6 +569,17 @@ def getBrowser(request):
 def rankings(request, param):
     (categories, mechanics, title, data) = generate.getTopRankedData(param)
     return render_to_response("stats/rankings.html", locals())    
+
+def playrate(request, param):
+    try:
+        (context, selector) = interpretRequestAndSelector(request, param, "all")
+        import selectors, features
+        data = generate.getPlayRateData(context, selector)
+        (img, imap) = imggen.createPlayRateGraph(context, data)
+        all =  {"username" : context.geek, "prdata" : features.imageBinaryData(img), "prmap": imap, "selector" : selector } 
+        return render_to_response("stats/playrate_result.html", all)
+    except Geeks.DoesNotExist:
+        return render_to_response("stats/geek_error.html", locals())  
         
 def normrankings(request, param):
     (categories, mechanics, title, data) = generate.getNormRankedData(param)
