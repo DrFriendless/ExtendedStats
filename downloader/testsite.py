@@ -72,7 +72,12 @@ URLS = [
         "http://friendlessstats.dtdns.net/dynamic/selections/%s/designer/125/designer/2/designer/7/designer/244/designer/141/owned/map/and/5",
         "http://friendlessstats.dtdns.net/dynamic/selections/%s/designer/125/designer/2/designer/7/designer/244/designer/141/piy/2012/map/and/2",
         "http://friendlessstats.dtdns.net/dynamic/generic/%s/designer/2",
-        "http://friendlessstats.dtdns.net/dynamic/calendar/%s/2012/stop/playCount/all/owned/minus"
+        "http://friendlessstats.dtdns.net/dynamic/calendar/%s/2012/stop/playCount/all/owned/minus",
+        "http://friendlessstats.dtdns.net/dynamic/image/playrate/%s",
+        "http://friendlessstats.dtdns.net/dynamic/image/playrateown/%s",
+        "http://friendlessstats.dtdns.net/dynamic/playrate/%s",
+        "http://friendlessstats.dtdns.net/dynamic/playrate/%s/prevowned",
+        "http://friendlessstats.dtdns.net/dynamic/image/playrate/%s/fpiy/2014"
         ]
 TAGS = ["pbpy", "obpy", "rbpy", "mmmpie", "pogo", "pogotable", "mostunplayed", "playrate", "playrateown", "playrateprev",
         "pbmever", "pbmytd", "pbmgraph", "pr", "pbq", "favourites", "fgbpy", "bestdays", "ratingByRanking", "unusual", "least",

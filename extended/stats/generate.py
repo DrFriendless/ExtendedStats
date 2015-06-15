@@ -746,6 +746,9 @@ def whiteThing(value):
     return t
 
 def getPlayRateData(context, selector):
+    if type(selector) == type("") or type(selector) == type(u""):
+        import selectors
+        selector = selectors.getSelectorFromString(selector)
     import library, math
     opts = library.Thing()
     opts.excludeExpansions = False

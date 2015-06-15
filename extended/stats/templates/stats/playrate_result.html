@@ -1,0 +1,16 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Play Rate Graph for {{username}} for {{selector}}</title>
+{% include 'stats/stylesheets.html' %}
+</head>
+<body>
+{% include 'stats/navbar.html' %}
+
+<div id="contents">
+{% include 'stats/playrate.html' %}
+</div>
+
+</body>
+</html>
+

@@ -55,12 +55,8 @@ class PlaysByPublishedYear(Feature):
     
     def generate(self, context):
         import imgviews        
-        (img, rbpymap) = imgviews.playsByPublishedYear(context)   
-        import urllib, StringIO
-        src = StringIO.StringIO()
-        img.save(src, "PNG")
-        rbpydata = urllib.quote(src.getvalue())    
-        return {"pbpydata" : rbpydata, "pbpymap" : rbpymap }
+        (img, rbpymap) = imgviews.playsByPublishedYear(context)    
+        return {"pbpydata" : imageBinaryData(img), "pbpymap" : rbpymap }
         
 class OwnedByPublishedYear(Feature):
     def __init__(self):
@@ -68,12 +64,8 @@ class OwnedByPublishedYear(Feature):
         
     def generate(self, context):
         import imgviews    
-        (img, obpymap) = imgviews.ownedByPublishedYear(context)   
-        import urllib, StringIO
-        src = StringIO.StringIO()
-        img.save(src, "PNG")
-        obpydata = urllib.quote(src.getvalue())    
-        return { "obpydata" : obpydata, "obpymap" : obpymap }
+        (img, obpymap) = imgviews.ownedByPublishedYear(context)    
+        return { "obpydata" : imageBinaryData(img), "obpymap" : obpymap }
         
 class RatingByPublishedYear(Feature):        
     def __init__(self):
@@ -81,14 +73,10 @@ class RatingByPublishedYear(Feature):
         
     def generate(self, context):
         import imgviews       
-        (img, rbpymap) = imgviews.ratingByPublishedYear(context)   
-        import urllib, StringIO
-        src = StringIO.StringIO()
-        img.save(src, "PNG")
-        rbpydata = urllib.quote(src.getvalue())    
+        (img, rbpymap) = imgviews.ratingByPublishedYear(context)     
         if len(rbpymap) == 0:
             return None
-        return { "rbpydata" : rbpydata, "rbpymap" : rbpymap }
+        return { "rbpydata" : imageBinaryData(img), "rbpymap" : rbpymap }
 
 class MostUnplayed(Feature):        
     def __init__(self):
@@ -98,6 +86,13 @@ class MostUnplayed(Feature):
         import generate
         mostUnplayed = generate.getMostPlayedUnplayedGames(context)
         return { "mostUnplayed" : mostUnplayed }
+
+def imageBinaryData(img):
+    import StringIO, urllib
+    src = StringIO.StringIO()
+    img.save(src, "PNG")
+    data = urllib.quote(src.getvalue()) 
+    return data
         
 class PlayRate(Feature):        
     def __init__(self, selector):
@@ -109,11 +104,8 @@ class PlayRate(Feature):
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
             return None
-        (img, imap) = imggen.createPlayRateGraph(context, data)     
-        src = StringIO.StringIO()
-        img.save(src, "PNG")
-        data = urllib.quote(src.getvalue())    
-        return { "prdata" : data, "prmap" : imap }
+        (img, imap) = imggen.createPlayRateGraph(context, data)        
+        return { "prdata" : imageBinaryData(img), "prmap" : imap }
 
 class PlayRateOwn(Feature):        
     def __init__(self):
@@ -123,15 +115,12 @@ class PlayRateOwn(Feature):
         
     def generate(self, context):
         import selectors
-        import imggen, generate, urllib, StringIO      
+        import imggen, generate    
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
             return None        
-        (img, imap) = imggen.createPlayRateGraph(context, data)     
-        src = StringIO.StringIO()
-        img.save(src, "PNG")
-        data = urllib.quote(src.getvalue())    
-        return { "prodata" : data, "promap" : imap }
+        (img, imap) = imggen.createPlayRateGraph(context, data)        
+        return { "prodata" : imageBinaryData(img), "promap" : imap }
 
 class PlayRatePrevOwn(Feature):        
     def __init__(self):
@@ -139,15 +128,12 @@ class PlayRatePrevOwn(Feature):
         self.selector = selectors.getSelectorFromString("/prevowned/owned/minus/books/minus")
         
     def generate(self, context):
-        import imggen, generate, urllib, StringIO  
+        import imggen, generate  
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
             return None  
-        (img, imap) = imggen.createPlayRateGraph(context, data)     
-        src = StringIO.StringIO()
-        img.save(src, "PNG")
-        data = urllib.quote(src.getvalue())    
-        return { "prevdata" : data, "prevmap" : imap }
+        (img, imap) = imggen.createPlayRateGraph(context, data)         
+        return { "prevdata" : imageBinaryData(img), "prevmap" : imap }
         
 class PlaysByMonthEver(Feature):
     def __init__(self):

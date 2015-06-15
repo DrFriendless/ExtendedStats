@@ -169,8 +169,15 @@ def ownedByPublishedYear(context):
         
 def playrate(request, param):    
     try:
-        context = views.interpretRequest(request, param)  
-        data = generate.getPlayRateData(context.geek)
+        if "/" in param:
+            fields = param.split("/")
+            selector = "/".join(fields[1:])
+            context = views.interpretRequest(request, fields[0])
+        else:
+            selector = "all"
+            context = views.interpretRequest(request, param)  
+        import selectors
+        data = generate.getPlayRateData(context, selector)
         (img, imap) = imggen.createPlayRateGraph(context, data)
         return dynlib.imageResponse(img)
     except Geeks.DoesNotExist:
@@ -179,9 +186,10 @@ def playrate(request, param):
         
 def playrateown(request, param):    
     try:
-        (username, geek) = dynlib.checkGeek(param)
-        data = generate.getPlayRateOwnData(username)
-        (img, imap) = imggen.createPlayRateGraph(username, data, ImageSpecs(request))
+        context = views.interpretRequest(request, param)
+        import selectors
+        data = generate.getPlayRateData(context, "owned")
+        (img, imap) = imggen.createPlayRateGraph(context, data)
         return dynlib.imageResponse(img)
     except Geeks.DoesNotExist:
         img = open("error.png")   
@@ -189,9 +197,10 @@ def playrateown(request, param):
         
 def playrateprevown(request, param):    
     try:
-        (username, geek) = dynlib.checkGeek(param)
-        data = generate.getPlayRatePrevOwnData(username)
-        (img, imap) = imggen.createPlayRateGraph(username, data, ImageSpecs(request))
+        context = views.interpretRequest(request, param)
+        import selectors
+        data = generate.getPlayRateData(context, "prevowned")
+        (img, imap) = imggen.createPlayRateGraph(context, data)
         return dynlib.imageResponse(img)
     except Geeks.DoesNotExist:
         img = open("error.png")   
