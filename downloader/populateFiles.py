@@ -13,9 +13,8 @@ MARKET_URL = "http://www.boardgamegeek.com/geekstore.php3?action=viewuser&userna
 
 def readUserNames():
     import os, sitedata
-    uf = open(os.path.join(sitedata.installDir, "usernames.txt"))
-    usernames = [ line.strip() for line in uf.readlines() ]
-    uf.close()
+    with open(os.path.join(sitedata.installDir, "usernames.txt")) as uf:
+        usernames = [ line.strip() for line in uf.readlines() ]
     usernames = [ u for u in usernames if len(u) > 0 ]
     return usernames
 
@@ -848,35 +847,33 @@ def getExtendedTop100(db):
 def getTop50(filename):
     import library
     t50 = []
-    f = open(filename)
-    start = False
-    for line in f.readlines():
-        line = line.strip()
-        if not start and line.find("<th class='collection_bggrating'>") >= 0:
-            start = True
-        elif start and line.find('href="/boardgame/') >= 0:
-            id = library.between(line, 'href="/boardgame/', '/')
-            id = int(id)
-            if id not in t50:
-                t50.append(id)
-            if len(t50) == 50:
-                break
-    f.close()
+    with open(filename) as f:
+        start = False
+        for line in f.readlines():
+            line = line.strip()
+            if not start and line.find("<th class='collection_bggrating'>") >= 0:
+                start = True
+            elif start and line.find('href="/boardgame/') >= 0:
+                id = library.between(line, 'href="/boardgame/', '/')
+                id = int(id)
+                if id not in t50:
+                    t50.append(id)
+                if len(t50) == 50:
+                    break
     return t50
 
 def getMostVoters(filename):
     import library
     mv = []
-    f = open(filename)
-    start = False
-    for line in f.readlines():
-        line = line.strip()
-        if not start and line.find("<th class='collection_bggrating'>") >= 0:
-            start = True
-        elif start and line.find('href="/boardgame/') >= 0:
-            id = library.between(line, 'href="/boardgame/', '/')
-            mv.append(int(id))
-    f.close()
+    with open(filename) as f:
+        start = False
+        for line in f.readlines():
+            line = line.strip()
+            if not start and line.find("<th class='collection_bggrating'>") >= 0:
+                start = True
+            elif start and line.find('href="/boardgame/') >= 0:
+                id = library.between(line, 'href="/boardgame/', '/')
+                mv.append(int(id))
     return mv
 
 def readMetadata():

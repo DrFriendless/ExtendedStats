@@ -555,11 +555,10 @@ def deleteFileIfBad(filename):
     "Return whether the file exists now or not."
     import os
     if os.access(filename, os.R_OK):
-        f = open(filename)
-        content = f.read()
-        bad1 = (content.find("Addicts may go") > 0) or (content.find("Addicts go") > 0) or (content.find("is down for") > 0) or (content.find("Could not connect to master server") >= 0) or (content.find("server didn't respond") >= 0) or (content.find("server is available") >= 0)
-        bad2 = len(content) == 0
-        f.close()
+        with open(filename) as f:
+            content = f.read()
+            bad1 = (content.find("Addicts may go") > 0) or (content.find("Addicts go") > 0) or (content.find("is down for") > 0) or (content.find("Could not connect to master server") >= 0) or (content.find("server didn't respond") >= 0) or (content.find("server is available") >= 0)
+            bad2 = len(content) == 0
         if bad1:
             print "Deleting BGG down file %s" % filename
             os.remove(filename)
