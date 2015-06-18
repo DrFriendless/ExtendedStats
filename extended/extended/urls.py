@@ -7,6 +7,7 @@ from django.conf.urls import patterns, url, include
 
 urlpatterns = patterns('',
     (r'^sgoyt/(.*)', views.sgoyt),
+    (r'^admin/$', views.admin),
     (r'^playlogging/(.*)', views.playLogging),
     (r'^dimesbydesigner/(.*)', views.dimesByDesigner),
     (r'^selections/(.*)', views.viewSelections),

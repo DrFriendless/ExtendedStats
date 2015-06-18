@@ -1,0 +1,35 @@
+<html>
+<head>
+<title>Site Administration</title>
+</head>
+<body>
+<ul>
+<li><A HREF="/downloader">Downloader</A>
+<li><A HREF="/logs">Log File</A>
+</ul>
+<hr/>
+<h1>Add User</h1>
+<form method=post action="/dynamic/adduser">
+<label for="un1">New User Name</label> <INPUT type="text" name="username" id="un1"/><br>
+<label for="pw1">Admin Password</label> <INPUT type="password" name="password" id="pw1"/><br>
+<button type=submit>Submit</button>
+</form>
+<hr/>
+<h1>Remove User</h1>
+<form method=post action="/dynamic/removeuser">
+<label for="un2">User Name</label> <INPUT type="text" name="username" id="un2"/><br>
+<label for="pw2">Admin Password</label> <INPUT type="password" name="password" id="pw2"/><br>
+<button type=submit>Submit</button>
+</form>
+<hr/>
+<h1>Reset User</h1>
+This deletes all of the data stored for a user without deleting the user.
+The user's data will then be reloaded.
+This is password protected because it puts load on the server (and potentially incurs a cost to the owner of the server).
+<form method=post action="/dynamic/reset">
+<label for="un3">User Name</label> <INPUT type="text" name="username" id="un3"/><br>
+<label for="pw3">Admin Password</label> <INPUT type="password" name="password" id="pw3"/><br>
+<button type=submit>Submit</button>
+</form>
+</body>
+</html>

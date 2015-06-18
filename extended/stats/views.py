@@ -642,6 +642,9 @@ def sgoyt(request, param):
     geeklist = int(param)
     data = generate.sgoyt(param)
     return render_to_response("stats/sgoyt.html", locals())
+
+def admin(request):
+    return render_to_response("stats/admin.html", {})
     
 def playLogging(request, param):
     import generate
