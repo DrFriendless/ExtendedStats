@@ -580,7 +580,7 @@ def _saveToDatabase(db, game):
         saveGameExpands(db, game.id, game.expands)    
 
 def processGame(db, filename, geek, url):
-    import library, sitedata
+    import library, sitedata, os
     game = library.Thing()
     game.subdomain = "boardgame"
     if "/" not in filename:
@@ -875,7 +875,7 @@ def getMostVoters(filename):
     return mv
 
 def readMetadata():
-    import library
+    import library, sitedata
     series = {}
     expansions = []
     f = file(os.path.join(sitedata.installDir, "metadata.txt"))
