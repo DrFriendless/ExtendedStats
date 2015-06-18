@@ -24,12 +24,11 @@ if not os.path.exists(sitedata.resultdir):
     os.makedirs(sitedata.resultdir)
 
 toFix = sys.argv[1:]
-db = mydb.MyDB()
-for geek in toFix:
-    print db.execute("update files set lastUpdate = null where geek = '%s' and processMethod != 'processGame'" % geek)
-    print "Reset %s" % geek
-db.close()
-db = mydb.MyDB()
-loadGameFiles(db)
-db.close()
+if len(toFix) > 0:
+    with mydb.MyDB() as db:
+        for geek in toFix:
+	    print db.execute("update files set lastUpdate = null where geek = '%s' and processMethod != 'processGame'" % geek)
+	    print "Reset %s" % geek
+with mydb.MyDB() as db:
+    loadGameFiles(db)
 
