@@ -23,6 +23,12 @@ class MyDB(object):
 
     def close(self):
         self.db.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, tb):
+        self.close()
         
     def saveRow(self, row, table, where, debug=0):
         count = self.execute("select count(*) from %s where %s" % (table, where))[0][0]

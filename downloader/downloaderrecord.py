@@ -11,13 +11,17 @@ class DownloaderRecord(object):
         self.users = u
         self.games = g
 
-    def start(self):
+    def __enter__(self):
         import time
         self.starttime = time.time()
+        return self
 
     def finish(self):
         import time
         self.endtime = time.time()
+
+    def __exit__(self, type, value, tb):
+        pass
 
     def wait(self, howlong):
         self.waittime = self.waittime + howlong

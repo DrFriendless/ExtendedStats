@@ -16,25 +16,22 @@ logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger().addHandler(handler)
 
 import downloaderrecord
-rec = downloaderrecord.DownloaderRecord()
-rec.start()
-logging.info("Downloader starts at %s" % (time.ctime(),))
-if not os.path.exists(sitedata.dbdir):
-    logging.info("Making data directory %s" % sitedata.dbdir)
-    os.makedirs(sitedata.dbdir)
-if not os.path.exists(sitedata.resultdir):
-    logging.info("Making results directory %s" % sitedata.resultdir)
-    os.makedirs(sitedata.resultdir)
-
-toFix = sys.argv[1:]
-db = mydb.MyDB()
-for geek in toFix:
-    print db.execute("update files set lastUpdate = null where geek = '%s' and processMethod != 'processGame'" % geek)
-    print "Reset %s" % geek
-db.close()
-db = mydb.MyDB()
-loadGameFiles(db, rec)
-rec.finish()
-db.execute(rec.toSQL())
-db.close()
-logging.info(str(rec))
+with downloaderrecord.DownloaderRecord() as rec:
+    logging.info("Downloader starts at %s" % (time.ctime(),))
+    if not os.path.exists(sitedata.dbdir):
+        logging.info("Making data directory %s" % sitedata.dbdir)
+        os.makedirs(sitedata.dbdir)
+    if not os.path.exists(sitedata.resultdir):
+        logging.info("Making results directory %s" % sitedata.resultdir)
+        os.makedirs(sitedata.resultdir)
+    toFix = sys.argv[1:]
+    if len(toFix) > 0:
+        with mydb.MyDB() as db:
+            for geek in toFix:
+                print db.execute("update files set lastUpdate = null where geek = '%s' and processMethod != 'processGame'" % geek)
+	        print "Reset %s" % geek
+    with mydb.MyDB() as db:
+        loadGameFiles(db, rec)
+        rec.finish() # not really happy about this not being done by the context manager
+        db.execute(rec.toSQL())
+        logging.info(str(rec))
