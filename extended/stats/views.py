@@ -388,9 +388,8 @@ def quickRefresh(request, param):
         return render_to_response("stats/refresh.html", locals())     
     import mydb
     sql = "update files set lastUpdate = null where geek = %s and char_length(tillNextUpdate) <= 8"
-    f = open("/tmp/url.txt", "w")
-    f.write(param + "\n" + str(request))
-    f.close()
+    with open("/tmp/url.txt", "w") as f:
+        f.write(param + "\n" + str(request))
     mydb.update(sql, [param])
     return render_to_response("stats/refresh.html", locals(), context_instance=RequestContext(request))    
         

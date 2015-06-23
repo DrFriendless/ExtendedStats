@@ -856,9 +856,8 @@ def addRanks(rows, valCol, rankCol, title):
     try:
         data.sort(lambda r1, r2: -cmp(r1.__dict__[valCol], r2.__dict__[valCol]))
     except KeyError:
-        f = open("/tmp/data.txt", "w")
-        f.write(" ".join([str(d.__dict__) for d in data if d.__dict__.get("owned") is None]))
-        f.close()
+        with open("/tmp/data.txt", "w") as f:
+            f.write(" ".join([str(d.__dict__) for d in data if d.__dict__.get("owned") is None]))
     lastValue = -1000
     lastRank = 0
     for i in range(len(data)):        
