@@ -20,22 +20,26 @@ ENV DBUSER root
 ENV DBPASS ""
 
 #install files
-RUN mkdir /extended
-ADD * /extended/
+RUN mkdir -p /home/ubuntu/extended
+ADD * /home/ubuntu/extended/
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #setup database
-RUN mysql -u root create database extended;
-RUN mysql extended -u root < /extended/database_schema.sql 
+RUN chmod +x /home/ubuntu/extended/setup_mysql.sh
+RUN /home/ubuntu/extended/setup_mysql.sh
 #setup apache2
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 ENV APACHE_LOG_DIR /var/log/apache2
 ADD stats.conf /etc/apache2/conf-enabled/
-#ADD /etc/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod wsgi
+
+#add cronjob
+ADD crons.conf /etc/cron.d/extended
+RUN chmod 0644 /etc/cron.d/extended
+
 
 #expose the basic web ports
 EXPOSE 80 8080
 #start supervisor which starts web & mysql
-CMD["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord"]
