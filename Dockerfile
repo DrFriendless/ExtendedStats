@@ -17,11 +17,12 @@ RUN apt-get install -y supervisor
 RUN apt-get install -y cron
 
 ENV DBUSER root
-ENV DBPASS ""
+ENV DBPASS basilisk
 
 #install files
 RUN mkdir -p /home/ubuntu/extended
 ADD * /home/ubuntu/extended/
+RUN chmod -R 777 /home/ubuntu/extended
 #setup supervisord
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
