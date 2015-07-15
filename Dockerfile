@@ -22,15 +22,20 @@ ENV DBPASS ""
 #install files
 RUN mkdir -p /home/ubuntu/extended
 ADD * /home/ubuntu/extended/
+#setup supervisord
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #setup database
 RUN chmod +x /home/ubuntu/extended/setup_mysql.sh
 RUN /home/ubuntu/extended/setup_mysql.sh
+
 #setup apache2
+RUN mkdir -p /var/lock/apache2
+RUN mkdir -p /var/run/apache2
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 ENV APACHE_LOG_DIR /var/log/apache2
+ENV APACHE_LOCK_DIR /var/lock/apache2
 ADD stats.conf /etc/apache2/conf-enabled/
 RUN a2enmod wsgi
 
