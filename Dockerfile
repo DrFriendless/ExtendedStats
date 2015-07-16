@@ -21,10 +21,11 @@ ENV DBPASS basilisk
 
 #install files
 RUN mkdir -p /home/ubuntu/extended
-ADD * /home/ubuntu/extended/
+COPY . /home/ubuntu/extended/
 RUN chmod -R 777 /home/ubuntu/extended
+RUN chgrp -R www-data /home/ubuntu/extended
 #setup supervisord
-ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #setup database
 RUN chmod +x /home/ubuntu/extended/setup_mysql.sh
@@ -37,11 +38,13 @@ ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
-ADD stats.conf /etc/apache2/conf-enabled/
+RUN chmod -R 777 /var/www
+RUN chgrp -R www-data /var/www
+COPY stats.conf /etc/apache2/conf-enabled/
 RUN a2enmod wsgi
 
 #add cronjob
-ADD crons.conf /etc/cron.d/extended
+COPY crons.conf /etc/cron.d/extended
 RUN chmod 0644 /etc/cron.d/extended
 
 
