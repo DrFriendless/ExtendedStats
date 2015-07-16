@@ -16,6 +16,8 @@ RUN apt-get install -y python-imaging
 RUN apt-get install -y supervisor
 RUN apt-get install -y cron
 RUN apt-get install -y curl
+RUN apt-get install -y language-pack-en-base
+RUN dpkg-reconfigure locales
 
 ENV DBUSER root
 ENV DBPASS basilisk
