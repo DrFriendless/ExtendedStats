@@ -15,6 +15,7 @@ RUN apt-get install -y libapache2-mod-wsgi
 RUN apt-get install -y python-imaging
 RUN apt-get install -y supervisor
 RUN apt-get install -y cron
+RUN apt-get install -y curl
 
 ENV DBUSER root
 ENV DBPASS basilisk
