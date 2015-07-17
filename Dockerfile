@@ -16,6 +16,7 @@ RUN apt-get install -y python-imaging
 RUN apt-get install -y supervisor
 RUN apt-get install -y cron
 RUN apt-get install -y curl
+RUN apt-get install -y python-requests
 RUN apt-get install -y language-pack-en-base
 RUN dpkg-reconfigure locales
 
@@ -23,7 +24,7 @@ ENV DBUSER root
 ENV DBPASS basilisk
 
 #install files
-RUN mkdir -p /home/ubuntu/extended
+RUN mkdir -p /home/ubuntu/extended/db
 COPY . /home/ubuntu/extended/
 RUN chmod -R 777 /home/ubuntu/extended
 RUN chgrp -R www-data /home/ubuntu/extended
