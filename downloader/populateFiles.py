@@ -617,7 +617,6 @@ def refreshFile(db, filename, url, method, geek, rec):
         logging.warning("%s inaccessible" % dest)
         return 0
     result = eval("%s(db, '%s', '%s', '%s')" % (method, dest, geek, url), globals(), locals())
-    #result = method(db, dest, geek, url)
     if result and (dest is not None):
         try:
             os.remove(dest)
