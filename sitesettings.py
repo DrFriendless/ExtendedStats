@@ -2,7 +2,7 @@
 password = "basilisk"
 
 # the host the database runs on
-dbhost = "localhost"
+dbhost = "mysqldb"
 
 # the user to log into the database as
 dbuser = "root"

@@ -8,9 +8,8 @@ RUN apt-get update
 RUN apt-get install -y python2.7
 RUN apt-get install -y python-mysqldb
 RUN apt-get install -y apache2
-RUN apt-get install -y mysql-server
-RUN apt-get install -y mysql-client
 RUN apt-get install -y python-django
+RUN apt-get install -y mysql-client
 RUN apt-get install -y libapache2-mod-wsgi
 RUN apt-get install -y python-imaging
 RUN apt-get install -y supervisor
@@ -31,9 +30,7 @@ RUN chgrp -R www-data /home/ubuntu/extended
 #setup supervisord
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-#setup database
 RUN chmod +x /home/ubuntu/extended/setup_mysql.sh
-RUN /home/ubuntu/extended/setup_mysql.sh
 
 #setup apache2
 RUN mkdir -p /var/lock/apache2
