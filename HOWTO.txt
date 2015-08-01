@@ -13,6 +13,9 @@ sudo apt-get install mysql-client
 sudo apt-get install python-django
 sudo apt-get install libapache2-mod-wsgi
 sudo apt-get install python-imaging
+sudo apt-get install python-pip
+
+sudo pip install simplejson
 
 3. Get the Extended Stats code from github.
 
