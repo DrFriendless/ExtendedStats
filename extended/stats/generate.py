@@ -1426,16 +1426,66 @@ def getLeastWanted(context):
         result.append(t)
     return result
   
-def getPlaysForYear(substrate,  year):
+def getPlaysForYear(substrate, year):
     import dynlib
     (startDate, endDate) = dynlib.makeDateRange(year, None,  None) 
     (plays, messages) = substrate.filterPlays(startDate, endDate)
     addGeekData(substrate.geek,  plays)
     return plays
-     
-def getBestDays(context, year = None):
+
+def getStreaks(context):
+    import library
+    plays = getPlaysForYear(context.substrate, None)
+    counts = library.Counts()
+    for p in plays:
+        counts.add(library.parseDate(p.date), p.count)
+    result = []
+    minPlays = 1
+    while True:
+        prevDate = None
+        startDate = None
+        dates = counts.keys()[:]
+        dates.sort()
+        streakLength = 0
+        streaks = []
+        for d in dates:
+            if prevDate is None:
+                # first streak
+                startDate = d
+                streakLength = 1
+            elif library.consecutiveDays(prevDate, d):
+                # streak continues
+                streakLength = streakLength + 1
+            elif streakLength > 1:
+                # streak is broken, new streak starts
+                streaks.append((startDate, prevDate, streakLength))
+                startDate = d
+                streakLength = 1
+            else:
+                # previous was just a single day
+                startDate = d
+            prevDate = d                
+        if streakLength > 1:
+            streaks.append((startDate, prevDate, streakLength))
+        if len(streaks) == 0:
+            break
+        streaks.sort(lambda s1,s2: -cmp(s1[2], s2[2]))
+        best = streaks[0]
+        t = library.Thing()
+        t.count = minPlays
+        t.start = best[0]
+        t.finish = best[1]
+        t.length = best[2]
+        result.append(t)
+        minPlays = minPlays + 1
+        for key in counts.keys():
+            if counts[key] <= minPlays:
+                del counts[key]
+    return result
+
+def getBestDays(context, year=None):
     import math, library
-    plays = getPlaysForYear(context.substrate,  year)
+    plays = getPlaysForYear(context.substrate, year)
     dates = set([ p.date for p in plays])
     calcs = []
     for d in dates:

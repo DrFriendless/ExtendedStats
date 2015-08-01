@@ -248,6 +248,17 @@ class BestDays(Feature):
             return None
         return { "bestDays" : bestDays }          
         
+class Streaks(Feature):
+    def __init__(self):
+        Feature.__init__(self, "Streaks", "stats/streaks.html", "streaks", "Most Consecutive Days Playing Games")
+        
+    def generate(self, context):
+        import generate
+        streaks = generate.getStreaks(context)
+        if len(streaks) == 0:
+            return None
+        return { "streaks" : streaks }          
+        
 class RatingByRanking(Feature):
     def __init__(self):
         Feature.__init__(self, "RatingByRanking", "stats/ratingbyranking.html", "ratingByRanking", "Ratings by Ranking")
@@ -408,7 +419,7 @@ FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan()
             OwnedByPublishedYear(), RatingByPublishedYear(), MostUnplayed(), GenericTable(selectors.OwnedGamesSelector()),
             PlayRate(selectors.PlayedGamesSelector()), PlayRateOwn(), PlayRatePrevOwn(),
             PlaysByMonthEver(), PlaysByMonthYTD(), PlaysByMonthGraph(), PlayRatings(), Favourites(selectors.AllGamesSelector()),
-            FavesByPublishedYear(), BestDays(), RatingByRanking(), PlaysByRanking(), LeastWanted(), Unusual(), ShouldPlay(),
+            FavesByPublishedYear(), BestDays(), Streaks(), RatingByRanking(), PlaysByRanking(), LeastWanted(), Unusual(), ShouldPlay(),
             ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
             TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
             Consistency(Consistency.DEFAULT_SELECTOR) ]

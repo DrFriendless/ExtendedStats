@@ -390,6 +390,17 @@ def beforeSlash(s):
         return s
     return s[:s.find("/")]
 
+def consecutiveDays(day1, day2):
+    return nextday(day1) == day2
+
+def parseDate(yyyydashmmdashdd):
+    import datetime
+    fields = yyyydashmmdashdd.split('-')
+    y = int(fields[0])
+    m = int(fields[1])
+    d = int(fields[2])
+    return datetime.date(y, m, d)
+
 def prevday(d):
     import datetime
     if d.day > 1:
