@@ -1,0 +1,46 @@
+HOW TO INSTALL EXTENDED STATS ON AN AMAZON EC2 FREE INSTANCE
+
+1. Get your virtual machine and connect to it.
+
+2. Install stuff
+
+sudo apt-get update
+sudo apt-get install git
+sudo apt-get install python-mysqldb
+sudo apt-get install apache2
+sudo apt-get install mysql-server (remember the database password)
+sudo apt-get install mysql-client
+sudo apt-get install python-django
+sudo apt-get install libapache2-mod-wsgi
+sudo apt-get install python-imaging
+sudo apt-get install python-pip
+
+sudo pip install simplejson
+
+3. Get the Extended Stats code from github.
+
+git clone https://github.com/DrFriendless/ExtendedStats extended
+
+4. Create the MySQL database
+
+mysql -u root -p (type in the password)
+create database extended;
+
+Import the schema from database_schema.sql like this:
+
+mysql extended -u root -p <database_schema.sql
+
+5. Edit usernames.txt to have the correct set of users.
+
+6. Edit sitesettings.py to tell the downloader and the web server everything they need to know.
+
+7. Configure the web server.
+
+sudo cp stats.conf /etc/apache2/conf-enabled/
+sudo service apache2 restart
+
+8. Edit the crontab to have a line like this (by running "sudo crontab -e"):
+
+*/10 * * * * /home/ubuntu/extended/downloader/downloader
+
+9. Look to see if it's working!
