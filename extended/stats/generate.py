@@ -1438,7 +1438,10 @@ def getStreaks(context):
     plays = getPlaysForYear(context.substrate, None)
     counts = library.Counts()
     for p in plays:
-        counts.add(library.parseDate(p.date), p.count)
+        d = library.parseDate(p.date)
+        if d is not None:
+            counts.add(d, p.count)
+    plays = None
     result = []
     minPlays = 1
     while True:

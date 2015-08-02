@@ -399,6 +399,8 @@ def parseDate(yyyydashmmdashdd):
     y = int(fields[0])
     m = int(fields[1])
     d = int(fields[2])
+    if y == 0 or m == 0 or d == 0:
+        return None
     return datetime.date(y, m, d)
 
 def prevday(d):
