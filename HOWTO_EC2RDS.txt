@@ -1,6 +1,6 @@
 HOW TO INSTALL EXTENDED STATS ON AMAZON RDS AND EC2 FREE INSTANCES
 
-1. Get your RDS and EC2 virtual machines and make sure they're in the same security group. I also made sure they were in the same availability zone, but that might not be important. Choose a MySQL RDS instance. Remember the database user and password of the RDS instance. Use "extended" for the database name.
+1. Get your RDS and EC2 virtual machines and make sure they're in the same security group. The security group should allow SSH, MySQL and HTTP inbound. I also made sure they were in the same availability zone, but that might not be important. Choose a MySQL RDS instance. Remember the database user and password of the RDS instance. Use "extended" for the database name.
 
 2. Connect to the RDS instance and create the schema. I used MySQL workbench and just cut and pasted the contents of database_schema.sql in and ran it. You will need the hostname, user name, and password from step 1.
 

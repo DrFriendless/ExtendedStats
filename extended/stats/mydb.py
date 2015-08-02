@@ -1,7 +1,5 @@
-import sitedata
-
 def get():
-    import MySQLdb
+    import MySQLdb, sitedata
     db = MySQLdb.connect(host=sitedata.dbhost, user=sitedata.dbuser , passwd=sitedata.password, db=sitedata.dbname)
     db.autocommit = True
     db.set_character_set('utf8')

@@ -36,7 +36,7 @@ def getImage(*args, **kwargs):
     return Image.open(f)     
         
 def badge(request, username):
-    import sitedata, library, xml.dom.minidom, urllib, Image, ImageDraw, ImageFont, random
+    import library, xml.dom.minidom, urllib, Image, ImageDraw, ImageFont, random
     url = "http://boardgamegeek.com/user/%s/geekstuff" % username
     dest = "/tmp/" + username + "_badge.xml"
     library.getFile(url, dest, True)

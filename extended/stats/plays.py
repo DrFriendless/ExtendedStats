@@ -1,4 +1,4 @@
-import time, library, os, sitedata
+import time, library, os
 
 END_YEAR = time.localtime()[0]
 END_MONTH = time.localtime()[1]
