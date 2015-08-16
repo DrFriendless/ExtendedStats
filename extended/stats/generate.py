@@ -216,7 +216,6 @@ def getConsistencyData(context, selector, monthsBack):
         if m > 12:
             m = 1
             y = y + 1
-    monthNames = [ ("%04d-%02d" % (y, m)) for (m,y) in months ]
     opts = library.Thing()
     opts.excludeExpansions = True
     opts.excludeTrades = False
@@ -242,7 +241,7 @@ def getConsistencyData(context, selector, monthsBack):
         t.plays = gg.plays
         t.rating = gg.rating
         data.append(t)        
-    return (data, monthNames)
+    return data
 
 def playedData(gg, m, y):
     import library

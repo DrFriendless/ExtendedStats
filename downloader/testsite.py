@@ -78,7 +78,7 @@ URLS = [
         "%sdynamic/image/playrateown/%s",
         "%sdynamic/playrate/%s",
         "%sdynamic/playrate/%s/prevowned",
-        "%sdynamic/consistency/%s/48/owned/played/and",
+        "%sdynamic/consistency/%s/12/owned/played/and",
         "%sdynamic/consistency/%s/96",
         "%sdynamic/image/playrate/%s/fpiy/2014"
         ]

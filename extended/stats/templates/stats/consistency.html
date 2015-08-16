@@ -7,7 +7,7 @@ This is a prototype of a feature <A HREF="https://boardgamegeek.com/article/1804
 <tr><td>Game</td><td>Plays</td><td>Rating</td><td>Months Played</td><td>First Played</td><td>% Months Played</td></tr></thead>
 <tbody>
 
-{% for game in data %}
+{% for game in consistencyData %}
 <tr>
 <td>{{game.name}}</td><td>{{game.plays}}</td><td>{{game.rating}}</td><td>{{game.monthsPlayed}}</td><td>{{game.firstPlay}}</td><td>{{game.propMonths}}</td>
 {% for cl in game.played %}

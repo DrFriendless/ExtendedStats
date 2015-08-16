@@ -701,10 +701,11 @@ def tabbed(request,  param):
             tab = int(param[param.find("/")+1:])
             param = param[:param.find("/")]
         text = param
-        if tab < 1 or tab > 7:
+        MAXTABS = 7
+        if tab < 1 or tab > MAXTABS:
             tab = 1
         context = interpretRequest(request, param)  
-        for t in [1, 2, 3, 4, 5, 7]:
+        for t in range(1, MAXTABS+1):
             all["tab" + `t`] = (tab == t)
         if tab == 1:
             # General
@@ -750,7 +751,8 @@ def tabbed(request,  param):
                     vs = feature.generate(context)
                     if vs is not None:
                         all.update(vs)   
-                        contents.append(feature)        
+                        contents.append(feature)  
+            all["contents"] = contents      
         elif tab == 7:
             runFeatures([features.FeatureList()], all, context)
         recordProfileView(context.geek)

@@ -1,0 +1,63 @@
+<div id="contents">
+<ul class="BulletList">
+<LI class="ThisPage"><A HREF="#favourites">Your Favourite Games</A>&nbsp;&nbsp;&nbsp;<A HREF="/dynamic/favourites/{{username}}"><img src="/images/eye.png" alt=""/> Full List</A>
+<LI class="ThisPage"><A HREF="#new">Rate of Play of Games New To You</A>
+<LI class="ThisPage"><A HREF="#fpvr">First Played Date vs Rating</A>
+<LI class="ThisPage"><A HREF="#rbpy">Ratings By Published Year</A>
+<LI class="ThisPage"><A HREF="#fgbpy">Favourite Games By Published Year</A>
+<LI class="ThisPage"><A HREF="#obpy">Games Owned By Published Year</A>
+<LI class="ThisPage"><A HREF="#lag">Lag Between Publication and Playing</A>
+<LI class="ThisPage"><A HREF="#lifetime">Lifetime of Games</A>
+<LI class="ThisPage"><A HREF="#lbr">Lifetime of Games by Rating</A>
+{% if florence %}
+<LI class="ThisPage"><A HREF="#florence">Florence Nightingale Gamer Characterisation</A>
+{% endif %}
+<LI class="ThisPage"><A HREF="#mmmpie">Pie Charts for Morgan</A>
+{% if bestDays %}
+<LI class="ThisPage"><A HREF="#bestdays">Best Days in Gaming</A>
+{% endif %}
+{% if ratingByRanking %}
+<LI class="ThisPage"><A href="#ratingByRanking">Ratings by Ranking</A>
+{% endif %}
+{% if playsByRanking %}
+<LI class="ThisPage"><A href="#playsByRanking">Plays by Ranking</A>
+{% endif %}
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=gamesownedbyyear&username={{username}}">Games Owned By Year Published</A>
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=largestdisparities&username={{username}}">Largest Disparities</A>
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=underrated&username={{username}}">Underrated Games</A>
+<LI class="BGG"><A HREF="http://www.boardgamegeek.com/profile.php?action=extstats&subaction=overrated&username={{username}}">Overrated Games</A>
+<LI class="OtherPage">{% include 'stats/yearlysummaries.html' %}
+<LI class="OtherPage"><A HREF="/dynamic/updates/{{username}}">Update Schedule</A>
+<form name="input" action="{% url "stats.views.quickRefresh" username %}" method="post">
+{% csrf_token %}
+<input type="submit" value="Refresh" />
+</form>
+</ul>
+</div>
+
+{% include 'stats/favourites.html' %}
+{% include 'stats/new.html' %}
+{% include 'stats/fpvr.html' %}
+{% include 'stats/rbpy.html' %}
+{% include 'stats/fgbpy.html' %}
+{% include 'stats/obpy.html' %}
+{% include 'stats/lag.html' %}
+{% include 'stats/lifetime.html' %}
+{% include 'stats/lbr.html' %}
+
+{% if florence %}
+{% include 'stats/florence.html' %}
+{% endif %}
+
+{% include 'stats/morgan.html' %}
+
+{% if bestDays %}
+{% include 'stats/bestdays.html' %}
+{% endif %}
+
+{% if ratingByRanking %}
+{% include 'stats/ratingbyranking.html' %}
+{% endif %}
+{% if playsByRanking %}
+{% include 'stats/playsByRanking.html' %}
+{% endif %}

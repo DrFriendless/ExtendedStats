@@ -406,13 +406,16 @@ class Consistency(Feature):
     
     def __init__(self, selector, months):
         Feature.__init__(self, "consistency", "stats/consistency.html", "consistency", "Consistency of Play Graph")
+        if type(selector) == type(""):
+            import selectors
+            selector = selectors.getSelectorFromString(selector)
         self.selector = selector
         self.months = months
         
     def generate(self, context):
         import generate
-        (data, monthNames) = generate.getConsistencyData(context, self.selector, self.months)
-        return { "data" : data, "monthNames" : monthNames }
+        data = generate.getConsistencyData(context, self.selector, self.months)
+        return { "consistencyData" : data }
 
         
 import selectors, views      
