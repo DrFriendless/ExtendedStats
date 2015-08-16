@@ -33,59 +33,7 @@ def pogo(request, param):
 def getImage(*args, **kwargs):
     import StringIO, urllib2, Image
     f = StringIO.StringIO(urllib2.urlopen(*args, **kwargs).read())   
-    return Image.open(f)     
-        
-def badge(request, username):
-    import library, xml.dom.minidom, urllib, Image, ImageDraw, ImageFont, random
-    url = "http://boardgamegeek.com/user/%s/geekstuff" % username
-    dest = "/tmp/" + username + "_badge.xml"
-    library.getFile(url, dest, True)
-    START = 'User Profile for '
-    END = 'User Details for '
-    MB = 'http://geekdo-images.com/images/geekmbs/mb'
-    mbs = []
-    name = "Mr Nobody"
-    avatar = ""
-    lines = open(dest).readlines()
-    lines = library.findLinesBetween(lines, START, END)
-    lines = [ l.strip() for l in lines ]
-    for l in lines:
-        if l.startswith("<div>") and l.endswith("</div>"):
-            name = library.between(l, "<div>", "</div>")
-            break
-    for l in lines:
-        if l.find("http://geekdo-images.com/avatars/") >= 0:
-            avatar = library.between(l, 'src="', '"')
-            break
-    for l in lines:
-        if l.find(MB) >= 0:
-            mbs.append(library.between(l, '"', '"'))
-    offset = 265
-    img = Image.new("RGBA", (1260, 444), "#ffffff")
-    draw = ImageDraw.Draw(img)
-    if avatar:
-        avImg = getImage(avatar)    
-        avImg = avImg.resize((192, 192), Image.ANTIALIAS)
-        img.paste(avImg, (offset + 92, 160))
-    mbBoxes = [ (offset + 2 + (21 * i), 2) for i in range(30) ] + \
-              [ (offset + 2 + (21 * i), 422) for i in range(30) ] + \
-              [ (offset + 2, 2 + i * 21) for i in range(1,20) ] + \
-              [ (offset + 611, 2 + i * 21) for i in range(1,20) ]
-    if len(mbs) > 0:
-        random.shuffle(mbs)
-        for box in mbBoxes:
-            try:
-                mbi = getImage(mbs[0]).convert("RGBA")
-                img.paste(mbi, box)
-                mbs = mbs[1:] + [mbs[0]]
-            except ValueError:
-                pass
-    fontSmall = ImageFont.truetype("/home/john/geek/dynamic/stats/FreeSans.ttf", 20)
-    fontBig = ImageFont.truetype("/home/john/geek/dynamic/stats/FreeSans.ttf", 64)
-    smallSize = fontSmall.getsize(name)
-    #draw.text((offset + 40, 40), name, font=fontSmall, fill=(0,0,0))   
-    draw.text((offset + 92, 72), username, font=fontBig, fill=(0,0,0))              
-    return dynlib.imageResponse(img)
+    return Image.open(f)
 
 def pbmGraph(request, param):
     try:
@@ -232,14 +180,13 @@ def morePieCharts(request, param):
         fields = param.split("/")
         if len(fields) > 0:
             context = views.interpretRequest(request, fields[0])
-            username = context.geek
             (plays, messages, year, month, day, args) = context.substrate.getPlaysForDescribedRange(fields[1:])
-	    data = generate.morePieChartData(plays)
-	    img = imggen.createMorePieCharts(data)
-	    return dynlib.imageResponse(img)    
-	else:
-	    img = open("error.png")   
-	    return HttpResponse(img, mimetype="image/png")    	  
+            data = generate.morePieChartData(plays)
+            img = imggen.createMorePieCharts(data)
+            return dynlib.imageResponse(img)
+        else:
+            img = open("error.png")
+            return HttpResponse(img, mimetype="image/png")
     except Geeks.DoesNotExist:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png")     

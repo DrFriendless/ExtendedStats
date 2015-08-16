@@ -868,7 +868,7 @@ def createMorePieCharts(data):
 def __toAngle(v):
     v = v * 360.0 - 180.0
     if v < 0:
-        v = v + 360.0
+        v += 360.0
     return int(v)
     
 def drawPieTriplets(draw, x, y, size, triplets):
@@ -888,16 +888,16 @@ def drawPieTriplets(draw, x, y, size, triplets):
     radius = size / 2.0 * 0.7
     for (name, value, colour) in triplets:
         if value * 360.0 >= 3.0:
-	    try:
+            try:
                 (sw, sh) = draw.textsize(name)
             except UnicodeEncodeError:
-	        name = "".join([ c for c in name if ord(c) < 128 ])
-	        (sw, sh) = draw.textsize(name)
-	    halfAngle = tot + value / 2.0
-	    cx = x + size / 2 + radius * math.cos((halfAngle * 6.283) - math.pi)
-	    cy = y + size / 2 + radius * math.sin((halfAngle * 6.283) - math.pi)
-	    draw.text((cx-sw/2, cy-sh/2), name, fill=BLACK)                
-        tot = tot + value
+                name = "".join([ c for c in name if ord(c) < 128 ])
+                (sw, sh) = draw.textsize(name)
+            halfAngle = tot + value / 2.0
+            cx = x + size / 2 + radius * math.cos((halfAngle * 6.283) - math.pi)
+            cy = y + size / 2 + radius * math.sin((halfAngle * 6.283) - math.pi)
+            draw.text((cx-sw/2, cy-sh/2), name, fill=BLACK)
+        tot += value
     
 def drawPie(draw, x, y, values, colours, labels, title):
     import math
@@ -909,7 +909,7 @@ def drawPie(draw, x, y, values, colours, labels, title):
     xy = x, y, x + PIE_SIZE, y + PIE_SIZE
     for i in range(len(values)):
         draw.pieslice(xy, int(tot * 360.0), int((tot + values[i]) * 360.0), fill=colours[i])
-        tot = tot + values[i]
+        tot += values[i]
     tot = 0.0
     radius = PIE_SIZE / 2.0 * 0.667
     for i in range(len(values)):
@@ -919,7 +919,7 @@ def drawPie(draw, x, y, values, colours, labels, title):
             cx = x + PIE_SIZE / 2 + radius * math.cos(halfAngle * 6.283)
             cy = y + PIE_SIZE / 2 + radius * math.sin(halfAngle * 6.283)
             draw.text((cx-sw/2, cy-sh/2), labels[i], fill=BLACK)
-        tot = tot + values[i]
+        tot += values[i]
     words = title.split(' ')
     yh = y + PIE_SIZE + 10
     while len(words) > 0:

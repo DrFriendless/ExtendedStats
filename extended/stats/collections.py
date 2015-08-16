@@ -12,7 +12,7 @@ class AjaxForm( forms.Form ):
     input = forms.CharField( required=True )
         
 def getAllCollectionsForGeek(context, includeGames = False):
-    import library, models
+    import models
     sql = "select collectionname, description, collectionindex, ckey from collections where geek = %s order by 3"
     collectionData = models.Plays.objects.query(sql,  [context.geek])         
     ckeys = [ row[3] for row in collectionData ]
@@ -64,7 +64,7 @@ def makeNewCollection(context, cindex):
     return newCollection 
     
 def getCollectionForGeek(context, index, includeGameData = False):
-    import library, models
+    import models
     sql = "select collectionname, description, collectionindex, ckey from collections where geek = %s and collectionindex = %s order by 3"
     collectionData = models.Plays.objects.query(sql,  [context.geek, index])         
     ckey = collectionData[0][3]

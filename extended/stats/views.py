@@ -1,4 +1,4 @@
-from stats.models import *
+from stats.models import Geeks, Files
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
@@ -154,7 +154,7 @@ def viewSelections(request, param):
                         all.update(values)   
                         contents.append(ff)                    
             tabs.append(tab)
-            n = n + 1
+            n += 1
         generate.addCollectionSummary(context, tabs)
         if selectors.columns is not None:
             visible = ",".join(selectors.columns)
@@ -172,7 +172,7 @@ def viewSelections(request, param):
         return render_to_response("stats/geek_error.html", locals())  
 
 def viewCollection(request, param):
-    import collections, features, library, selectors, generate
+    import collections, features, selectors, generate
     features = [ features.GenericTable, features.PogoTable ]
     all = {}
     try:        
@@ -204,7 +204,7 @@ def viewCollection(request, param):
         return render_to_response("stats/geek_error.html", locals())  
          
 def editCollection(request, params):
-    import collections, library, selectors
+    import selectors
     try:
         fields = params.split("/")
         if len(fields) == 2:
@@ -219,7 +219,7 @@ def editCollection(request, params):
         return render_to_response("stats/geek_error.html", locals())   
         
 def deleteCollection(request, params):
-    import collections, library
+    import collections
     try:
         fields = params.split("/")
         if len(fields) == 2:
@@ -253,8 +253,7 @@ def saveManageCollection(request):
         return HttpResponse(simplejson.dumps(data), content_type="application/json")
         
 def ajaxSubmit(request):
-    import collections, library, simplejson
-    GET = request.GET
+    import collections, simplejson
     results = { 'success' : False }
     form = collections.AjaxForm( request.GET )
     if form.is_valid():
@@ -300,7 +299,7 @@ def selector(request, param):
     return HttpResponse(simplejson.dumps(result), content_type="application/json")  
         
 def collection(request, param):   
-    import library, simplejson, collections 
+    import simplejson, collections
     result = {}
     try:
         (context, params) = interpretRequestAndParams(request, param)
@@ -333,7 +332,6 @@ def whatif(request, param):
         return render_to_response("stats/geek_error.html", locals())   
         
 def locations(request, param):
-    import dynlib    
     try:
         context = interpretRequest(request, param)
         locations = generate.getPlayLocationsData(context)  
@@ -343,7 +341,6 @@ def locations(request, param):
         return render_to_response("stats/geek_error.html", locals())   
         
 def playscsv(request, param):
-    import dynlib    
     try:
         context = interpretRequest(request, param)
         plays = generate.getPlaysCSVData(context)        
@@ -353,7 +350,6 @@ def playscsv(request, param):
         return render_to_response("stats/geek_error.html", locals())   
         
 def updates(request, param):
-    import dynlib
     try:
         context = interpretRequest(request, param)
         updates = list(Files.objects.filter(geek=context.geek))
@@ -363,14 +359,14 @@ def updates(request, param):
     except Geeks.DoesNotExist:
         return render_to_response("stats/geek_error.html", locals())
        
-from django.views.decorators.csrf import csrf_exempt       
-       
-def refresh(request, param):   
+from django.views.decorators.csrf import csrf_exempt
+
+def refresh(request, param):
     import urllib2, mydb
     from django.core.context_processors import csrf    
     arg = request.META["REQUEST_URI"]
     if arg is not None and arg.startswith("/dynamic/refreshPage/"):
-	param = arg[len("/dynamic/refreshPage/"):]
+        param = arg[len("/dynamic/refreshPage/"):]
     if arg is None:
         errors = str(request.META)
     vals = {}
@@ -410,7 +406,7 @@ class Link(object):
 def playsLink(isTotals, *fields):
     s = "/".join(["", "dynamic", "plays"] + [str(f) for f in fields if f is not None])
     if isTotals:
-        s = s + "/totals"
+        s += "/totals"
     return s
     
 class CalendarMonth(object):
@@ -445,13 +441,13 @@ def getCalendarMonths(startDate, endDate, index):
     result = []
     n = 0
     while (y * 12 + m <= endDate.year * 12 + endDate.month) and (n < 120):
-        n = n + 1
+        n += 1
         t = CalendarMonth(y, m, index)
         result.append(t)
-        m = m + 1
+        m += 1
         if m == 13:
             m = 1
-            y = y + 1
+            y += 1
     return result
     
 def splitMonths(ms):
@@ -525,7 +521,7 @@ def plays(request, param):
                     url = playsLink(True, context.geek, year, month, day)
                     links.append(Link(url, "Totals for this period"))
             if totals:
-                plays = generate.totalPlays(context, plays)
+                plays = generate.totalPlays(plays)
                 generate.addGeekData(context.geek, plays)
                 return render_to_response("stats/totalplays.html", locals())
             elif florence:
@@ -666,7 +662,7 @@ def recordProfileView(username):
         count = 0
     else:
         count = int(data[0][0])
-    count = count + 1
+    count += 1
     sql = "update users set lastProfileView = %s, profileViews = %s where geek = %s"
     now = dynlib.dbTime(datetime.datetime.utcnow())
     mydb.update(sql, [now, count, username])
@@ -726,7 +722,7 @@ def tabbed(request,  param):
         elif tab == 2:
             # Plays
             runFeatures([ features.PlayRate(selectors.makeSelector([], "played")), features.PlayRateOwn(),
-                features.PlayRatePrevOwn(), features.PlaysByMonthTimeline(),
+                features.PlayRatePrevOwn(), features.PlaysByYear(), features.PlaysByMonthTimeline(),
                 features.PlaysByMonthYTD(), features.PlaysByMonthEver(), features.PlaysByMonthGraph(), features.PlayRatings(),
                 features.PlaysByQuarter(),
                 features.TemporalHotnessMonth(), features.TemporalHotnessDate(), features.TemporalHotnessDay() ],
@@ -783,7 +779,7 @@ def featureList(request, param):
         return render_to_response("stats/geek_error.html", locals())          
         
 def result(request, param):
-    import generate, features, selectors
+    import features, selectors
     try:
         context = interpretRequest(request, param)
         all = {}
@@ -852,7 +848,6 @@ def choose(request, param):
         return render_to_response("stats/geek_error.html", locals()) 
         
 def year(request, param):
-    import dynlib    
     try:
         fields = param.split("/")
         if len(fields) > 0:
@@ -913,8 +908,7 @@ GRAPH_METHODS = { "category" : generate.getCategoriesToGraph,
     "designer" : generate.getDesignersToGraph, 
     "publisher" : generate.getPublishersToGraph }          
         
-def category(request, param):       
-    import dynlib    
+def category(request, param):
     try:
         fields = param.split("/")
         if len(fields) > 0: 
@@ -932,7 +926,6 @@ def category(request, param):
         return render_to_response("stats/geek_error.html", locals())                
 
 def trade(request, param):
-    import dynlib
     try:
         fields = param.split("/")
         if len(fields) != 1:

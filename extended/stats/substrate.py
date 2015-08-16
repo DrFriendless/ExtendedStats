@@ -52,7 +52,7 @@ class Substrate:
         
     def getTheseGeekGames(self, games):
         "returns GeekGame objects whether the user has a record for them or not"
-        import library, models
+        import library
         opts = library.Thing()
         opts.excludeExpansions = False
         opts.excludeTrades = False
@@ -216,7 +216,6 @@ class Substrate:
                 playCount = 0
                 first = None
                 last = None
-                monthCount = 0
                 playsByMonth = library.Counts()
                 for play in data:
                     d = play.__dict__

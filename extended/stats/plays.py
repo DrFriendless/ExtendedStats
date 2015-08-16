@@ -1,4 +1,4 @@
-import time, library, os
+import time, library
 
 END_YEAR = time.localtime()[0]
 END_MONTH = time.localtime()[1]
@@ -57,21 +57,6 @@ class Play:
     def __hash__(self):
         return self.hashcode
 
-def createPlays(date, ps):
-    import geek
-    ps = [ (geek.getGame(id), q, r, t, loc, playerRecs) for (id, q, r, t,  loc, playerRecs) in ps ]
-    # filter out plays of games which don't exist
-    ps = [ p for p in ps if p[0] is not None ]
-    plays = []
-    recs = []
-    for (game, quantity, raters, ratingsTotal, location, playerRecs) in ps:
-        try:
-            plays.append(Play(game,  [],  date,  quantity,  raters,  ratingsTotal,  location))
-            recs = recs + playerRecs
-        except OverflowError:
-            print "BAD DATE in play: %s" % str(date)
-    return (plays, recs)
-
 def processPlaysFile(filename, recorded):
     import xml.dom.minidom
     try:
@@ -124,7 +109,7 @@ def getRatings(pe):
         r = float(pn.getAttribute("rating"))
         if r < 1 or r > 10:
             continue 
-        count = count + 1
-        total = total + r
+        count += 1
+        total += r
     return (count, int(total))
 

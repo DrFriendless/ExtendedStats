@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import sys, os
+import sys
 sys.path.append(".")
 
 USERS = [ "Friendless", "sa266", "spellenclub ST", "PzVIE", "Damjon", "yzemaze" ]
@@ -84,7 +84,8 @@ URLS = [
         ]
 TAGS = ["pbpy", "obpy", "rbpy", "mmmpie", "pogo", "pogotable", "mostunplayed", "playrate", "playrateown", "playrateprev",
         "pbmever", "pbmytd", "pbmgraph", "pr", "pbq", "favourites", "fgbpy", "bestdays", "ratingByRanking", "unusual", "least",
-        "shouldplay", "shouldplayown", "timeline", "thm", "thd", "thday", "dimesbydesigner", "florence", "streaks" ]
+        "shouldplay", "shouldplayown", "timeline", "thm", "thd", "thday", "dimesbydesigner", "florence", "streaks",
+        "pby", "consistency", "morepie", "generic", "playsByRanking", "yearly" ]
 CHOOSE_URL = "%sdynamic/choose/%s/%s"
 GENERAL = [
     "%sdynamic/cookies/",  

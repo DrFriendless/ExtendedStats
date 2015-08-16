@@ -1,5 +1,5 @@
-from stats import imgviews, views, cookies
-from django.conf.urls import patterns, url, include
+from django.conf.urls import patterns
+from stats import views, cookies, imgviews
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -47,8 +47,7 @@ urlpatterns = patterns('',
     (r'^catgraphs/(.*)', views.categoryGraphs),
     (r'^year/(.*)', views.year),
     (r'^server/(.*)', views.server),
-    (r'^badge/(.*)', imgviews.badge),
-    (r'^checklist/(.*)', views.checklist),    
+    (r'^checklist/(.*)', views.checklist),
     (r'^crazy/(.*)', views.crazy),
     (r'^meta/$', views.meta),
     (r'^numplayers/(.*)', views.numplayers),

@@ -1,3 +1,5 @@
+"""A feature is an encapsulation of a table / image / something that can be presented by itself on a page."""
+
 class Feature(object):
     def __init__(self, name, htmlFile, tag, title, contentsFile=None, cssClass="ThisPage"):
         self.name = name
@@ -19,7 +21,7 @@ class PogoTable(Feature):
         self.selector = selector
         
     def generate(self, context):
-        import generate, imggen
+        import generate
         (pogo, pogoCollections) = generate.getPogoData(context, self.selector)
         return { "pogo" : pogo }
 
@@ -45,7 +47,6 @@ class MorePie(Feature):
         Feature.__init__(self, "More Pie Charts", "stats/morepie.html", "morepie", "Mike Hulsebus-style Pie Chart")
         
     def generate(self, context):
-        import imggen
         morePieDefault = "lastyear"   
         return { "morePieDefault" : morePieDefault }
         
@@ -100,12 +101,12 @@ class PlayRate(Feature):
         self.selector = selector
         
     def generate(self, context):
-        import imggen, generate, urllib, StringIO  
+        import imggen, generate
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
             return None
         (img, imap) = imggen.createPlayRateGraph(context, data)        
-        return { "prdata" : imageBinaryData(img), "prmap" : imap }
+        return {"prdata" : imageBinaryData(img), "prmap" : imap }
 
 class PlayRateOwn(Feature):        
     def __init__(self):
@@ -114,7 +115,6 @@ class PlayRateOwn(Feature):
         self.selector = selectors.getSelectorFromString("/owned/books/minus")
         
     def generate(self, context):
-        import selectors
         import imggen, generate    
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
@@ -199,7 +199,7 @@ class Favourites(GenericTable):
         self.selector = selector
         
     def generate(self, context):
-        import generate, selectors
+        import generate
         all = GenericTable.generate(self, context)
         favourites = all["games"]
         del(all["games"])
@@ -415,8 +415,21 @@ class Consistency(Feature):
     def generate(self, context):
         import generate
         data = generate.getConsistencyData(context, self.selector, self.months)
+        if len(data) == 0:
+            return None
         return { "consistencyData" : data }
 
+
+class PlaysByYear(Feature):
+    def __init__(self):
+        Feature.__init__(self, "PlaysByYear", "stats/pby.html", "pby", "Plays By Year")
+
+    def generate(self, context):
+        import generate
+        data = generate.getPlaysByYearData(context)
+        if len(data) == 0:
+            return None
+        return { "pbyData" : data }
         
 import selectors, views      
 FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan(), Florence(), MorePie(), PlaysByPublishedYear(),
@@ -426,7 +439,7 @@ FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan()
             FavesByPublishedYear(), BestDays(), Streaks(), RatingByRanking(), PlaysByRanking(), LeastWanted(), Unusual(), ShouldPlay(),
             ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
             TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
-            Consistency(Consistency.DEFAULT_SELECTOR, 96) ]
+            Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear() ]
 
 FEATURES_BY_KEY = {}
 for f in FEATURES:

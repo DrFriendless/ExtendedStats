@@ -20,13 +20,6 @@ def query(sql, args=None):
     db.close()
     return result
     
-def queryDb(sql, args=None):
-    dbc = db.cursor()
-    dbc.execute(sql, args)
-    result = dbc.fetchall()
-    dbc.close()
-    return result
-    
 def getRow(table):
     db = get()
     import library
