@@ -106,9 +106,12 @@ for user in USERS:
         all.append(url % (sitedata.site, user))
     for tag in TAGS:
         all.append(CHOOSE_URL % (sitedata.site, user, tag))
+total = len(all)
+i = 0
 for s in all:
+    i += 1
     start = time.time()
-    print s,
+    print "%d/%d %s" % (i, total, s),
     response = urllib.urlopen(s)
     end = time.time()
     print " (%s seconds) " % int(end-start), response.code

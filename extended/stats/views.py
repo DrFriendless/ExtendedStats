@@ -66,11 +66,11 @@ class OptimisationContext(object):
 
 def interpretRequest(request, param):
     "look at the request and set up our context objects from it"
-    import dynlib
+    import library
     from imgviews import ImageSpecs
     ispec = ImageSpecs(request)
     options = Options(request)
-    (username, geek) = dynlib.checkGeek(param, request)
+    (username, geek) = library.checkGeek(param, request)
     return OptimisationContext(username, options, ispec)
     
 def interpretRequestAndSelector(request, param, default):
@@ -238,10 +238,10 @@ def saveManageCollection(request):
         if v is not None and singleton and type(v) == type([]):
             v = v[0]
         return v    
-    import simplejson, dynlib, collections
+    import simplejson, library, collections
     try:
         geek = post("geek", True)
-        (username, geek) = dynlib.checkGeek(geek, request)
+        (username, geek) = library.checkGeek(geek, request)
         cindex = int(post("collection", True))
         model = post("model", True)
         model = simplejson.loads(model)
@@ -336,7 +336,7 @@ def locations(request, param):
         context = interpretRequest(request, param)
         locations = generate.getPlayLocationsData(context)  
         username = context.geek
-        return render_to_response("stats/locations.html", locals())    
+        return render_to_response("stats/locations_result.html", locals())
     except Geeks.DoesNotExist:
         return render_to_response("stats/geek_error.html", locals())   
         
@@ -459,7 +459,7 @@ def splitMonths(ms):
     return result
 
 def gamesCalendar(request, param):
-    import dynlib, datetime, intsequence, library
+    import datetime, intsequence, library
     try:
         fields = param.split("/")
         if len(fields) > 0:
@@ -469,7 +469,7 @@ def gamesCalendar(request, param):
             opts = library.Thing()
             opts.excludeExpansions = False
             opts.excludeTrades = False            
-            (year, month, day, args, startDate, endDate) = dynlib.getDateRangeForDescribedRange(fields)   
+            (year, month, day, args, startDate, endDate) = library.getDateRangeForDescribedRange(fields)
             intSeq = intsequence.parseIntSequence(args)
             if endDate is None or endDate > datetime.date.today():
                 endDate = datetime.date.today()
@@ -492,7 +492,7 @@ def gamesCalendar(request, param):
         return render_to_response("stats/geek_error.html", locals())              
         
 def plays(request, param):
-    import dynlib
+    import library
     try:
         fields = param.split("/")
         if len(fields) > 0:
@@ -527,7 +527,7 @@ def plays(request, param):
             elif florence:
                 data = generate.florenceData(plays)
                 img = imggen.createFlorenceDiagram(context.geek, data)
-                return dynlib.imageResponse(img)              
+                return library.imageResponse(img)
             generate.addGeekData(context.geek, plays)
             return render_to_response("stats/plays.html", locals())   
         else:
@@ -652,10 +652,9 @@ def server(request, param):
 
 
 def recordProfileView(username):
-    from models import Plays
-    import mydb, datetime, dynlib
+    import mydb, datetime, library
     sql = "select profileViews from users where geek = %s"
-    data = Plays.objects.query(sql, [username])
+    data = mydb.query(sql, [username])
     if len(data) == 0:
         sql = "INSERT INTO users (geek, profileViews) VALUES (%s, 0)"
         mydb.update(sql, [username])
@@ -664,7 +663,7 @@ def recordProfileView(username):
         count = int(data[0][0])
     count += 1
     sql = "update users set lastProfileView = %s, profileViews = %s where geek = %s"
-    now = dynlib.dbTime(datetime.datetime.utcnow())
+    now = library.dbTime(datetime.datetime.utcnow())
     mydb.update(sql, [now, count, username])
 
 def comparativeYears(request, param):

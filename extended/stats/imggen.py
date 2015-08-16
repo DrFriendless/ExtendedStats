@@ -1,5 +1,4 @@
 from library import *
-from models import *
 
 IGNORE = ["atarist", "android", "nes", "pc", None]
 FLORENCE_COLOURS = { None: '#ffffff', 'abstracts' : '#000000', 'boardgame' : '#20b020',  \
@@ -759,6 +758,7 @@ def ratingToCoord(lo, hi, rating):
     return int(lo + (hi - lo) * rating / 10.0)    
     
 def plotCategoryRatings(context, cattype, category):
+    import mydb
     if cattype == "All":
         table = ""
         clause = ""
@@ -781,7 +781,7 @@ def plotCategoryRatings(context, cattype, category):
         clause = "publisherId = %s and bggid = gameId and"
         params = [int(category)]
     sql = "select average, rating from games, %s geekgames where %s bggid = game and geek = %s and rating > 0" % (table, clause, "%s")
-    data = Plays.objects.query(sql, params + [context.geek])
+    data = mydb.query(sql, params + [context.geek])
     games = []
     for (avg, rating) in data:
         t = Thing()

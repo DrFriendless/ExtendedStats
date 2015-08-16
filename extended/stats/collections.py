@@ -12,25 +12,25 @@ class AjaxForm( forms.Form ):
     input = forms.CharField( required=True )
         
 def getAllCollectionsForGeek(context, includeGames = False):
-    import models
+    import mydb
     sql = "select collectionname, description, collectionindex, ckey from collections where geek = %s order by 3"
-    collectionData = models.Plays.objects.query(sql,  [context.geek])         
+    collectionData = mydb.query(sql,  [context.geek])
     ckeys = [ row[3] for row in collectionData ]
     groupData = []
     gameData = []
     if len(ckeys) > 0:
         ckeystr = "(%s)" % ",".join([str(ck) for ck in ckeys])
         sql = "select groupindex, groupname, groupdesc, display, ckey from collectiongroups where ckey in " + ckeystr + " order by 1"
-        groupData = models.Plays.objects.query(sql)
+        groupData = mydb.query(sql)
         if includeGames:
             sql = "select groupindex, bggid, ckey from collectiongames where ckey in " + ckeystr + " order by orderindex"
-            gameData = models.Plays.objects.query(sql)        
+            gameData = mydb.query(sql)
     return buildCollections(context, collectionData, groupData, gameData)
     
 def deleteCollection(context, index):
-    import models, mydb
+    import mydb
     sql = "select ckey from collections where geek = %s and collectionindex = %s"
-    ckeyData = models.Plays.objects.query(sql,  [context.geek, index]) 
+    ckeyData = mydb.query(sql,  [context.geek, index])
     if len(ckeyData) < 0:
         return
     ckey = ckeyData[0][0]    
@@ -39,9 +39,9 @@ def deleteCollection(context, index):
     mydb.update("delete from collections where ckey = %d" % ckey)    
 
 def getNextCollectionIndex(context):
-    import models
+    import mydb
     sql = "select collectionindex from collections where geek = %s"
-    cindexes = models.Plays.objects.query(sql,  [context.geek]) 
+    cindexes = mydb.query(sql,  [context.geek])
     indexes = [ c[0] for c in cindexes ]
     newIndex = 0
     while newIndex in indexes:
@@ -64,15 +64,15 @@ def makeNewCollection(context, cindex):
     return newCollection 
     
 def getCollectionForGeek(context, index, includeGameData = False):
-    import models
+    import mydb
     sql = "select collectionname, description, collectionindex, ckey from collections where geek = %s and collectionindex = %s order by 3"
-    collectionData = models.Plays.objects.query(sql,  [context.geek, index])         
+    collectionData = mydb.query(sql,  [context.geek, index])
     ckey = collectionData[0][3]
     sql = "select groupindex, groupname, groupdesc, display, ckey from collectiongroups where ckey = %s order by 1"
-    groupData = models.Plays.objects.query(sql, [ckey])
+    groupData = mydb.query(sql, [ckey])
     if includeGameData:
         sql = "select groupindex, bggid, ckey from collectiongames where ckey = %s order by orderindex"
-        gameData = models.Plays.objects.query(sql, [ckey])
+        gameData = mydb.query(sql, [ckey])
     else:
         gameData = []
     result = buildCollections(context, collectionData, groupData, gameData)
@@ -121,9 +121,9 @@ def esc(s):
     return MySQLdb.escape_string(s)    
     
 def saveCollectionFromJson(username, index, model):
-    import library, mydb, models
+    import library, mydb
     sql = "select ckey from collections where geek = %s and collectionindex = %s"
-    ckeyData = models.Plays.objects.query(sql,  [username, index]) 
+    ckeyData = mydb.query(sql,  [username, index])
     ckey = None
     if len(ckeyData) > 0:
         ckey = ckeyData[0][0]
@@ -165,9 +165,9 @@ def saveCollectionFromJson(username, index, model):
     db.close()
         
 def saveCollection(context, collection):
-    import library, mydb, models
+    import library, mydb
     sql = "select ckey from collections where geek = %s and collectionindex = %s"
-    ckeyData = models.Plays.objects.query(sql,  [context.geek, collection.index]) 
+    ckeyData = mydb.query(sql,  [context.geek, collection.index])
     ckey = ckeyData[0][0]    
     collRow = library.Row()
     collRow.collectionname = collection.name

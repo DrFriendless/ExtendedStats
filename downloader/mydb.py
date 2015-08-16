@@ -14,12 +14,12 @@ class MyDB(object):
         self.db.optimised = False 
         
     def execute(self, sql, args=None):
-	c = self.db.cursor()
-	c.execute(sql, args)
-	result = c.fetchall()
-	c.close()
-	self.db.commit()
-	return result  
+        c = self.db.cursor()
+        c.execute(sql, args)
+        result = c.fetchall()
+        c.close()
+        self.db.commit()
+        return result
 
     def close(self):
         self.db.close()

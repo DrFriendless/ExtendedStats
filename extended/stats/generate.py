@@ -1,4 +1,3 @@
-from models import *
 import math, time
 
 GAME_XML_URL = "http://boardgamegeek.com/xmlapi/game/%d"
@@ -44,16 +43,16 @@ def addCollectionSummary(context, groups):
             plays.sort()
             plays.reverse()
             while group.hindex < len(geekGames) and plays[group.hindex] > group.hindex:
-                group.hindex = group.hindex + 1
+                group.hindex += 1
         else:
             group.medianPlays = 0
             group.meanPlays = 0
             group.utilisation = 0
 
 def getPlayLocationsData(context):
-    import library
+    import library, mydb
     sql = "select game, quantity, location, playDate from plays where geek = %s and location is not null and location != ''"
-    data = Plays.objects.query(sql,  [context.geek])
+    data = mydb.query(sql,  [context.geek])
     games = context.substrate.getGames([d[0] for d in data])
     byLocation = {}
     countByLocation = library.Counts()
@@ -102,9 +101,9 @@ def getPlayLocationsData(context):
     return result
 
 def getPlayRatings(context):
-    import dynlib
+    import library, mydb
     sql = "select sum(raters), sum(ratingsTotal), sum(quantity), game from plays where geek = %s group by game"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     games = context.substrate.getGames([d[3] for d in data])
     plays = []
     for (raters, total, quantity, gid) in data:
@@ -116,15 +115,16 @@ def getPlayRatings(context):
         g.count = quantity
         g.average = int(float(total) / float(raters) * 100.0) / 100.0
         plays.append(g)
-    plays.sort(dynlib.gameName)
+    plays.sort(library.gameName)
     return plays
     
 def addGeekData(geek, plays):
+    import mydb
     ids = []
     for p in plays:
         if p.game.bggid not in ids:
             ids.append(p.game.bggid)
-    ggs = GeekGames.objects.query("select game, rating from geekgames where geek = %s", [geek])
+    ggs = mydb.query("select game, rating from geekgames where geek = %s", [geek])
     ratings = {}
     for (gid, rating) in ggs:
         ratings[gid] = rating
@@ -354,13 +354,13 @@ class Period:
             before = 0
         after = before + count
         result = []
-        if before < 5 and after >= 5:
+        if before < 5 <= after:
             result.append(5)
-        if before < 10 and after >= 10:
+        if before < 10 <= after:
             result.append(10)
-        if before < 25 and after >= 25:
+        if before < 25 <= after:
             result.append(25)
-        if before < 100 and after >= 100:
+        if before < 100 <= after:
             result.append(100)
         self.playsByGame[game] = after
         return result
@@ -663,12 +663,12 @@ def sgoyt(param):
         raise views.BadUrlException("Error retrieving parsing geeklist: %s" % url)    
 
 def getPlayLoggingData(context):
-    import library
+    import library, mydb
     sql = "select location, count(location) c from plays where geek = %s and location is not null and location != '' group by location order by c desc limit 30"
-    data = Plays.objects.query(sql,  [context.geek])
+    data = mydb.query(sql,  [context.geek])
     locations = [ l[0] for l in data ]
     sql = "select name, username, colour, sum(count) c from opponents where geek = %s group by name, username, colour order by c desc limit 30"
-    data = Plays.objects.query(sql,  [context.geek])
+    data = mydb.query(sql,  [context.geek])
     players = []
     for (username, name, colour, junk) in data:
         t = library.Thing()
@@ -685,9 +685,9 @@ def getPlayLoggingData(context):
     return (players, locations)
     
 def getMultiYearData(context):
-    import library
+    import library, mydb
     sql = "select year(playDate), game, sum(quantity) from plays where geek = %s group by year(playDate), game"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     yearCounts = library.Counts()
     usedYears = [ int(y) for y in USED_YEARS ]
     for (y, gid, count) in data:
@@ -791,10 +791,11 @@ def getOwnedByPublishedYearData(context):
     return result
     
 def getMostPlayedUnplayedGames(context):
+    import mydb
     sql = "select sum(quantity), game from plays group by game order by 1 desc"
-    data = Plays.objects.query(sql, [])        
+    data = mydb.query(sql, [])
     sql = "select distinct game from plays where geek = %s"
-    geekData = Plays.objects.query(sql, [context.geek])        
+    geekData = mydb.query(sql, [context.geek])
     played = [ x[0] for x in geekData ]
     ids = []
     remember = {}
@@ -833,16 +834,17 @@ def addRanks(rows, valCol, rankCol, title):
             lastValue = data[i].__dict__[valCol]
 
 def getAllCatsAndMecs():
+    import mydb
     sql = "select distinct category from gameCategories order by 1"
-    cats = Plays.objects.query(sql)
+    cats = mydb.query(sql)
     cats = [ c[0] for c in cats ]
     sql = "select distinct mechanic from gameMechanics order by 1"
-    mecs = Plays.objects.query(sql)
+    mecs = mydb.query(sql)
     mecs = [ c[0] for c in mecs ]
     return (cats, mecs)
   
 def getNormRankedData(category):
-    import substrate
+    import substrate, mydb
     (cats, mecs) = getAllCatsAndMecs()
     minus = 0
     if not category:
@@ -876,22 +878,22 @@ def getNormRankedData(category):
     else:
         raise Exception("No ranking criteria")
     sql = "select distinct bggid from geekgames, games where geekgames.game = games.bggid and rating > 0 and %s" % categoryClause    
-    data = Plays.objects.query(sql, params)
+    data = mydb.query(sql, params)
     ids = [ d[0] for d in data ]
     games = substrate.getGames(ids)
     result = []
     ndata = getNormalisedRankingsDataForGames(ids)
     for (id, ng) in ndata.items():
-	g = games.get(id)
-	if g is None:
-	    continue
-	g.normrank = ng.normrank
-	result.append(g)
-    result.sort(lambda g1, g2: cmp(g1.normrank, g2.normrank))
+        g = games.get(id)
+        if g is None:
+            continue
+        g.normrank = ng.normrank
+        result.append(g)
+        result.sort(lambda g1, g2: cmp(g1.normrank, g2.normrank))
     return (cats, mecs, title, result[:1000])      
 
 def getTopRankedData(category):
-    import substrate
+    import substrate, mydb
     (cats, mecs) = getAllCatsAndMecs()
     minus = 0
     if not category:
@@ -925,7 +927,7 @@ def getTopRankedData(category):
     else:
         raise Exception("No ranking criteria")
     sql = "select sum(rating), count(rating), name, bggid from geekgames, games where geekgames.game = games.bggid and rating > 0  and %s group by bggid order by 1 desc limit 1000" % categoryClause    
-    data = Plays.objects.query(sql, params)
+    data = mydb.query(sql, params)
     ids = [ d[3] for d in data ]
     games = substrate.getGames(ids)
     result = []
@@ -939,7 +941,7 @@ def getTopRankedData(category):
     result.sort(lambda g1, g2: -cmp(g1.score, g2.score))
     for g in result:
         g.extrank = rank
-        rank = rank + 1
+        rank += 1
     if parts[0] == "all":
         ndata = getNormalisedRankingsData()
         for (id, ng) in ndata.items():
@@ -948,16 +950,16 @@ def getTopRankedData(category):
                 continue
             g.normrank = ng.normrank
     sql = "select sum(quantity), game from plays group by game"
-    data = Plays.objects.query(sql, [])
+    data = mydb.query(sql, [])
     for (q, g) in data:
         if games.get(g) is not None:
             games[g].totalPlays = q
     return (cats, mecs, title, result)
     
 def getRawFrontPageData():   
-    import library 
+    import library, mydb
     sql = "select geek, totalPlays, distinctGames, top50, sdj, hindex, owned, want, wish, trade, prevOwned, friendless, cfm, utilisation, tens, zeros, ext100, mv from frontpagegeek"
-    data = Plays.objects.query(sql)
+    data = mydb.query(sql)
     rows = []
     for (geek, totalPlays, distinctGames, top50, sdj, hindex, owned, want, wish, trade, prevOwned, friendless, cfm, utilisation, tens, zeros, ext100, mv) in data:
         t = library.Thing()
@@ -1002,9 +1004,10 @@ def addPissingWarRanks(rows):
     addRanks(rows, "tens", "tensRank", "Games Owned Played 10 Times")    
       
 def getAustraliaFrontPagePlaysData():
+    import mydb
     all = getRawFrontPageData()
     sql = "select geek from users where country = %s"
-    data = Plays.objects.query(sql, ["Australia"])    
+    data = mydb.query(sql, ["Australia"])
     geeks = [ d[0] for d in data ]
     rows = [ a for a in all if a.geek in geeks ]
     addPissingWarRanks(rows)
@@ -1018,13 +1021,15 @@ def getFrontPagePlaysData():
     return rows
 
 def getFirstPlayVsRatingData(geek):
+    import mydb
     sql = "select game, min(playDate), rating from geekgames inner join plays using (geek, game) where geek = %s and rating > 0 group by game order by 2 asc"
-    data = Plays.objects.query(sql, [geek])
+    data = mydb.query(sql, [geek])
     return data
 
 def getGeekYears(geek):
+    import mydb
     sql = "select y from (select y, count(distinct m) cm from (select year(playDate) y, month(playDate) m from plays where geek = %s) ym group by y) yc where cm > 3"
-    data = Plays.objects.query(sql, [geek])
+    data = mydb.query(sql, [geek])
     return [ int(d[0]) for d in data ]
 
 def getShouldPlayGames(context, owned):  
@@ -1039,7 +1044,7 @@ def getShouldPlayGames(context, owned):
         data = substrate.getAllGamesExcludingBooks(options)
     sql = "select games.bggid, rating from geekgames, games where geekgames.game = games.bggid and geekgames.geek = %s"
     if owned:
-        sql = sql + " and owned"
+        sql += " and owned"
     data = [ d for d in data if d.lastPlay is not None ]
     now = datetime.date.today()
     result = []
@@ -1070,7 +1075,7 @@ def getShouldPlayOwnData(context):
     return ggs[:20]
 
 def getFavouriteGamesByPublishedYear(context):
-    import library, dynlib
+    import library
     opts = library.Thing()
     opts.excludeTrades = False
     opts.excludeExpansions = False
@@ -1087,12 +1092,12 @@ def getFavouriteGamesByPublishedYear(context):
         t.year = k
         t.games = sorter[k]
         t.count = len(t.games)
-        t.games.sort(dynlib.gameName)
+        t.games.sort(library.gameName)
         result.append(t)
     return result
     
 def getWhatIfData(context):
-    import dynlib, library
+    import library
     opts = context.options.pogo
     geekgames = context.substrate.getOwnedGamesExcludingBooks(opts)
     result = []
@@ -1105,7 +1110,7 @@ def getWhatIfData(context):
         else:
             r.own = "No"
         result.append(r)
-    result.sort(dynlib.gameName)
+    result.sort(library.gameName)
     return result
     
 def getPlaysCSVData(context):
@@ -1187,12 +1192,12 @@ def calcHIndex(data):
     data.sort(lambda t1, t2: -cmp(t1.plays, t2.plays))
     hindex = 0
     while hindex < len(data) and data[hindex].plays > hindex:
-        hindex = hindex + 1
+        hindex += 1
     return hindex
 
 def calcCorrelation(faves):
     # This uses the data generated by getFavourites.
-    import math, dynlib
+    import math, library
     fs = [ x for x in faves if x.rating > 0 ]
     xs = [ x.rating for x in fs ]
     ys = [ x.bggavg for x in fs ]
@@ -1201,11 +1206,11 @@ def calcCorrelation(faves):
     x2s = [ x*x for x in xs ]
     y2s = [ y*y for y in ys ]
     xys = [ xs[i]*ys[i] for i in range(len(xs)) ]
-    meanxy = dynlib.mean(xys)
-    meanx = dynlib.mean(xs)
-    meany = dynlib.mean(ys)
-    meanx2s = dynlib.mean(x2s)
-    meany2s = dynlib.mean(y2s)
+    meanxy = library.mean(xys)
+    meanx = library.mean(xs)
+    meany = library.mean(ys)
+    meanx2s = library.mean(x2s)
+    meany2s = library.mean(y2s)
     d1 = math.sqrt(meanx2s - meanx * meanx)
     d2 = math.sqrt(meany2s - meany * meany)
     if d1 * d2 == 0.0:
@@ -1215,7 +1220,7 @@ def calcCorrelation(faves):
 
 def calcCorrelationRankedOnly(faves):
     # This uses the data generated by getFavourites.
-    import math, dynlib
+    import math, library
     fs = [ x for x in faves if x.rating > 0 and x.bggrank > 0 ]
     xs = [ x.rating for x in fs ]
     ys = [ x.bggavg for x in fs ]
@@ -1224,11 +1229,11 @@ def calcCorrelationRankedOnly(faves):
     x2s = [ x*x for x in xs ]
     y2s = [ y*y for y in ys ]
     xys = [ xs[i]*ys[i] for i in range(len(xs)) ]
-    meanxy = dynlib.mean(xys)
-    meanx = dynlib.mean(xs)
-    meany = dynlib.mean(ys)
-    meanx2s = dynlib.mean(x2s)
-    meany2s = dynlib.mean(y2s)
+    meanxy = library.mean(xys)
+    meanx = library.mean(xs)
+    meany = library.mean(ys)
+    meanx2s = library.mean(x2s)
+    meany2s = library.mean(y2s)
     d1 = math.sqrt(meanx2s - meanx * meanx)
     d2 = math.sqrt(meany2s - meany * meany)
     try:
@@ -1238,9 +1243,9 @@ def calcCorrelationRankedOnly(faves):
     return c
 
 def getPlaysByQuarterData(context, startYear):
-    import library
+    import library, mydb
     sql = "select year(plays.playDate), quarter(plays.playDate), sum(plays.quantity), games.yearPublished from plays, games where plays.geek = %s and plays.game = games.bggid group by yearPublished, year(plays.playDate), quarter(plays.playDate)"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     counts = library.DictOfCounts()
     for (year, quarter, quantity, pubYear) in data:
         if year < 2005:
@@ -1252,24 +1257,25 @@ def getPlaysByQuarterData(context, startYear):
     return counts
 
 def hasPlaysData(context):
-    import library
+    import mydb
     sql = "select sum(plays.quantity) from plays where plays.geek = %s"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     return data[0][0] > 0
 
 def getMorgansPieChartsData(geek):
+    import mydb
     sql1 = "select count(game), round(rating) from geekgames where geek = %s and owned = True and rating >= 0 group by round(rating)"
-    data1 = Plays.objects.query(sql1, [geek])
+    data1 = mydb.query(sql1, [geek])
     sql2 = "select count(games.bggid), round(games.average) from geekgames inner join games on games.bggid = geekgames.game where geek = %s and geekgames.owned = True and average > 0 group by round(games.average)"
-    data2 = Plays.objects.query(sql2, [geek])
+    data2 = mydb.query(sql2, [geek])
     sql3 = "select sum(quantity), round(rating) from geekgames inner join plays using (geek, game) where geek = %s and rating >= 0 group by round(rating)"
-    data3 = Plays.objects.query(sql3, [geek])
+    data3 = mydb.query(sql3, [geek])
     sql4 = "select sum(quantity), round(rating) from geekgames inner join plays using (geek, game) where geek = %s and rating >= 0 and playDate > DATE_SUB(NOW(), INTERVAL 1 YEAR) group by round(rating)"
-    data4 = Plays.objects.query(sql4, [geek])
+    data4 = mydb.query(sql4, [geek])
     return [data1, data2, data3, data4]
 
 def getCrazyRecommendationsData(context):
-    import library
+    import library, mydb
     queries = {}
     queries["category"] = "select gameId, sum(n) from gameCategories, (select category c, count(category) n from gameCategories, geekgames where geek = %s and gameCategories.gameId = geekgames.game and rating >= 9 group by category) t1 where gameCategories.category = c group by gameId"
     queries["mechanic"] = "select gameId, sum(n) from gameMechanics, (select mechanic c, count(mechanic) n from gameMechanics, geekgames where geek = %s and gameMechanics.gameId = geekgames.game and rating >= 9 group by mechanic) t1 where gameMechanics.mechanic = c group by gameId"
@@ -1279,7 +1285,7 @@ def getCrazyRecommendationsData(context):
     queries["playtime"] = "select bggid, sum(n) from games, (select playTime c, count(playTime) n from games, geekgames where geek = %s and games.bggid = geekgames.game and rating >= 9 group by playTime) t1 where games.playTime = c group by bggid"
     ratings = {}
     for (key, sql) in queries.items():
-        data = Plays.objects.query(sql, [context.geek])
+        data = mydb.query(sql, [context.geek])
         for (gid, n) in data:
             # weight the factors
             if key == "minplayers":
@@ -1304,7 +1310,7 @@ def getCrazyRecommendationsData(context):
             ratings[gid] = t
     rs = ratings.values()[:]
     rs.sort(lambda a,b: -cmp(a.total, b.total))
-    collData = Plays.objects.query("select game, owned, rating, wish from geekgames where geek = %s", [context.geek])
+    collData = mydb.query("select game, owned, rating, wish from geekgames where geek = %s", [context.geek])
     for (gid, owned, rating, wish) in collData:
         t = ratings.get(gid)
         if t is None:
@@ -1312,20 +1318,20 @@ def getCrazyRecommendationsData(context):
         t.owned = int(owned)
         t.rating = rating
         t.wish = wish
-    expansions = Plays.objects.query("select distinct expansion from expansions")
+    expansions = mydb.query("select distinct expansion from expansions")
     expansions = [ x[0] for x in expansions ]
-    books = Plays.objects.query("select gameId from gameCategories where category = 'Book'")
+    books = mydb.query("select gameId from gameCategories where category = 'Book'")
     books = [x[0] for x in books]
     rs = [ r for r in rs if r.wish != 5 and r.bggid not in expansions and r.bggid not in books ]
     count = 0
     found = 0
     for r in rs:
         r.found = False
-        count = count + 1
+        count += 1
         if r.owned or r.rating > 0:
             continue
         r.found = True
-        found = found + 1
+        found += 1
         if found == 50:
             break
     rs = rs[:count]
@@ -1339,12 +1345,12 @@ def getCrazyRecommendationsData(context):
     return rs
 
 def getNumPlayersData(context):
-    import library
+    import library, mydb
     sqls = ["select geekgames.game, geekgames.rating, best%d, recommended%d from geekgames, numplayers where geekgames.geek = %s and geekgames.game = numplayers.game and best%d + recommended%d > notrec%d and geekgames.rating > 5 and geekgames.game not in (select gameId from gameCategories where category = 'Book' or category = 'Expansion for Base-game')" % (n+1, n+1, "%s", n+1, n+1, n+1) for n in range(7)]
     result = []
     games = []
     for sql in sqls:
-        data = Plays.objects.query(sql, [context.geek])
+        data = mydb.query(sql, [context.geek])
         result.append(data)
         for (gid, rating, best, rec) in data:
             if gid not in games:
@@ -1365,15 +1371,16 @@ def getNumPlayersData(context):
             t.sort = rating * mult
             r2.append(t)
             if best > rec:
-                t.sort = t.sort + 1.5      
+                t.sort += 1.5
         r2.sort(lambda g1, g2: -cmp(g1.sort, g2.sort))
         res2.append(r2[:20])
-        players = players + 1
+        players += 1
     return res2
 
 def getLeastWanted(context):
+    import mydb
     sql = "select game, trade, max(playDate), datediff(now(), max(playDate)) / rating / rating, rating, datediff(now(), max(playDate)) from geekgames inner join plays using (geek, game) where geek = %s and rating > 0 and owned = True group by game order by 4 desc"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     data = [ d for d in data if d[3] > 30 ]
     games = [ d[0] for d in data ]
     gs = context.substrate.getGames(games)
@@ -1389,8 +1396,8 @@ def getLeastWanted(context):
     return result
   
 def getPlaysForYear(substrate, year):
-    import dynlib
-    (startDate, endDate) = dynlib.makeDateRange(year, None,  None) 
+    import library
+    (startDate, endDate) = library.makeDateRange(year, None,  None)
     (plays, messages) = substrate.filterPlays(startDate, endDate)
     addGeekData(substrate.geek,  plays)
     return plays
@@ -1420,7 +1427,7 @@ def getStreaks(context):
                 streakLength = 1
             elif library.consecutiveDays(prevDate, d):
                 # streak continues
-                streakLength = streakLength + 1
+                streakLength += 1
             elif streakLength > 1:
                 # streak is broken, new streak starts
                 streaks.append((startDate, prevDate, streakLength))
@@ -1442,7 +1449,7 @@ def getStreaks(context):
         t.finish = best[1]
         t.length = best[2]
         result.append(t)
-        minPlays = minPlays + 1
+        minPlays += 1
         for key in counts.keys():
             if counts[key] <= minPlays:
                 del counts[key]
@@ -1506,7 +1513,7 @@ class DesignerPlaysData:
         self.games = []
         
 def getDimesByDesigner(context, year=None):
-    import library, dynlib
+    import library, mydb
     range = []
     if year is not None:
         range = [year]
@@ -1523,8 +1530,8 @@ def getDimesByDesigner(context, year=None):
     if len(gids) == 0:
         return []
     sql = "select games.bggid, designers.name, designers.bggid from designers, gameDesigners, games where designers.bggid = gameDesigners.designerId and " + \
-          "gameDesigners.gameId = games.bggid and " + dynlib.inlist("games.bggid", gids)
-    designerData = Plays.objects.query(sql, [])
+          "gameDesigners.gameId = games.bggid and " + library.inlist("games.bggid", gids)
+    designerData = mydb.query(sql, [])
     designers = {}
     designersByGame = library.DictOfLists()
     for (gid,  dname,  did) in designerData:
@@ -1557,8 +1564,9 @@ def getDimesByDesigner(context, year=None):
     return result    
 
 def getPlaysRecordedYears(context):
+    import mydb
     sql = "select distinct(year(playDate)) from plays where geek = %s"
-    years = Plays.objects.query(sql, [context.geek])
+    years = mydb.query(sql, [context.geek])
     years = [ int(row[0]) for row in years ]
     return years
 
@@ -1593,8 +1601,9 @@ def getNickelAndDime(context, year):
     return result
 
 def getPlayedLastYearNotThis(context, year):
+    import mydb
     sql = "select game, q from (select game, sum(quantity) q from plays where geek = %s and year(playDate) = %s group by game) t1 where q >= 2 and game not in (select game from plays where geek = %s and year(playDate) = %s) order by 2 desc"
-    data = Plays.objects.query(sql, [context.geek, year-1, context.geek, year])
+    data = mydb.query(sql, [context.geek, year-1, context.geek, year])
     gids = [ d[0] for d in data ]
     gs = context.substrate.getGames(gids)
     result = []
@@ -1674,14 +1683,14 @@ def getPlaysByYearData(context):
     return result
 
 def getRatingByRanking(context):
-    import library
+    import library, mydb
     from imggen import ALDIES_COLOURS
     opts = library.Thing()
     opts.excludeTrades = False
     opts.excludeExpansions = False
     geekgames = context.substrate.getAllRatedGames(opts)
     sql = "select bggid, name, rank from games where usersRated >= 30 order by 3 asc"
-    gdata = Plays.objects.query(sql)
+    gdata = mydb.query(sql)
     games = {}
     index = {}
     highestRank = -1
@@ -1733,13 +1742,13 @@ def getRatingByRanking(context):
     return result
 
 def getPlaysByRanking(context):
-    import library
+    import library, mydb
     opts = library.Thing()
     opts.excludeTrades = False
     opts.excludeExpansions = False
     geekgames = context.substrate.getAllRatedGames(opts)
     sql = "select bggid, name, rank from games where usersRated >= 30 order by 3 asc"
-    gdata = Plays.objects.query(sql)
+    gdata = mydb.query(sql)
     games = {}
     index = {}
     highestRank = -1
@@ -1799,19 +1808,21 @@ def getPlaysByRanking(context):
     return result
 
 def getCategoriesToGraph(context):
+    import mydb
     sql = "select category from (select category, count(category) c from geekgames join gameCategories on gameId = game, games where geek = %s and rating > 0 and bggid = game group by category) t where c >= 30"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     return [ d[0] for d in data ]
 
 def getMechanicsToGraph(context):
+    import mydb
     sql = "select mechanic from (select mechanic, count(mechanic) c from geekgames join gameMechanics on gameId = game, games where geek = %s and rating > 0 and bggid = game group by mechanic) t where c >= 30"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     return [ d[0] for d in data ]
 
 def getDesignersToGraph(context):
-    import library
+    import library, mydb
     sql = "select designerId, name from (select designerId, count(designerId) c from geekgames join gameDesigners on gameId = game, games where geek = %s and rating > 0 and bggid = game group by designerId) t, designers where designerId = bggid and c >= 10"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     result = []
     for (id, name) in data:
         t = library.Thing()
@@ -1820,9 +1831,9 @@ def getDesignersToGraph(context):
     return result
 
 def getPublishersToGraph(context):
-    import library
+    import library, mydb
     sql = "select publisherId, name from (select publisherId, count(publisherId) c from geekgames join gamePublishers on gameId = game, games where geek = %s and rating > 0 and bggid = game group by publisherId) t, publishers where c >= 30 and publisherId = bggid"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     result = []
     for (id, name) in data:
         t = library.Thing()
@@ -1831,9 +1842,9 @@ def getPublishersToGraph(context):
     return result
 
 def getSeriesData(context):
-    import library
+    import library, mydb
     sql = "select series.name, game, rating, comment, want, owned, wish, trade from series left outer join (select * from geekgames where geek = %s) t using (game)"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     gids = [ d[1] for d in data ]
     games = context.substrate.getGames(gids)
     bySeries = {}
@@ -1885,8 +1896,9 @@ def getSeriesData(context):
     return result
 
 def getUnusualData(context):
+    import mydb
     sql = "select game, usersRated + usersOwned from geekgames, games where game = bggid and geek = %s and owned order by 2 asc"
-    data = Plays.objects.query(sql, [context.geek])[:50]
+    data = mydb.query(sql, [context.geek])[:50]
     gids = [ d[0] for d in data ]
     games = context.substrate.getGames(gids)
     result = [ games[gid] for (gid, v) in data ]
@@ -1918,7 +1930,7 @@ def getNewCatRow(key, typ):
     return t
 
 def getCatMecData(context, typ):
-    import library
+    import library, mydb
     if typ == "category":
         tab = "category from gameCategories"
         where = "category"
@@ -1934,7 +1946,7 @@ def getCatMecData(context, typ):
     table = tab.split()[-1]
     sql = "select sum(owned), %s join geekgames on gameId = game where geek = %s group by %s" % (tab, "%s", where)
     byKey = {}
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     for (owned, key) in data:
         owned = int(owned)
         t = getNewCatRow(key, typ)
@@ -1946,46 +1958,46 @@ def getCatMecData(context, typ):
             sql = "select name, bggid from designers where bggid in %s"
         elif typ == "publisher":
             sql = "select name, bggid from publishers where bggid in %s"
-        names = Plays.objects.query(sql % inlist)
+        names = mydb.query(sql % inlist)
         for (name, id) in names:
             byKey[id].name = name
     sql = "select avg(rating), count(rating), %s join geekgames on gameId = game where geek = %s and rating > 0 group by %s" % (tab, "%s", where)
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     for (avg, count, key) in data:
         byKey[key].rating = int(avg * 10) / 10.0
         byKey[key].count = int(count)
     sql = "select avg(rating), %s join geekgames on gameId = game where geek = %s and owned and rating > 0 group by %s" % (tab, "%s", where)
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     for (avg, key) in data:
         byKey[key].avgOwned = int(avg * 10) / 10.0
     sql = "select sum(quantity), %s from (select quantity, game from plays where geek = %s) t1 join %s on game = gameId group by %s" % (where, "%s", table, where)
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     for (plays, key) in data:
         if byKey.get(key) is None:
             t = getNewCatRow(key, typ)
             byKey[key] = t
         byKey[key].plays = int(plays)
     sql = "select %s, sum(p) / 60 from (select playTime * sum(quantity) p, game from plays, games where geek = %s and game = bggid group by game) t1 join %s on game = gameId group by %s" % (where, "%s", table, where)
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     for (key, hours) in data:
         byKey[key].hoursPlayed = int(hours * 10) / 10.0
     sql = "select sum(w), %s from (select case when rating = 10 then 7 when rating >= 9 then 5 when rating >= 8 then 3 when rating >= 7 then 1 else 0 end w, game from geekgames where geek = %s) t1 join %s on gameId = game group by %s" % (where, "%s", table, where)
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     for (whitmore, key) in data:
         byKey[key].whitmore = whitmore
     sql = "select sum(w), %s from (select case when rating = 10 then 7 when rating >= 9 then 5 when rating >= 8 then 3 when rating >= 7 then 1 else 0 end w, game from geekgames where geek = %s) t1, games, %s where t1.game = games.bggid and %s.gameId = t1.game and t1.game not in (select expansion from expansions) group by %s order by 1 desc" % (where, "%s", table, table, where)
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     for (whitmore, key) in data:
         byKey[key].whitmoreNoExp = whitmore
     sql = "select %s, gameId from (select max(rating) m, %s join geekgames on gameId = game where geek = %s and rating > 0 group by %s) t1 join (select gameId, rating r, %s join geekgames on gameId = game where geek = %s and rating > 0) t2 using (%s) where r = m" % (where, tab, "%s", where, tab, "%s", where)
-    data = Plays.objects.query(sql, [context.geek, context.geek])
+    data = mydb.query(sql, [context.geek, context.geek])
     gids = library.Set()
     for (key, gid) in data:
         byKey[key].favid = gid
         gids.add(gid)
     #
     sql = "select game, %s join geekgames on gameId = game where geek = %s and owned" % (tab, "%s")
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     for (gid, key) in data:
         gids.add(gid)
         byKey[key].collection.append(gid)
@@ -2001,9 +2013,9 @@ def getCatMecData(context, typ):
     return result
     
 def getNormalisedRankingsData():
-    import library
+    import library, mydb
     sql = "select geek, count(geek) from geekgames where rating > 0 group by geek"
-    data = Plays.objects.query(sql)
+    data = mydb.query(sql)
     totals = {}
     for (geek, count) in data:
         t = library.Thing()
@@ -2015,7 +2027,7 @@ def getNormalisedRankingsData():
         totals[geek] = t
     pointsForGames = {}
     sql = "select geek, game, rating from geekgames where rating > 0 order by rating desc"
-    data = Plays.objects.query(sql)
+    data = mydb.query(sql)
     for (geek, gid, rating) in data:
         t = totals[geek]
         if rating != t.lastRating:
@@ -2043,9 +2055,9 @@ def getNormalisedRankingsData():
 def getNormalisedRankingsDataForGames(bggids):
     if len(bggids) == 0:
         return {}
-    import library
+    import library, mydb
     sql = "select geek, count(geek) from geekgames where rating > 0 and game in %s group by geek"
-    data = Plays.objects.query(sql, [bggids])
+    data = mydb.query(sql, [bggids])
     totals = {}
     for (geek, count) in data:
         t = library.Thing()
@@ -2057,7 +2069,7 @@ def getNormalisedRankingsDataForGames(bggids):
         totals[geek] = t
     pointsForGames = {}
     sql = "select geek, game, rating from geekgames where rating > 0 and game in %s order by rating desc"
-    data = Plays.objects.query(sql, [bggids])
+    data = mydb.query(sql, [bggids])
     for (geek, gid, rating) in data:
         t = totals[geek]
         if rating != t.lastRating:
@@ -2083,22 +2095,22 @@ def getNormalisedRankingsDataForGames(bggids):
     return pointsForGames
 
 def getTradeData(context):
-    import library, dynlib
+    import library, mydb
     sql = "select country from users where geek = %s"
-    data = Plays.objects.query(sql, [context.geek])
+    data = mydb.query(sql, [context.geek])
     if data is None or len(data) == 0 or len(data[0]) == 0 or data[0][0] is None:
         return ("Unknown Country '" + str(data) + "'", [context.geek], [], [], [])
     country = data[0][0]
     if country.startswith("United") and country.endswith("States"):
         return ("This functionality is not available for your country because it puts too much load on the server.", [context.geek], [], [], [])
     sql = "select geek from users where country = %s"
-    data = Plays.objects.query(sql, [country])
+    data = mydb.query(sql, [country])
     geeks = []
     usernames = []
     byGeek = {}
     for row in data:
         t = library.Thing()
-        t.username = unicode(row[0])   
+        t.username = row[0]
         t.want = 0
         t.trade = 0
         t.sell = 0
@@ -2114,10 +2126,10 @@ def getTradeData(context):
         meGeek = byGeek[context.geek.lower()]
     except KeyError:
         return ("Unknown Country '" + str(country) + "'", [meGeek], [], [], [])
-    sql = "select geek, game, owned, want, wish, trade, wanttobuy from geekgames where %s" % dynlib.strinlist("geek", usernames)
-    data = Plays.objects.query(sql)
-    sql = "select geek, gameid, itemid from market where %s" % dynlib.strinlist("geek", usernames)
-    marketData = Plays.objects.query(sql)  
+    sql = "select geek, game, owned, want, wish, trade, wanttobuy from geekgames where %s" % library.strinlist("geek", usernames)
+    data = mydb.query(sql)
+    sql = "select geek, gameid, itemid from market where %s" % library.strinlist("geek", usernames)
+    marketData = mydb.query(sql)
     ids = []
     for (geek, id, owned, want, wish, trade, wanttobuy) in data:
         if id not in ids:
@@ -2133,15 +2145,15 @@ def getTradeData(context):
         g.exciting = False
     for (geek, id, owned, want, wish, trade, wanttobuy) in data:
         game = games[id]
-        t = byGeek[unicode(geek).lower()]
+        t = byGeek[geek.lower()]
         if owned:
             t.owned.append(game)
         if owned and trade:
-            t.trade = t.trade + 1
+            t.trade += 1
             t.forTrade.append(game)
             game.notwanting.append(t)
         if want or wish in [1,2,3,4] or wanttobuy:
-            t.want = t.want + 1
+            t.want += 1
             t.wanted.append(game)
             game.wanting.append(t)
         if wish == 5:

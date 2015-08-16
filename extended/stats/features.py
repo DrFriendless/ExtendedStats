@@ -431,7 +431,18 @@ class PlaysByYear(Feature):
             return None
         return { "pbyData" : data }
         
-import selectors, views      
+class PlayLocations(Feature):
+    def __init__(self):
+        Feature.__init__(self, "PlayLocations", "stats/locations.html", "locations", "Play Locations")
+
+    def generate(self, context):
+        import generate
+        data = generate.getPlayLocationsData(context)
+        if len(data) == 0:
+            return None
+        return { "locations" : data }
+
+import selectors, views
 FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan(), Florence(), MorePie(), PlaysByPublishedYear(),
             OwnedByPublishedYear(), RatingByPublishedYear(), MostUnplayed(), GenericTable(selectors.OwnedGamesSelector()),
             PlayRate(selectors.PlayedGamesSelector()), PlayRateOwn(), PlayRatePrevOwn(),
@@ -439,7 +450,7 @@ FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan()
             FavesByPublishedYear(), BestDays(), Streaks(), RatingByRanking(), PlaysByRanking(), LeastWanted(), Unusual(), ShouldPlay(),
             ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
             TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
-            Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear() ]
+            Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear(), PlayLocations() ]
 
 FEATURES_BY_KEY = {}
 for f in FEATURES:

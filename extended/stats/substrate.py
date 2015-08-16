@@ -6,7 +6,7 @@ def optionKey(options):
     return "%s%s" % (str(options.excludeTrades), str(options.excludeExpansions))
 
 class Substrate:
-    "A wrapper around a geek to provide lookups common to the entire app."
+    """A wrapper around a geek to provide lookups common to the entire app."""
     
     def __init__(self, geek, context):
         self.geek = geek
@@ -45,13 +45,13 @@ class Substrate:
         return [ gg for gg in all if gg.game.bggid in ids ]
         
     def __processGeekGames(self, geekgames):
-        import dynlib, math
+        import library
         self.addPlaysDataToGeekGames(geekgames)
         for gg in geekgames:
-            gg.utilisation = int(dynlib.cdf(gg.plays, LAMBDA) * 1000.0) / 10.0  
+            gg.utilisation = int(library.cdf(gg.plays, LAMBDA) * 1000.0) / 10.0
         
     def getTheseGeekGames(self, games):
-        "returns GeekGame objects whether the user has a record for them or not"
+        """returns GeekGame objects whether the user has a record for them or not"""
         import library
         opts = library.Thing()
         opts.excludeExpansions = False
@@ -188,13 +188,13 @@ class Substrate:
         return ([ p for p in result if (startDate is None or p.dt >= startDate) and (endDate is None or p.dt <= endDate) ], messages)
       
     def getPlaysForDescribedRange(self, fields):
-        import dynlib
-        (year, month, day, args, startDate, endDate) = dynlib.getDateRangeForDescribedRange(fields)
+        import library
+        (year, month, day, args, startDate, endDate) = library.getDateRangeForDescribedRange(fields)
         (plays,  messages) = self.filterPlays(startDate, endDate)
         return (plays, messages, year, month, day, args)         
       
     def addPlaysDataToGeekGames(self, geekgames):
-        import dynlib, library
+        import library
         plays = self.getPlaysForDescribedRange([])[0]
         byGame = {}
         for p in plays:
@@ -228,11 +228,11 @@ class Substrate:
                     playsByMonth.add(playDateMonth, play.count)
                 monthCount = len(playsByMonth)
                 try:
-                    firstPlay = dynlib.parseYYYYMMDD(first)
+                    firstPlay = library.parseYYYYMMDD(first)
                 except ValueError:
                     firstPlay = None
                 try:
-                    lastPlay = dynlib.parseYYYYMMDD(last)
+                    lastPlay = library.parseYYYYMMDD(last)
                 except ValueError:
                     lastPlay = None
                 (gg.plays, gg.firstPlay, gg.lastPlay, gg.monthsPlayed, gg.pbm) = (playCount, firstPlay, lastPlay, monthCount, playsByMonth)
@@ -263,11 +263,11 @@ class Substrate:
         return (result,  messages)
         
     def getAllSeries(self):
-        import models, library
+        import mydb, library
         if self.series is not None:
             return self.series
         sql = "select name, game from series"
-        data = models.Plays.objects.query(sql, [])
+        data = mydb.query(sql, [])
         self.series = library.DictOfSets()
         games = []
         for (name, bggid) in data:
@@ -288,7 +288,7 @@ def processPlays(plays):
         p.expansionNames = ", ".join([e.name for e in p.expansions])
         
 def getGames(ids):
-    import library, dynlib, models
+    import library, mydb, models
     if len(ids) == 0:
         return {}
     ids = library.uniq(ids)
@@ -317,10 +317,10 @@ def getGames(ids):
         cs = models.GameCategories.objects.filter(["gameId", "category"], gameId=ids)[1]
         for (i, c) in cs:
             categories.add(i, c)
-    sql = "select basegame, expansion from expansions where %s or %s" % (dynlib.inlist("basegame", ids), dynlib.inlist("expansion", ids))
-    expData = models.Plays.objects.query(sql, []) 
+    sql = "select basegame, expansion from expansions where %s or %s" % (library.inlist("basegame", ids), library.inlist("expansion", ids))
+    expData = mydb.query(sql, [])
     sql = "select ruletype, bggid from metadata"
-    ruleData = models.Plays.objects.query(sql, []) 
+    ruleData = mydb.query(sql, [])
     basegames = [ int(gameId) for (rule, gameId) in ruleData if rule == library.BASEGAME ]
     # games which are marked wrongly as basegames in BGG!
     expansions = [ int(gameId) for (rule, gameId) in ruleData if rule == library.EXPANSION ]
@@ -356,14 +356,14 @@ def _inferExtraPlays(games, plays):
         count = 0
         mms = []
         while True:
-	    mms = []
+            mms = []
             (rs, ms, changed) = _inferExtraPlaysForADate(games, datePs)
             mms = mms + ms
             if not changed:
                 break
-            count = count + 1
+            count += 1
             if count == 200:
-	        mms = mms + ["Got really confused"]
+                mms = mms + ["Got really confused"]
                 break
             datePs = rs
         result = result + rs
@@ -374,7 +374,7 @@ def __intersect(lista, listb):
     return len([a for a in lista if a in listb]) > 0
     
 def _inferExtraPlaysForADate(games, plays):
-    import dynlib
+    import library
     from plays import Play
     result = []
     messages = []
@@ -383,7 +383,7 @@ def _inferExtraPlaysForADate(games, plays):
             for bgplay in plays:
                 if play is bgplay:
                     continue
-		exids = [ x.bggid for x in bgplay.expansions ]
+                exids = [ x.bggid for x in bgplay.expansions ]
                 if (bgplay.game.bggid in play.game.basegames or __intersect(play.game.basegames, exids)) and play.game not in bgplay.expansions:
                     nq = min(play.count, bgplay.count)
                     play.count = play.count - nq
@@ -412,7 +412,7 @@ def _inferExtraPlaysForADate(games, plays):
                 #messages.append(u"%s Inferred a play of %s from %s, %s\nothers = %s\nplays = %s" % (play.date, games[basegame].name, play.game.name, str(p.expansions), str(others), str(plays)))
                 return (others + [p], messages, True)
             else:
-                messages.append("Can't figure out what %s expanded on %s: %s" % (play.game.name, play.date, dynlib.gameNames(play.game.basegames, games)))
+                messages.append("Can't figure out what %s expanded on %s: %s" % (play.game.name, play.date, library.gameNames(play.game.basegames, games)))
             messages.append("No idea about %s" % bgplay.game.name)
         result.append(play)
     return (result, messages, False)    
