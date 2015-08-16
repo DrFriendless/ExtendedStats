@@ -6,6 +6,7 @@ from django.conf.urls import patterns, url, include
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^consistency/(.*)', views.consistency),
     (r'^sgoyt/(.*)', views.sgoyt),
     (r'^playlogging/(.*)', views.playLogging),
     (r'^dimesbydesigner/(.*)', views.dimesByDesigner),

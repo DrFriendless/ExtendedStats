@@ -404,13 +404,14 @@ class FeatureList(Feature):
 class Consistency(Feature):
     DEFAULT_SELECTOR = "/played"
     
-    def __init__(self, selector):
+    def __init__(self, selector, months):
         Feature.__init__(self, "consistency", "stats/consistency.html", "consistency", "Consistency of Play Graph")
         self.selector = selector
+        self.months = months
         
     def generate(self, context):
         import generate
-        (data, monthNames) = generate.getConsistencyData(context, self.selector)
+        (data, monthNames) = generate.getConsistencyData(context, self.selector, self.months)
         return { "data" : data, "monthNames" : monthNames }
 
         
@@ -422,7 +423,7 @@ FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan()
             FavesByPublishedYear(), BestDays(), Streaks(), RatingByRanking(), PlaysByRanking(), LeastWanted(), Unusual(), ShouldPlay(),
             ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
             TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
-            Consistency(Consistency.DEFAULT_SELECTOR) ]
+            Consistency(Consistency.DEFAULT_SELECTOR, 96) ]
 
 FEATURES_BY_KEY = {}
 for f in FEATURES:

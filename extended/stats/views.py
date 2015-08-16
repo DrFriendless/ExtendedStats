@@ -805,6 +805,28 @@ def result(request, param):
     except Geeks.DoesNotExist:
         return render_to_response("stats/geek_error.html", locals())  
         
+def consistency(request, param):
+    import selectors, features
+    try:
+        fields = param.split("/")
+        if len(fields) > 1:
+            context = interpretRequest(request, fields[0])   
+            months = int(fields[1])
+            if len(fields) > 2:
+                selector = selectors.getSelectorFromFields(fields[2:])
+            else:
+                selector = selectors.getSelectorFromFields(["played"])
+        else:
+            return render_to_response("stats/badurl.html") 
+        if months <= 0:
+            months = 96 
+        f = features.Consistency(selector, months)
+        all = { "username" : context.geek }
+        runFeatures([f], all, context)
+        return render_to_response("stats/consistency_result.html", all)
+    except Geeks.DoesNotExist:
+        return render_to_response("stats/geek_error.html", locals())  
+
 def choose(request, param):
     import features
     try:

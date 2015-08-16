@@ -199,13 +199,12 @@ def calculateCollectionData(coll, title):
     (result.friendless, result.utilisation, result.cfm, result.ten, result.zero) = calcFriendless([g.plays for g in coll])
     return result
 
-def getConsistencyData(context, selector):
+def getConsistencyData(context, selector, monthsBack):
     import library, datetime
     today = datetime.date.today()
     todayMonth = today.month
     todayYear = today.year
-    months = context.options.consistencyMonths
-    startDate = today - datetime.timedelta(months * 31)
+    startDate = today - datetime.timedelta(monthsBack * 31)
     startMonth = startDate.month
     startYear = startDate.year
     months = []
@@ -221,10 +220,10 @@ def getConsistencyData(context, selector):
     opts = library.Thing()
     opts.excludeExpansions = True
     opts.excludeTrades = False
-    geekgames = context.substrate.getAllPlayedGames(opts)
+    geekgames = selector.getGames(context, opts)
     geekgames.sort(lambda g1, g2: -cmp(g1.plays, g2.plays))
     geekgames = [ gg for gg in geekgames if gg.lastPlay is not None and gg.lastPlay >= startDate ]
-    if geekgames[0].plays > 10:
+    if len(geekgames) > 0 and geekgames[0].plays > 10:
         geekgames = [ gg for gg in geekgames if gg.plays >= 10 ]
     geekgames.sort(lambda g1, g2: -cmp(g1.monthsPlayed, g2.monthsPlayed))
     geekgames = geekgames[:100]  
@@ -658,9 +657,9 @@ def getPBMData(context):
     return months
 
 def sgoyt(param):
-    import sitedata, views, xml.dom.minidom, substrate, library, selectors
+    import sitedata, views, xml.dom.minidom, substrate, library, selectors, os
     param = int(param)
-    dest = sitedata.dbdir + "geeklist_%d.xml" % (param,)
+    dest = os.path.join(sitedata.dbdir, "geeklist_%d.xml" % (param,))
     url = selectors.GEEKLIST_URL % param
     success = library.getFile(url, dest)
     if not success:

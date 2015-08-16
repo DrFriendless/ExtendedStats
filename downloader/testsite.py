@@ -78,6 +78,8 @@ URLS = [
         "%sdynamic/image/playrateown/%s",
         "%sdynamic/playrate/%s",
         "%sdynamic/playrate/%s/prevowned",
+        "%sdynamic/consistency/%s/48/owned/played/and",
+        "%sdynamic/consistency/%s/96",
         "%sdynamic/image/playrate/%s/fpiy/2014"
         ]
 TAGS = ["pbpy", "obpy", "rbpy", "mmmpie", "pogo", "pogotable", "mostunplayed", "playrate", "playrateown", "playrateprev",
@@ -91,7 +93,8 @@ GENERAL = [
     "%sstats/rankings.html",
     "%sdynamic/index.html",
     "%sdynamic/australia.html",
-    "%sdynamic/rankings/"
+    "%sdynamic/rankings/",
+    "%sdynamic/sgoyt/193005"
     ]
         
 import urllib, time, sitedata
