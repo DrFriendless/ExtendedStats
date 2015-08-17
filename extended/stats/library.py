@@ -97,7 +97,8 @@ def daysSince(d):
         fields = [ int(x) for x in d.split("-") ]
         pd = datetime.date(fields[0], fields[1], fields[2])
     except AttributeError:
-        print d, type(d)
+        print "daysSince AttributeError", d, type(d)
+        return -1
     except ValueError:
         print "COULD NOT PARSE <%s>" % d
         import traceback
@@ -234,43 +235,6 @@ class DictOfLists:
         
     def __str__(self):
         return str(self.data)
-
-class Set:
-    def __init__(self):
-        self.data = []
-
-    def add(self, value):
-        if value not in self.data:
-            self.data.append(value)
-
-    def remove(self, value):
-        if value in self.data:
-            self.data.remove(value)
-
-    def __iter__(self):
-        return self.data.__iter__()
-
-    def __len__(self):
-        return len(self.data)
-
-    def size(self):
-        return len(self.data)
-
-    def __repr__(self):
-        return "{" + ", ".join([str(x) for x in self.data]) + "}"
-
-    def addAll(self, stuff):
-        for x in stuff:
-            self.add(x)
-          
-    def removeAll(self, stuff):
-        for x in stuff:
-            self.remove(x)
-          
-    def sort(self):
-        ret = self.data[:]
-        ret.sort()
-        return ret
 
 class DictOfCounts:
     def __init__(self):
@@ -565,7 +529,7 @@ def findLinesBetween(lines, start, end):
     return result        
     
 def deleteFileIfBad(filename):    
-    "Return whether the file exists now or not."
+    """Return whether the file exists now or not."""
     import os
     if os.access(filename, os.R_OK):
         with open(filename) as f:
@@ -583,7 +547,7 @@ def deleteFileIfBad(filename):
         return True
     return False
 
-def downloadFile(url, filename, verbose=False):
+def downloadFile(url, filename):
     import subprocess, time
     try:
         t = time.time()
@@ -595,11 +559,11 @@ def downloadFile(url, filename, verbose=False):
         print "curl failed to get %s" % url
         return 0
             
-def getFile(url, filename, verbose=False):
+def getFile(url, filename):
     deleteFileIfBad(filename)
     print "Retrieving %s" % url
     url = url.replace(' ', '%20')
-    if not downloadFile(url, filename, verbose):
+    if not downloadFile(url, filename):
         return 0
     return 1
     
@@ -750,6 +714,27 @@ def mean(xs):
 
 
 def dbTime(dt):
-    "convert datetime.time to MYSQL time"
+    """convert datetime.time to MYSQL time"""
     import MySQLdb
     return MySQLdb.Timestamp(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+
+def jsonEncode(obj):
+    import datetime, generate, models, plays, period
+    if isinstance(obj, datetime.date):
+        return str(obj)
+    elif isinstance(obj, Thing):
+        return obj.__dict__
+    elif isinstance(obj, period.Period):
+        return obj.toMap()
+    elif isinstance(obj, generate.DesignerPlaysData):
+        return obj.__dict__
+    elif isinstance(obj, models.Games) or isinstance(obj, models.Publishers) or isinstance(obj, models.Designers):
+        # we should not be exposing these things via JSON
+        return obj.__dict__
+    elif obj.__class__.__name__ == "ModelState":
+        return {}
+    elif isinstance(obj, set):
+        return list(obj)
+    elif isinstance(obj, plays.Play):
+        return obj.toMap()
+    raise TypeError(obj.__class__.__name__)

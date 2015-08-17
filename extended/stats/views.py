@@ -762,7 +762,11 @@ def runFeatures(fs, all, context):
     for (f,d) in firstpass:
         if d is None:
             continue
-        c.append(f)
+        # t looks like the feature but it's serializable for JSON
+        t = { "cssClass" : f.cssClass, "htmlFile" : f.htmlFile, "tag" : f.tag, "title" : f.title }
+        if f.contentsFile is not None:
+            t["contentsFile"] = f.contentsFile
+        c.append(t)
         all.update(d)    
     all['contents'] = c
     
@@ -844,8 +848,33 @@ def choose(request, param):
         runFeatures(contents, all, context)
         return render_to_response("stats/choose.html", all) 
     except Geeks.DoesNotExist:
-        return render_to_response("stats/geek_error.html", locals()) 
-        
+        return render_to_response("stats/geek_error.html", locals())
+
+def json(request, param):
+    import features, simplejson, library
+    try:
+        fields = param.split("/")
+        if len(fields) == 0:
+            fields = ["Friendless"]
+        context = interpretRequest(request, fields[0])
+        featuresByKey = features.FEATURES_BY_KEY
+        keys = []
+        contents = []
+        for f in fields[1:]:
+            ffs = f.split("&")
+            for ff in ffs:
+                if featuresByKey.get(ff) and ff not in keys:
+                    keys.append(ff)
+                    contents.append(featuresByKey[ff])
+        all = { "username" : context.geek }
+        runFeatures(contents, all, context)
+        all["success"] = True
+        j = simplejson.dumps(all, default=library.jsonEncode)
+        return HttpResponse(j, content_type="application/json")
+    except Geeks.DoesNotExist:
+        data = { "success" : False, "message" : "User not found" }
+        return HttpResponse(simplejson.dumps(data), content_type="application/json")
+
 def year(request, param):
     try:
         fields = param.split("/")

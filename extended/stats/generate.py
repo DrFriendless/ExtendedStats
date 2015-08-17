@@ -336,126 +336,6 @@ def morePieChartData(playsData):
         count.add(pg.game.name, pg.count)
     return count
 
-def makeTooltip(games):
-    if len(games) == 0:
-        return ""
-    names = [g.name for g in games]
-    return ", ".join(names)
-    
-class Period:
-    def __init__(self, name, opts):
-        self.name = name
-        self.opts = opts
-        self.playsByGame = {}
-
-    def addPlaysForGame(self, game, count):
-        before = self.playsByGame.get(game)
-        if before is None:
-            before = 0
-        after = before + count
-        result = []
-        if before < 5 <= after:
-            result.append(5)
-        if before < 10 <= after:
-            result.append(10)
-        if before < 25 <= after:
-            result.append(25)
-        if before < 100 <= after:
-            result.append(100)
-        self.playsByGame[game] = after
-        return result
-
-    def calcHIndex(self):
-        plays = self.playsByGame.values()[:]
-        plays.sort(lambda n1,  n2: cmp(n2,  n1))
-        h = 0
-        while len(plays) > h and plays[h] > h:
-            h += 1
-        return h
-
-    def __cmp__(self, other):
-        return cmp(self.name, other.name)
-
-    def calculatePercentPlayed(self, gamesOwned):
-        if len(gamesOwned) == 0:
-            return 0.0
-        count = len([g for g in self.playsByGame.keys() if g in gamesOwned])
-        return count * 100.0 / len(gamesOwned)
-
-class Month(Period):
-    def __init__(self, name, opts):
-        import library
-        Period.__init__(self, name, opts)
-        self.year = int(self.name[:4])
-        self.month = int(self.name[5:])
-        self.plays = []
-        self.count = 0
-        self.played = library.Set()
-        self.expPlayed = library.Set()
-        self.new = library.Set()
-        self.newExpPlayed = library.Set()
-        self.nickels = library.Set()
-        self.dimes = library.Set()
-        self.hotGames = library.Set()
-        self.everNickels = library.Set()
-        self.everDimes = library.Set()
-        self.everQuarters = library.Set()
-        self.everDollars = library.Set()
-        self.january = (self.month == 1)
-        self.daysPlayedOn = library.Set()
-
-    def calcHotGames(self, playsSoFar, ratingsForGames):
-        scores = {}
-        for (game, count) in self.playsByGame.items():
-            rating = ratingsForGames.get(game)
-            if rating is None or rating < 1:
-                rating = 5.0
-            scores[game] = count * game.playtime * rating / 300.0
-            if playsSoFar.get(game) is not None:
-                psf = playsSoFar[game]
-                if psf + count > 0:
-                    scores[game] = scores[game] + (count / (psf + count)) * 10
-        if len(scores) > 0:
-            cs = scores.items()[:]
-            cs.sort(lambda (g1, c1), (g2,c2): -cmp(c1,c2))  
-            cs = [ c[0] for c in cs ][:5]
-            self.hotGames.addAll(cs)
-
-    def calculateProperties(self, playsSoFar, ratingsForGames):
-        self.calcHotGames(playsSoFar, ratingsForGames)
-        self.distinctCount = len(self.played)
-        self.daysPlayed = len(self.daysPlayedOn)
-        self.newCount = len(self.new)
-        self.newNickels = len(self.nickels)
-        self.newDimes = len(self.dimes)
-        self.newNickelsEver = len(self.everNickels)
-        self.newDimesEver = len(self.everDimes)
-        self.newQuartersEver = len(self.everQuarters)
-        self.newDollarsEver = len(self.everDollars)
-        self.newTooltip = makeTooltip(self.new)
-        self.newNickelsTooltip = makeTooltip(self.nickels)
-        self.newDimesTooltip = makeTooltip(self.dimes)
-        self.everNickelsTooltip = makeTooltip(self.everNickels)
-        self.everDimesTooltip = makeTooltip(self.everDimes)
-        self.everQuartersTooltip = makeTooltip(self.everQuarters)
-        self.everDollarsTooltip = makeTooltip(self.everDollars)
-        self.distinctTooltip = makeTooltip(self.played)
-        self.hotGamesTooltip = makeTooltip(self.hotGames)
-        self.expCount = len(self.expPlayed)
-        self.expTooltip = makeTooltip(self.expPlayed)
-        self.newExpCount = len(self.newExpPlayed)
-        self.newExpTooltip = makeTooltip(self.newExpPlayed)
-        self.hindex = self.calcHIndex()
-
-class YearToDate(Period):
-    def __init__(self, name, opts):
-        import library
-        Period.__init__(self, name, opts)
-        self.played = library.Set()
-        self.new = library.Set()
-        self.newExpPlayed = library.Set()
-        self.count = 0
-
 def getLagData(context):
     import library
     options = library.Thing()
@@ -531,7 +411,7 @@ def __addAllPlaysByGame(dest, src):
 def getPBMData(context):
     if context.pbm is not None:
         return context.pbm
-    import library
+    import period
     opts = context.options.pbm
     playData = context.substrate.getPlaysForDescribedRange([])[0]
     owned = context.substrate.getOwnedGames()
@@ -554,7 +434,7 @@ def getPBMData(context):
         else:
             mn = "%4d-%02d" % (play.year, play.month)
         if months.get(mn) is None:
-            months[mn] = Month(mn, opts)
+            months[mn] = period.Month(mn, opts)
         m = months[mn]
         d = "%4d-%02d-%02d" % (play.year, play.month, play.day)
         m.daysPlayedOn.add(d)
@@ -573,14 +453,14 @@ def getPBMData(context):
     if len(months) > 0 and months[0].name == "0000-00":
         months = months[1:] + [months[0]]    
     # calculate year-to-date stuff
-    playedSoFar = library.Set()
-    expPlayedSoFar = library.Set()
+    playedSoFar = set()
+    expPlayedSoFar = set()
     totalPlays = 0
-    ever = Period("Ever", opts)
+    ever = period.Period("Ever", opts)
     for m in months:
         y = years.get(m.year)
         if y is None:
-            y = YearToDate(m.year, opts)
+            y = period.YearToDate(m.year, opts)
             years[m.year] = y
         playTime = 0
         for play in m.plays:
@@ -605,17 +485,17 @@ def getPBMData(context):
                 ever.addPlaysForGame(e, play.count)                
             playTime = playTime + play.count * play.game.playtime
         m.playHours = int((playTime + 30) / 60)
-        y.count = y.count + m.count
-        totalPlays = totalPlays + m.count        
-        y.played.addAll(m.played)
-        m.new.addAll(m.played)
-        m.new.removeAll(playedSoFar)
-        m.newExpPlayed.addAll(m.expPlayed)
-        m.newExpPlayed.removeAll(expPlayedSoFar)
-        playedSoFar.addAll(m.played)
-        expPlayedSoFar.addAll(m.expPlayed)
-        y.new.addAll(m.new)
-        y.newExpPlayed.addAll(m.newExpPlayed)
+        y.count += m.count
+        totalPlays += m.count
+        y.played |= m.played
+        m.new |= m.played
+        m.new -= playedSoFar
+        m.newExpPlayed |= m.expPlayed
+        m.newExpPlayed -= expPlayedSoFar
+        playedSoFar |= m.played
+        expPlayedSoFar |= m.expPlayed
+        y.new |= m.new
+        y.newExpPlayed |= m.newExpPlayed
         m.countYtd = y.count
         m.distinctYtd = len(y.played)
         m.newYtd = len(y.new)
@@ -1632,7 +1512,7 @@ def getPlaysByYearData(context):
             if g not in games:
                 games.append(g)
     # calculate year-to-date stuff
-    playedSoFar = library.Set()
+    playedSoFar = set()
     sortedYears = years.keys()[:]
     sortedYears.sort()
     for y in sortedYears:
@@ -1991,7 +1871,7 @@ def getCatMecData(context, typ):
         byKey[key].whitmoreNoExp = whitmore
     sql = "select %s, gameId from (select max(rating) m, %s join geekgames on gameId = game where geek = %s and rating > 0 group by %s) t1 join (select gameId, rating r, %s join geekgames on gameId = game where geek = %s and rating > 0) t2 using (%s) where r = m" % (where, tab, "%s", where, tab, "%s", where)
     data = mydb.query(sql, [context.geek, context.geek])
-    gids = library.Set()
+    gids = set()
     for (key, gid) in data:
         byKey[key].favid = gid
         gids.add(gid)

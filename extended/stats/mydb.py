@@ -20,11 +20,6 @@ def query(sql, args=None):
     db.close()
     return result
     
-def getRow(table):
-    db = get()
-    import library
-    return library.Row(db, table)
-    
 def update(sql, args=None):
     db = get()
     c = db.cursor()

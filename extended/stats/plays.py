@@ -51,6 +51,11 @@ class Play:
             c = cmp(self.count, other.count)
         return c
 
+    def toMap(self):
+        return { "game" : self.game.name, "gameid" : self.game.bggid, "count" : self.count, "location" : self.location,
+                 "date" : str(self.date), "year" : self.year, "month" : self.month, "day" : self.day,
+                 "expansions" : [e.name for e in self.expansions], "expansionIds" : [e.bggid for e in self.expansions] }
+
     def allGames(self):
         return [ self.game ] + self.expansions
 

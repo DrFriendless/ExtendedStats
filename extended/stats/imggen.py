@@ -722,10 +722,11 @@ def createPlaysForYearByQuarterPlot(data, imgspec, startYear):
     # data is a DictOfCounts
     quarters = data.keys()
     quarters.sort()
-    years = Set()
+    years = set()
     for q in quarters:
-        years.addAll(data.get(q).keys())
-    years = years.sort()
+        years |= set(data.get(q).keys())
+    years = list(years)
+    years.sort()
     colours = SPECTRUM * 5
     ycs = {}
     for i in range(len(years)):

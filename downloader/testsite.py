@@ -87,6 +87,7 @@ TAGS = ["pbpy", "obpy", "rbpy", "mmmpie", "pogo", "pogotable", "mostunplayed", "
         "shouldplay", "shouldplayown", "timeline", "thm", "thd", "thday", "dimesbydesigner", "florence", "streaks",
         "pby", "consistency", "morepie", "generic", "playsByRanking", "yearly" ]
 CHOOSE_URL = "%sdynamic/choose/%s/%s"
+JSON_URL = "%sdynamic/json/%s/%s"
 GENERAL = [
     "%sdynamic/cookies/",  
     "%sdynamic/server/",
@@ -106,6 +107,7 @@ for user in USERS:
         all.append(url % (sitedata.site, user))
     for tag in TAGS:
         all.append(CHOOSE_URL % (sitedata.site, user, tag))
+        all.append(JSON_URL % (sitedata.site, user, tag))
 total = len(all)
 i = 0
 for s in all:
