@@ -241,7 +241,7 @@ def processCollection(db, filename, geek, url):
     return 1
 
 def addGamesFromFile(db, dom, geek):
-    import mydb
+    import downloaderdb
     owned = {}
     if len(dom.getElementsByTagName("items")) == 0:
         return 0
@@ -257,7 +257,7 @@ def addGamesFromFile(db, dom, geek):
         if owned.get(g) is not None:
             game = owned[g]
         else:
-            game = mydb.Row()
+            game = downloaderdb.Row()
             game.game = g
             game.owned = False
             game.prevowned = False

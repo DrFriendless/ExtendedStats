@@ -10,7 +10,7 @@ def loadGameFiles(db, rec):
     finish = time.time() + BETWEEN_POPULATES
     populateFiles.main(db, finish, rec)
 
-import sys, mydb, logging, logging.handlers, sitedata, time
+import sys, downloaderdb, logging, logging.handlers, sitedata, time
 handler = logging.handlers.RotatingFileHandler(sitedata.logfile, maxBytes=10000000, backupCount=5)
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger().addHandler(handler)
@@ -26,11 +26,11 @@ with downloaderrecord.DownloaderRecord() as rec:
         os.makedirs(sitedata.resultdir)
     toFix = sys.argv[1:]
     if len(toFix) > 0:
-        with mydb.MyDB() as db:
+        with downloaderdb.MyDB() as db:
             for geek in toFix:
                 print db.execute("update files set lastUpdate = null where geek = '%s' and processMethod != 'processGame'" % geek)
-	        print "Reset %s" % geek
-    with mydb.MyDB() as db:
+                print "Reset %s" % geek
+    with downloaderdb.MyDB() as db:
         loadGameFiles(db, rec)
         rec.finish() # not really happy about this not being done by the context manager
         db.execute(rec.toSQL())
