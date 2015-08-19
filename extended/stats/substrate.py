@@ -174,9 +174,9 @@ class Substrate:
         return [ d for d in data if d.plays > 0 ]
    
     def __getAllPlays(self):
-        import models
+        import dbaccess
         if self.allPlays is None:
-            (columns, plays) = models.Plays.objects.filter(cols = ["game", "playDate", "quantity", "raters", "ratingsTotal"], geek=self.geek, playdate = (None, None))     
+            plays = dbaccess.getPlays(self.geek, None, None)
             self.allPlays = self.__reconstructPlays(plays)   
         return self.allPlays
         
@@ -185,13 +185,13 @@ class Substrate:
         if startDate is not None or endDate is not None:
             # dateless plays can never match any criteria with a date
             result = [ p for p in result if p.dt is not None ]
-        return ([ p for p in result if (startDate is None or p.dt >= startDate) and (endDate is None or p.dt <= endDate) ], messages)
+        return [ p for p in result if (startDate is None or p.dt >= startDate) and (endDate is None or p.dt <= endDate) ], messages
       
     def getPlaysForDescribedRange(self, fields):
         import library
         (year, month, day, args, startDate, endDate) = library.getDateRangeForDescribedRange(fields)
         (plays,  messages) = self.filterPlays(startDate, endDate)
-        return (plays, messages, year, month, day, args)         
+        return plays, messages, year, month, day, args
       
     def addPlaysDataToGeekGames(self, geekgames):
         import library
@@ -241,8 +241,8 @@ class Substrate:
         import plays
         ids = []
         for p in playsData:
-            if p[0] not in ids:
-                ids.append(p[0])
+            if p.game not in ids:
+                ids.append(p.game)
         games = self.getGames(ids)
         moreGames = []
         for g in games.values():
@@ -254,13 +254,13 @@ class Substrate:
         for (id,  g) in mgames.items():
             games[id] = g
         result = []
-        for (id, ts, q, r, t) in playsData:       
-            game = games[id]        
-            result.append(plays.Play(game, [], ts, q, r, t,  ""))
+        for p in playsData:
+            game = games[p.game]
+            result.append(plays.Play(game, [], p.playDate, p.quantity, p.raters, p.ratingsTotal, p.location))
         (result, messages) = _inferExtraPlays(games, result)
         processPlays(result)
         result.sort()
-        return (result,  messages)
+        return result,  messages
         
     def getAllSeries(self):
         import mydb, library

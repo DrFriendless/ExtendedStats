@@ -6,7 +6,7 @@ NEW_PLAYED_URL = "http://boardgamegeek.com/xmlapi2/plays?username=%s&mindate=%d-
 DAY = library.DAY
 
 class Play:
-    def __init__(self, game, expansions, date, count, raters, totalRatings,  location):
+    def __init__(self, game, expansions, date, count, raters, totalRatings, location):
         import datetime
         self.game = game
         self.expansions = expansions

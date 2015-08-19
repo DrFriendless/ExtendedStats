@@ -1,4 +1,3 @@
-from stats.models import Files
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
@@ -352,13 +351,12 @@ def playscsv(request, param):
         return render_to_response("stats/geek_error.html", locals())   
         
 def updates(request, param):
-    import library
+    import library, dbaccess
     try:
         context = interpretRequest(request, param)
-        updates = list(Files.objects.filter(geek=context.geek))
+        updates = dbaccess.getFilesForGeek(context.geek)
         updates.sort(lambda f1, f2: -cmp(f1.description, f2.description))
-        username = context.geek
-        return render_to_response("stats/updates.html", locals(), context_instance=RequestContext(request))    
+        return render_to_response("stats/updates.html", {"username" : context.geek, "updates" : updates}, context_instance=RequestContext(request))
     except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())
        
