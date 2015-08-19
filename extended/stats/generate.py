@@ -1267,6 +1267,8 @@ def getLeastWanted(context):
     result = []
     for (g, trade, lastPlay, x, rating, daysSince) in data:
         t = gs[g]
+        if t.expansion or "Book" in t.categories:
+            continue
         t.trade = trade
         t.lastPlay = lastPlay
         t.daysSince = daysSince
