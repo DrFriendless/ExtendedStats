@@ -1333,7 +1333,7 @@ def getStreaks(context):
         result.append(t)
         minPlays += 1
         for key in counts.keys():
-            if counts[key] <= minPlays:
+            if counts[key] < minPlays:
                 del counts[key]
     return result
 

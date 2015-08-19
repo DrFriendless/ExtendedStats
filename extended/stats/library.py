@@ -318,6 +318,9 @@ class Counts:
         
     def __len__(self):
         return len(self.data)
+
+    def __repr__(self):
+        return str(self.data)
     
 class AnnotatedCounts(Counts):
     def __init__(self):
