@@ -1,4 +1,4 @@
-from stats.models import Geeks, Files
+from stats.models import Files
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
@@ -70,7 +70,7 @@ def interpretRequest(request, param):
     from imgviews import ImageSpecs
     ispec = ImageSpecs(request)
     options = Options(request)
-    (username, geek) = library.checkGeek(param, request)
+    username = library.checkGeek(param, request)
     return OptimisationContext(username, options, ispec)
     
 def interpretRequestAndSelector(request, param, default):
@@ -112,7 +112,7 @@ def interpretRequestAndParams(request, param):
     return (context, fields[1:])  
 
 def manageCollections(request, param):
-    import collections
+    import collections, library
     try:
         context = interpretRequest(request, param) 
         username = context.geek
@@ -120,7 +120,7 @@ def manageCollections(request, param):
         colls.sort(lambda c1, c2: cmp(c1.index, c2.index))
         newIndex = collections.getNextCollectionIndex(context)
         return render_to_response("stats/collections.html", locals())   
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def viewSelections(request, param):
@@ -168,11 +168,11 @@ def viewSelections(request, param):
         context = interpretRequest(request, param.split("/")[0])
         all = { "mesg" : mesg, "selectors" : selectors.getSelectorData(context), "username" : context.geek }
         return render_to_response("stats/selectionsDoc.html", all)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
 
 def viewCollection(request, param):
-    import collections, features, selectors, generate
+    import collections, features, selectors, generate, library
     features = [ features.GenericTable, features.PogoTable ]
     all = {}
     try:        
@@ -200,11 +200,11 @@ def viewCollection(request, param):
             all.update(ff.generate(context))   
             contents.append(ff)    
         return render_to_response("stats/viewCollection.html", all)   
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
          
 def editCollection(request, params):
-    import selectors
+    import selectors, library
     try:
         fields = params.split("/")
         if len(fields) == 2:
@@ -215,11 +215,11 @@ def editCollection(request, params):
             return render_to_response("stats/editCollection.html", locals())
         else:
             return render_to_response("stats/badurl.html")         
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())   
         
 def deleteCollection(request, params):
-    import collections
+    import collections, library
     try:
         fields = params.split("/")
         if len(fields) == 2:
@@ -229,7 +229,7 @@ def deleteCollection(request, params):
             return HttpResponseRedirect("/dynamic/collections/%s" % context.geek)
         else:
             return render_to_response("stats/badurl.html")         
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())   
         
 def saveManageCollection(request):    
@@ -241,14 +241,14 @@ def saveManageCollection(request):
     import simplejson, library, collections
     try:
         geek = post("geek", True)
-        (username, geek) = library.checkGeek(geek, request)
+        username = library.checkGeek(geek, request)
         cindex = int(post("collection", True))
         model = post("model", True)
         model = simplejson.loads(model)
         collections.saveCollectionFromJson(username, cindex, model)
         data = { "success" : True }
         return HttpResponse(simplejson.dumps(data), content_type="application/json")
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         data = { "success" : False, "message" : "User not found" }
         return HttpResponse(simplejson.dumps(data), content_type="application/json")
         
@@ -262,15 +262,14 @@ def ajaxSubmit(request):
     return HttpResponse( simplejson.dumps( results ), mimetype='application/json' )
     
 def listOfGeeks(request):
-    geeks = Geeks.objects.all()
-    names = [geek.username for geek in geeks]
+    import dbaccess
+    names = dbaccess.getAllGeekNames()
     names.sort(lambda a,b: cmp(a.lower(), b.lower()))
-    items = names
     title = "Users of Extended Stats"
-    return render_to_response("stats/list.html", locals())
+    return render_to_response("stats/list.html", { "title" : title, "items" : names })
 
 def ipod(request, param):
-    import selectors
+    import selectors, library
     try:
         context = interpretRequest(request, param)
         pbm = generate.getPBMData(context)
@@ -279,7 +278,7 @@ def ipod(request, param):
         shouldPlayOwn = generate.getShouldPlayOwnData(context)  
         (pogo, pogoCollections) = generate.getPogoData(context, selectors.OwnedGamesSelector())            
         return render_to_response("stats/ipod_main.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/ipod_geek_error.html", locals())  
         
 def selector(request, param):   
@@ -294,12 +293,12 @@ def selector(request, param):
         for g in games:
             d = { "name" : g.game.name, "id" : g.game.bggid }
             result.append(d)            
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         pass
     return HttpResponse(simplejson.dumps(result), content_type="application/json")  
         
 def collection(request, param):   
-    import simplejson, collections
+    import simplejson, collections, library
     result = {}
     try:
         (context, params) = interpretRequestAndParams(request, param)
@@ -318,45 +317,49 @@ def collection(request, param):
             gg = { "name" : g.name, "description" : g.description, "index" : g.index , "display" : g.display, "games" : games }         
             groups.append(gg)            
         result["groups"] = groups           
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         pass
     return HttpResponse(simplejson.dumps(result), content_type="application/json")  
         
-def whatif(request, param): 
+def whatif(request, param):
+    import library
     try:
         context = interpretRequest(request, param)      
         games = generate.getWhatIfData(context)        
         username = context.geek
         return render_to_response("stats/whatif.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())   
         
 def locations(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         locations = generate.getPlayLocationsData(context)  
         username = context.geek
         return render_to_response("stats/locations_result.html", locals())
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())   
         
 def playscsv(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         plays = generate.getPlaysCSVData(context)        
         username = context.geek
         return render_to_response("stats/plays.csv", locals(), mimetype="text/csv")    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())   
         
 def updates(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         updates = list(Files.objects.filter(geek=context.geek))
         updates.sort(lambda f1, f2: -cmp(f1.description, f2.description))
         username = context.geek
         return render_to_response("stats/updates.html", locals(), context_instance=RequestContext(request))    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())
        
 from django.views.decorators.csrf import csrf_exempt
@@ -390,11 +393,12 @@ def quickRefresh(request, param):
     return render_to_response("stats/refresh.html", locals(), context_instance=RequestContext(request))    
         
 def numplayers(request, param):
+    import library
     try:    
         context = interpretRequest(request, param)
         data = generate.getNumPlayersData(context)
         return render_to_response("stats/numplayers.html", locals())   
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())   
                                         
 
@@ -488,7 +492,7 @@ def gamesCalendar(request, param):
             return render_to_response("stats/calendars.html", locals())
         else:
             return render_to_response("stats/badurl.html")          
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())              
         
 def plays(request, param):
@@ -532,7 +536,7 @@ def plays(request, param):
             return render_to_response("stats/plays.html", locals())   
         else:
             return render_to_response("stats/badurl.html")          
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())                           
         
 def meta(request):
@@ -540,22 +544,24 @@ def meta(request):
     title = "Meta-Information Sent with the HTTP Request"
     return render_to_response("stats/list.html", locals())    
     
-def checklist(request, param):   
+def checklist(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         rows = generate.getChecklistData(context)
         username = context.geek
         return render_to_response("stats/checklist.html", locals())     
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())         
     
-def crazy(request, param):  
+def crazy(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         rows = generate.getCrazyRecommendationsData(context)
         username = context.geek
         return render_to_response("stats/crazy.html", locals())     
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())         
     
 def getBrowser(request):
@@ -566,6 +572,7 @@ def rankings(request, param):
     return render_to_response("stats/rankings.html", locals())    
 
 def playrate(request, param):
+    import library
     try:
         (context, selector) = interpretRequestAndSelector(request, param, "all")
         import selectors, features
@@ -573,7 +580,7 @@ def playrate(request, param):
         (img, imap) = imggen.createPlayRateGraph(context, data)
         all =  {"username" : context.geek, "prdata" : features.imageBinaryData(img), "prmap": imap, "selector" : selector } 
         return render_to_response("stats/playrate_result.html", all)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def normrankings(request, param):
@@ -581,7 +588,7 @@ def normrankings(request, param):
     return render_to_response("stats/normrankings.html", locals())    
     
 def generic(request, param):
-    import features
+    import features, library
     try:
         (context, selector) = interpretRequestAndSelector(request, param, "all")
         feature = features.GenericTable(selector)
@@ -589,11 +596,11 @@ def generic(request, param):
         visible = "Name,Rating,Plays"
         all.update({ "username" : context.geek, "visibleColumns" : visible, "title" : selector.name, "url" : "/dynamic/generic" })
         return render_to_response("stats/generic_result.html", all)    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def favourites(request, param):
-    import features
+    import features, library
     try:
         (context, selector) = interpretRequestAndSelector(request, param, "owned/rated/played/or/or")
         feature = features.Favourites(selector)
@@ -601,10 +608,11 @@ def favourites(request, param):
         visible = "Name,Rating,Plays,BGG Ranking,BGG Rating,First Played,Last Played,Months Played,Hours Played,FHM,HHM,R!UHM,Year Published"
         all.update({ "visibleColumns" : visible, "games" : all["favourites"], "username" : context.geek, "url" : "/dynamic/favourites" })
         return render_to_response("stats/favourites_result.html", all)    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def favourites2(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         favourites = generate.getFavourites(context)
@@ -612,24 +620,25 @@ def favourites2(request, param):
         bggCorrelationRankedOnly = generate.calcCorrelationRankedOnly(favourites)       
         hindex = generate.calcHIndex(favourites)
         return render_to_response("stats/favourites2_result.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def unusual(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         unusual = generate.getUnusualData(context)   
         return render_to_response("stats/unusual_result.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def multiyear(request, param):
-    import generate
+    import generate, library
     try:
         context = interpretRequest(request, param)
         (multiyear, myyears) = generate.getMultiYearData(context)
         return render_to_response("stats/multiyear_result.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())
     
 def sgoyt(request, param):
@@ -639,12 +648,12 @@ def sgoyt(request, param):
     return render_to_response("stats/sgoyt.html", locals())
     
 def playLogging(request, param):
-    import generate
+    import generate, library
     try:
         context = interpretRequest(request, param)
         (players, locations) = generate.getPlayLoggingData(context)
         return render_to_response("stats/playlogging_result.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def server(request, param):
@@ -667,28 +676,28 @@ def recordProfileView(username):
     mydb.update(sql, [now, count, username])
 
 def comparativeYears(request, param):
-    import generate
+    import generate, library
     try:                
         context = interpretRequest(request, param)
         username = context.geek
         florence = imggen.getFlorenceSettings()    
         playsYears = generate.getPlaysRecordedYears(context)    
         return render_to_response("stats/yearcomparison.html", locals())
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())          
         
 def dimesByDesigner(request, param):
-    import features
+    import features, library
     try:
         context = interpretRequest(request, param)        
         feature = features.DimesByDesigner()
         all = feature.generate(context)
         return render_to_response(feature.resultFile, all)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def tabbed(request,  param):        
-    import generate, features, selectors
+    import generate, features, selectors, library
     try:        
         all = {}
         tab = 1
@@ -753,7 +762,7 @@ def tabbed(request,  param):
         recordProfileView(context.geek)
         all.update({"username" : context.geek, "tab" : tab })
         return render_to_response("stats/result_tabbed.html", all, context_instance=RequestContext(request))    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def runFeatures(fs, all, context):
@@ -771,18 +780,18 @@ def runFeatures(fs, all, context):
     all['contents'] = c
     
 def featureList(request, param):
-    import features
+    import features, library
     try:        
         context = interpretRequest(request, param)  
         all = {}
         all.update({"username" : context.geek })
         runFeatures([features.FeatureList()], all, context)
         return render_to_response("stats/featurelist_result.html", all, context_instance=RequestContext(request))    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())          
         
 def result(request, param):
-    import features, selectors
+    import features, selectors, library
     try:
         context = interpretRequest(request, param)
         all = {}
@@ -803,11 +812,11 @@ def result(request, param):
         all["selectors"] = selectors.getSelectorData(context)
         recordProfileView(context.geek)
         return render_to_response("stats/result.html", all, context_instance=RequestContext(request))    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
         
 def consistency(request, param):
-    import selectors, features
+    import selectors, features, library
     try:
         fields = param.split("/")
         if len(fields) > 1:
@@ -825,11 +834,11 @@ def consistency(request, param):
         all = { "username" : context.geek }
         runFeatures([f], all, context)
         return render_to_response("stats/consistency_result.html", all)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())  
 
 def choose(request, param):
-    import features
+    import features, library
     try:
         fields = param.split("/")
         if len(fields) == 0:
@@ -847,7 +856,7 @@ def choose(request, param):
         all = { "username" : context.geek }
         runFeatures(contents, all, context)
         return render_to_response("stats/choose.html", all) 
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())
 
 def json(request, param):
@@ -871,11 +880,12 @@ def json(request, param):
         all["success"] = True
         j = simplejson.dumps(all, default=library.jsonEncode)
         return HttpResponse(j, content_type="application/json")
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         data = { "success" : False, "message" : "User not found" }
         return HttpResponse(simplejson.dumps(data), content_type="application/json")
 
 def year(request, param):
+    import library
     try:
         fields = param.split("/")
         if len(fields) > 0:
@@ -893,7 +903,7 @@ def year(request, param):
         ndd = generate.getNickelAndDime(context, year)
         playedLastYear = generate.getPlayedLastYearNotThis(context, year)
         return render_to_response("stats/year.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())               
                        
 def frontPage(request):
@@ -911,7 +921,8 @@ def splitIntoRows(objects, n):
         objects = objects[n:]
     return result        
     
-def categoryGraphs(request, param): 
+def categoryGraphs(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         catsToGraph = splitIntoRows(generate.getCategoriesToGraph(context), 4)
@@ -919,16 +930,17 @@ def categoryGraphs(request, param):
         dessToGraph = splitIntoRows(generate.getDesignersToGraph(context), 4)         
         pubsToGraph = splitIntoRows(generate.getPublishersToGraph(context), 4)         
         return render_to_response("stats/catgraphs.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())      
         
-def series(request, param):  
+def series(request, param):
+    import library
     try:
         context = interpretRequest(request, param)
         series = generate.getSeriesData(context)     
         username = context.geek
         return render_to_response("stats/series.html", locals())    
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())     
         
 GRAPH_METHODS = { "category" : generate.getCategoriesToGraph, 
@@ -937,6 +949,7 @@ GRAPH_METHODS = { "category" : generate.getCategoriesToGraph,
     "publisher" : generate.getPublishersToGraph }          
         
 def category(request, param):
+    import library
     try:
         fields = param.split("/")
         if len(fields) > 0: 
@@ -950,10 +963,11 @@ def category(request, param):
         rows = generate.getCatMecData(context, typ)
         toGraph = splitIntoRows(GRAPH_METHODS[typ](context), 4)
         return render_to_response("stats/cat_%s.html" % typ, locals())  
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())                
 
 def trade(request, param):
+    import library
     try:
         fields = param.split("/")
         if len(fields) != 1:
@@ -963,5 +977,5 @@ def trade(request, param):
         (country, geeks, games, mostWanted, leastWanted) = generate.getTradeData(context)
         username = context.geek
         return render_to_response("stats/trade.html", locals())
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())        

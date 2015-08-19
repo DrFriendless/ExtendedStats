@@ -1,3 +1,5 @@
+from dbaccess import NoSuchGeekException
+
 DAY = 24 * 3600
 
 EXPANSION = 1
@@ -16,11 +18,6 @@ class Thing:
 
     def __repr__(self):
         return "Thing[%s]" % str(self.__dict__)
-
-def sort(l):
-    l = l[:]
-    l.sort()
-    return l
 
 def between(s, before, after):
     i = s.find(before)
@@ -70,7 +67,7 @@ def newImage(w=800, h=600, yextra=0, marginProportion=20):
     xhi = img.size[0] - xlo
     draw.line([(xlo, ylo), (xlo, yhi)], BLACK)
     draw.line([(xlo, yhi), (xhi, yhi)], BLACK)
-    return (img, draw, xlo, xhi, ylo, yhi)
+    return img, draw, xlo, xhi, ylo, yhi
 
 import datetime
 TODAY = datetime.date.today()
@@ -598,21 +595,19 @@ def getDateRangeForDescribedRange(fields):
         (startDate, endDate) = makeLastYearDateRange(endDate)
     elif "lastmonth" in args:
         (startDate, endDate) = makeLastMonthDateRange(endDate)
-    return (year, month, day, args, startDate, endDate)
+    return year, month, day, args, startDate, endDate
 
 def checkGeek(param, request=None):
-    from models import Geeks
+    import dbaccess
     username = unicode(param)
     if not username and request is not None:
         username = request.COOKIES.get("username")
         if username is None:
             username = ""
-    geek = Geeks.objects.get(username=username)
-    return (username, geek)
+    return dbaccess.checkGeek(username)
 
 def checkGeekGetSelector(param, request, default):
     import selectors
-    from models import Geeks
     if param is None:
         username = None
         fields = []
@@ -623,15 +618,11 @@ def checkGeekGetSelector(param, request, default):
         fields = param.split("/")
         username = unicode(fields[0])
         fields = fields[1:]
-    if not username and request is not None:
-        username = request.COOKIES.get("username")
-        if username is None:
-            username = ""
-    geek = Geeks.objects.get(username=username)
+    username = checkGeek(username, request)
     if len(fields) == 0:
         fields = default.split("/")
     selector = selectors.getSelectorFromFields(fields)
-    return (username, geek, selector)
+    return username, selector
 
 def imageResponse(img):
     from django.http import HttpResponse

@@ -69,12 +69,12 @@ class Substrate:
         return result
                 
     def getAllGeekGamesWithOptions(self,  options):         
-        "returns GeekGame objects"
-        import models, mydb
+        """returns GeekGame objects"""
+        import mydb, dbaccess
         key = optionKey(options)
         if self.collections.get(key) is not None:
             return self.collections[key]
-        geekgames = models.GeekGames.objects.getObjects(geek=self.geek)
+        geekgames = dbaccess.getGeekGamesForGeek(self.geek)
         sql = "select distinct game from plays where geek = %s and game not in (select distinct game from geekgames where geek = %s)"
         playedData = [ d[0] for d in mydb.query(sql, [self.geek, self.geek]) ]
         playedGames = getGames(playedData)

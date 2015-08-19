@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-from models import Geeks
 
 class ImageSpecs(object):
     def __init__(self, request):
@@ -19,14 +18,14 @@ class ImageSpecs(object):
 def pogo(request, param):
     import library, views, imggen, generate
     try:
-        (username, geek, selector) = library.checkGeekGetSelector(param, request, views.POGO_SELECTOR[1:])
+        (username, selector) = library.checkGeekGetSelector(param, request, views.POGO_SELECTOR[1:])
         options = views.Options(request)
         ispec = ImageSpecs(request)
         context = views.OptimisationContext(username, options, ispec)  
         data = generate.getPogoData(context, selector)[0]
         (img, imap) = imggen.createPogoHistogram(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -42,7 +41,7 @@ def pbmGraph(request, param):
         data = generate.getPBMData(context)
         img = imggen.createPBMGraph(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -53,7 +52,7 @@ def newPlays(request, param):
         data = generate.getNewPlaysData(context)
         img = imggen.createNewPlaysGraph(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -64,7 +63,7 @@ def lifetime(request, param):
         data = generate.getLifetimeData(context)
         img = imggen.createLifetimeGraph(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -75,7 +74,7 @@ def lifetimeByRating(request, param):
         data = generate.getLifetimeByRatingData(context)
         img = imggen.createLifetimeByRatingGraph(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -86,7 +85,7 @@ def lagHistogram(request, param):
         data = generate.getLagData(context)
         img = imggen.createLagHistogram(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -98,28 +97,25 @@ def firstPlayVsRating(request, param):
         years = generate.getGeekYears(context.geek)
         img = imggen.createFirstPlayVsRatingGraph(context, data, years)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
 def playsByPublishedYear(context):
     import generate, imggen
     data = generate.getPlaysByPublishedYearData(context)
-    (img, imap) = imggen.createPlaysByPublishedYearGraph(context, data)
-    return (img, imap)
-        
+    return imggen.createPlaysByPublishedYearGraph(context, data)
+
 def ratingByPublishedYear(context):        
     import generate, imggen
     data = generate.getRatingByPublishedYearData(context)
-    (img, imap) = imggen.createRatingByPublishedYearGraph(context, data)
-    return (img, imap)
-        
+    return imggen.createRatingByPublishedYearGraph(context, data)
+
 def ownedByPublishedYear(context):        
     import generate, imggen
     data = generate.getOwnedByPublishedYearData(context)
-    (img, imap) = imggen.createOwnedByPublishedYearGraph(context, data)
-    return (img, imap)
-        
+    return imggen.createOwnedByPublishedYearGraph(context, data)
+
 def playrate(request, param):    
     import views, library, generate, imggen
     try:
@@ -134,7 +130,7 @@ def playrate(request, param):
         data = generate.getPlayRateData(context, selector)
         (img, imap) = imggen.createPlayRateGraph(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -146,7 +142,7 @@ def playrateown(request, param):
         data = generate.getPlayRateData(context, "owned")
         (img, imap) = imggen.createPlayRateGraph(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -158,7 +154,7 @@ def playrateprevown(request, param):
         data = generate.getPlayRateData(context, "prevowned")
         (img, imap) = imggen.createPlayRateGraph(context, data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
@@ -169,7 +165,7 @@ def playsByQuarter(request, param):
         data = generate.getPlaysByQuarterData(context, 1990)
         img = imggen.createPlaysForYearByQuarterPlot(data, context.imageSpec, 1990)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png")    
         
@@ -180,7 +176,7 @@ def morgansPieCharts(request, param):
         data = generate.getMorgansPieChartsData(context.geek)
         img = imggen.createMorgansPieCharts(data)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png")     
         
@@ -197,7 +193,7 @@ def morePieCharts(request, param):
         else:
             img = open("error.png")
             return HttpResponse(img, mimetype="image/png")
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png")     
         
@@ -210,6 +206,6 @@ def category(request, param):
         cat = "/".join(fields[2:])
         img = imggen.plotCategoryRatings(context, cattype, cat)
         return library.imageResponse(img)
-    except Geeks.DoesNotExist:
+    except library.NoSuchGeekException:
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png")                 

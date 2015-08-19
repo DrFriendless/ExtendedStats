@@ -96,7 +96,8 @@ GENERAL = [
     "%sdynamic/index.html",
     "%sdynamic/australia.html",
     "%sdynamic/rankings/",
-    "%sdynamic/sgoyt/193005"
+    "%sdynamic/sgoyt/193005",
+    "%sdynamic/geeks"
     ]
         
 import urllib, time, sitedata
