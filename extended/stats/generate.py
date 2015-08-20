@@ -1562,6 +1562,7 @@ def getPlaysByYearData(context):
         t.nickels = nickels
         t.daysPlayedOn = len(daysPlayedOn)
         result.append(t)
+    result.reverse()
     return result
 
 def getRatingByRanking(context):
