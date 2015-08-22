@@ -51,35 +51,50 @@ class MorePie(Feature):
         return { "morePieDefault" : morePieDefault }
         
 class PlaysByPublishedYear(Feature):
-    def __init__(self):
-        Feature.__init__(self, "Pbpy", "stats/pbpy.html", "pbpy", "Plays of Games Owned by Published Year")
+    def __init__(self, upsideDown):
+        if upsideDown:
+            Feature.__init__(self, "Pbpyu", "stats/pbpy.html", "pbpyu", "Plays of Games Owned by Published Year Upside Down")
+        else:
+            Feature.__init__(self, "Pbpy", "stats/pbpy.html", "pbpy", "Plays of Games Owned by Published Year")
+        self.upsideDown = upsideDown
     
     def generate(self, context):
-        import imgviews        
-        (img, rbpymap) = imgviews.playsByPublishedYear(context)    
+        import imgviews
+        (img, rbpymap) = imgviews.playsByPublishedYear(context, self.upsideDown)
         return {"pbpydata" : imageBinaryData(img), "pbpymap" : rbpymap }
         
 class OwnedByPublishedYear(Feature):
-    def __init__(self):
-        Feature.__init__(self, "Obpy", "stats/obpy.html", "obpy", "Games Owned by Published Year")
+    def __init__(self, upsideDown):
+        if upsideDown:
+            Feature.__init__(self, "Obpyu", "stats/obpy.html", "obpyu", "Games Owned by Published Year Upside Down")
+        else:
+            Feature.__init__(self, "Obpy", "stats/obpy.html", "obpy", "Games Owned by Published Year")
+        self.upsideDown = upsideDown
         
     def generate(self, context):
-        import imgviews    
-        (img, obpymap) = imgviews.ownedByPublishedYear(context)    
+        import imgviews
+        (img, obpymap) = imgviews.ownedByPublishedYear(context, self.upsideDown)
         return { "obpydata" : imageBinaryData(img), "obpymap" : obpymap }
         
 class RatingByPublishedYear(Feature):        
-    def __init__(self):
-        Feature.__init__(self, "Rbpy", "stats/rbpy.html", "rbpy", "Ratings by Published Year")
+    def __init__(self, upsideDown):
+        if upsideDown:
+            Feature.__init__(self, "Rbpyu", "stats/rbpy.html", "rbpyu", "Ratings by Published Year Upside Down")
+        else:
+            Feature.__init__(self, "Rbpy", "stats/rbpy.html", "rbpy", "Ratings by Published Year")
+        self.upsideDown = upsideDown
         
     def generate(self, context):
-        import imgviews       
-        (img, rbpymap) = imgviews.ratingByPublishedYear(context)     
+        import imgviews
+        if self.upsideDown:
+            (img, rbpymap) = imgviews.ratingByPublishedYearUpsideDown(context)
+        else:
+            (img, rbpymap) = imgviews.ratingByPublishedYear(context)
         if len(rbpymap) == 0:
             return None
         return { "rbpydata" : imageBinaryData(img), "rbpymap" : rbpymap }
 
-class MostUnplayed(Feature):        
+class MostUnplayed(Feature):
     def __init__(self):
         Feature.__init__(self, "MostUnplayed", "stats/mostunplayed.html", "mostunplayed", "Most Played Games That You Haven't Played")
         
@@ -442,15 +457,27 @@ class PlayLocations(Feature):
             return None
         return { "locations" : data }
 
+class FirstPlaysVsRating(Feature):
+    def __init__(self):
+        Feature.__init__(self, "FirstPlayVsRating", "stats/fpvr.html", "fpvr", "First Plays vs Rating")
+
+    def generate(self, context):
+        return {  }
+
 import selectors, views
-FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan(), Florence(), MorePie(), PlaysByPublishedYear(),
-            OwnedByPublishedYear(), RatingByPublishedYear(), MostUnplayed(), GenericTable(selectors.OwnedGamesSelector()),
-            PlayRate(selectors.PlayedGamesSelector()), PlayRateOwn(), PlayRatePrevOwn(),
-            PlaysByMonthEver(), PlaysByMonthYTD(), PlaysByMonthGraph(), PlayRatings(), Favourites(selectors.AllGamesSelector()),
-            FavesByPublishedYear(), BestDays(), Streaks(), RatingByRanking(), PlaysByRanking(), LeastWanted(), Unusual(), ShouldPlay(),
-            ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
-            TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
-            Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear(), PlayLocations() ]
+FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan(), Florence(), MorePie(),
+             PlaysByPublishedYear(False), PlaysByPublishedYear(True),
+             OwnedByPublishedYear(False), OwnedByPublishedYear(True),
+             RatingByPublishedYear(False), RatingByPublishedYear(True), MostUnplayed(),
+             GenericTable(selectors.OwnedGamesSelector()),
+             PlayRate(selectors.PlayedGamesSelector()), PlayRateOwn(), PlayRatePrevOwn(),
+             PlaysByMonthEver(), PlaysByMonthYTD(), PlaysByMonthGraph(), PlayRatings(),
+             Favourites(selectors.AllGamesSelector()),
+             FavesByPublishedYear(), BestDays(), Streaks(), RatingByRanking(), PlaysByRanking(), LeastWanted(),
+             Unusual(), ShouldPlay(), FirstPlaysVsRating(),
+             ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
+             TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
+             Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear(), PlayLocations() ]
 
 FEATURES_BY_KEY = {}
 for f in FEATURES:

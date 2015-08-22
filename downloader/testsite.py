@@ -82,10 +82,11 @@ URLS = [
         "%sdynamic/consistency/%s/96",
         "%sdynamic/image/playrate/%s/fpiy/2014"
         ]
-TAGS = ["pbpy", "obpy", "rbpy", "mmmpie", "pogo", "pogotable", "mostunplayed", "playrate", "playrateown", "playrateprev",
+TAGS = ["pbpy", "pbpyu", "obpy", "obpyu", "rbpy", "rbpyu",
+        "mmmpie", "pogo", "pogotable", "mostunplayed", "playrate", "playrateown", "playrateprev",
         "pbmever", "pbmytd", "pbmgraph", "pr", "pbq", "favourites", "fgbpy", "bestdays", "ratingByRanking", "unusual", "least",
         "shouldplay", "shouldplayown", "timeline", "thm", "thd", "thday", "dimesbydesigner", "florence", "streaks",
-        "pby", "consistency", "morepie", "generic", "playsByRanking", "yearly" ]
+        "pby", "consistency", "morepie", "generic", "playsByRanking", "yearly", "locations", "fpvr" ]
 CHOOSE_URL = "%sdynamic/choose/%s/%s"
 JSON_URL = "%sdynamic/json/%s/%s"
 GENERAL = [

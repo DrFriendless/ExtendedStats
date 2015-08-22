@@ -1,5 +1,4 @@
 from library import *
-
 IGNORE = ["atarist", "android", "nes", "pc", None]
 FLORENCE_COLOURS = { None: '#ffffff', 'abstracts' : '#000000', 'boardgame' : '#20b020', 'cgs': '#d060d0',
                      'childrensgames' : '#f0d000', 'familygames': '#20d0d0', 'partygames': '#f02020',
@@ -15,7 +14,8 @@ MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "O
 GAME_PLAYS_URL = "http://boardgamegeek.com/plays/thing/%d?userid=%d"
 BGG_PLAYS_URL = "http://boardgamegeek.com/collection/user/%s?own=1&minplays=%d&maxplays=%d"
 BGG_ZERO_PLAYS_URL = "http://boardgamegeek.com/collection/user/%s?own=1&played=0"
-CLOSENESS = DictOfDicts()
+import library
+CLOSENESS = library.DictOfDicts()
 
 def escape(s):
     return unicode(s.replace("'", "\\'"))
@@ -27,10 +27,11 @@ def getFlorenceCats():
     return [c[0] for c in cats if c[0]not in IGNORE]
 
 def getFlorenceSettings():
+    import library
     result = []
     cats = getFlorenceCats()
     for cat in cats:
-        t = Thing()
+        t = library.Thing()
         t.colour = FLORENCE_COLOURS[cat]
         t.name = cat
         result.append(t)
@@ -400,7 +401,6 @@ def createPogoHistogram(context, data):
         h = ymax - ymin
         y1 = ymin + h/4
         y2 = ymax - h/4
-        col = GREY
         if p >= 10:
             cols = (LIGHTBLUE, BLUEGREEN)
         elif p == 0:
@@ -448,7 +448,7 @@ def createPogoHistogram(context, data):
         tens = tens - count[p]
     draw.text((25, 5), "Histogram of Count of Number of Games Owned with each Number of Plays", fill=BLACK)
     del draw
-    return (img, imap)
+    return img, imap
 
 def getAldiesColour(rating):
     import math
@@ -458,20 +458,22 @@ def getAldiesColour(rating):
     return None
 
 def createFirstPlayVsRatingGraph(context, data, years):
+    import library, time, datetime
     imgspec = context.imageSpec
     (img, draw, xlo, xhi, ylo, yhi) = newImage(imgspec.width, imgspec.height)
-    for rating in [ 1, 3, 5, 7, 9 ]:
+    for rating in range(1, 10, 2):
         y1 = yhi + int(float(rating * (ylo - yhi) / 10.0))
         y2 = yhi + int(float((rating + 1) * (ylo - yhi) / 10.0))
         draw.rectangle([xlo+1, y1, xhi, y2], fill=LIGHTGREY)
-    for rating in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+    for rating in range(1,11):
         y = yhi + int(float(rating * (ylo - yhi) / 10.0))
         draw.text((xlo-15, y-4), str(rating), fill=BLACK)
     if len(years) > 0:
-        import time, datetime
         minYear = min(years)
         endYear = time.localtime()[0]
         data = [ d for d in data if d[1] is not None and d[1].year >= minYear ]
+        bf = library.BestFit()
+        radius = 3
         if len(data) > 0:
             minDate = data[0][1]
             maxDate = data[-1][1]
@@ -480,8 +482,11 @@ def createFirstPlayVsRatingGraph(context, data, years):
                 p = (d[1] - minDate).days / days
                 x = xlo + int(p * (xhi - xlo))
                 y = yhi + int(float(d[2]) * (ylo - yhi) / 10.0)
-                radius = 3
+                bf.plot(x-xlo, y-yhi)
                 draw.ellipse([(x-radius, y-radius), (x+radius, y+radius)], outline=BLACK)
+            if bf.valid():
+                (a, b) = bf.line()
+                draw.line([(xlo, yhi + a), (xhi, yhi + a + b * (xhi-xlo))], CYAN, 1)
             y = minYear
             while y <= endYear:
                 jan1 = datetime.date(y, 1, 1)
@@ -494,7 +499,7 @@ def createFirstPlayVsRatingGraph(context, data, years):
     del draw
     return img
 
-def createRatingByPublishedYearGraph(context, data):
+def createRatingByPublishedYearGraph(context, data, upsideDown):
     import time, math
     startYear = 1995
     endYear = time.localtime()[0]
@@ -522,27 +527,29 @@ def createRatingByPublishedYearGraph(context, data):
         x1 = xlo + ((year + 1 - startYear) * (xhi - xlo) * 1.0 / (endYear + 1 - startYear))
         soFar = 0
         if highest > 0:
-            for rating in range(10):
-                r = rating + 1
+            ra = range(1, 11)
+            if upsideDown:
+                ra.reverse()
+            for r in ra:
                 v = yearData[year][r]
                 y0 = yhi - int(soFar * 1.0 * (yhi - ylo) / highest)
                 soFar = soFar + v
                 y1 = yhi - int(soFar * 1.0 * (yhi - ylo) / highest)
                 if y1 == y0:
                     continue
-                draw.rectangle([x0, y0, x1, y1], outline=BLACK, fill=ALDIES_COLOURS[rating])
+                draw.rectangle([x0, y0, x1, y1], outline=BLACK, fill=ALDIES_COLOURS[r-1])
                 mapRow = Thing()
                 (mapRow.x1, mapRow.y1, mapRow.x2, mapRow.y2) = (int(x0), int(y1), int(x1), int(y0))
                 mapRow.name = str(int(v))
                 mapRow.url = None
                 imap.append(mapRow)
         draw.text((x0+10, yhi+7), str(year), fill=BLACK)
-        draw.text((x0+20, ylo-14), str(sum(yearData[year].values())), fill=BLACK)
+        draw.text((x0+15, ylo-14), str(sum(yearData[year].values())), fill=BLACK)
         year += 1
     del draw
-    return (img, imap)
+    return img, imap
 
-def createOwnedByPublishedYearGraph(context, data):
+def createOwnedByPublishedYearGraph(context, data, upsideDown):
     import time, math
     startYear = 1995
     endYear = time.localtime()[0]
@@ -570,12 +577,14 @@ def createOwnedByPublishedYearGraph(context, data):
         x1 = xlo + ((year + 1 - startYear) * (xhi - xlo) * 1.0 / (endYear + 1 - startYear))
         soFar = 0
         if highest > 0:
-            for rating in [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+            ras = [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            if upsideDown:
+                ras.reverse()
+            for rating in ras:
                 v = yearData[year][rating]
                 y0 = yhi - int(soFar * 1.0 * (yhi - ylo) / highest)
                 soFar = soFar + v
                 y1 = yhi - int(soFar * 1.0 * (yhi - ylo) / highest)
-                fill = None
                 if rating <= 0:
                     fill = WHITE
                 else:
@@ -592,9 +601,9 @@ def createOwnedByPublishedYearGraph(context, data):
         draw.text((x0+20, ylo-14), str(sum(yearData[year].values())), fill=BLACK)
         year += 1
     del draw
-    return (img, imap)
+    return img, imap
 
-def createPlaysByPublishedYearGraph(context, data):
+def createPlaysByPublishedYearGraph(context, data, upsideDown):
     import time, mydb
     startYear = 1995
     endYear = time.localtime()[0]
@@ -622,13 +631,14 @@ def createPlaysByPublishedYearGraph(context, data):
         x0 = xlo + ((year - startYear) * (xhi - xlo) * 1.0 / (endYear + 1 - startYear))
         x1 = xlo + ((year + 1 - startYear) * (xhi - xlo) * 1.0 / (endYear + 1 - startYear))
         data[year].sort(lambda g1, g2: cmp(g1.plays, g2.plays))
+        if upsideDown:
+            data[year].reverse()
         if highest > 0:
             count = 0
             for g in data[year]:
                 y0 = yhi - int(count * height / highest)
                 count += 1
                 y1 = yhi - int(count * height / highest)
-                fill = None
                 if g.plays == 0:
                     fill = WHITE
                 elif g.plays == 1:
@@ -757,7 +767,7 @@ def ratingToCoord(lo, hi, rating):
     return int(lo + (hi - lo) * rating / 10.0)
 
 def plotCategoryRatings(context, cattype, category):
-    import mydb
+    import mydb, library
     if cattype == "All":
         table = ""
         clause = ""
@@ -789,23 +799,14 @@ def plotCategoryRatings(context, cattype, category):
         games.append(t)
     (img, draw, xlo, xhi, ylo, yhi) = newImage(250, 250)
     draw.line([(xlo, yhi), (xhi, ylo)], GREEN, 1)
-    sigmaxy = 0.0
-    sigmax = 0.0
-    sigmay = 0.0
-    sigmaxx = 0.0
-    n = len(games)
+    bf = library.BestFit()
     for gg in games:
-        sigmaxx = sigmaxx + gg.average * gg.average
-        sigmax = sigmax + gg.average
-        sigmay = sigmay + gg.rating
-        sigmaxy = sigmaxy + gg.average * gg.rating
+        bf.plot(gg.average, gg.rating)
         xr = ratingToCoord(xlo, xhi, gg.average)
         yr = ratingToCoord(yhi, ylo, gg.rating)
         draw.ellipse([(xr-2, yr-2), (xr+2, yr+2)], outline=BLACK, fill=BLACK)
-    denom = n * sigmaxx - sigmax * sigmax
-    if denom != 0:
-        b = (n * sigmaxy - sigmax * sigmay) / denom
-        a = ((sigmay * sigmaxx) - (sigmax * sigmaxy)) / denom
+    if bf.valid():
+        (a, b) = bf.line()
         y0 = a
         y10 = a + b * 10.0
         draw.line([(ratingToCoord(xlo, xhi, 0), ratingToCoord(yhi, ylo, y0)), (ratingToCoord(xlo, xhi, 10), ratingToCoord(yhi, ylo, y10))], CYAN, 1)

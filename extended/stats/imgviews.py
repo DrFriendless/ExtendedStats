@@ -101,22 +101,27 @@ def firstPlayVsRating(request, param):
         img = open("error.png")   
         return HttpResponse(img, mimetype="image/png") 
         
-def playsByPublishedYear(context):
+def playsByPublishedYear(context, upsideDown):
     import generate, imggen
     data = generate.getPlaysByPublishedYearData(context)
-    return imggen.createPlaysByPublishedYearGraph(context, data)
+    return imggen.createPlaysByPublishedYearGraph(context, data, upsideDown)
 
-def ratingByPublishedYear(context):        
+def ratingByPublishedYear(context):
     import generate, imggen
     data = generate.getRatingByPublishedYearData(context)
-    return imggen.createRatingByPublishedYearGraph(context, data)
+    return imggen.createRatingByPublishedYearGraph(context, data, False)
 
-def ownedByPublishedYear(context):        
+def ratingByPublishedYearUpsideDown(context):
+    import generate, imggen
+    data = generate.getRatingByPublishedYearData(context)
+    return imggen.createRatingByPublishedYearGraph(context, data, True)
+
+def ownedByPublishedYear(context, upsideDown):
     import generate, imggen
     data = generate.getOwnedByPublishedYearData(context)
-    return imggen.createOwnedByPublishedYearGraph(context, data)
+    return imggen.createOwnedByPublishedYearGraph(context, data, upsideDown)
 
-def playrate(request, param):    
+def playrate(request, param):
     import views, library, generate, imggen
     try:
         if "/" in param:

@@ -701,7 +701,7 @@ def makeLastMonthDateRange(today):
     if day > calendar.monthrange(today.year-1, today.month)[1]:
         day = calendar.monthrange(today.year-1, today.month)[1]
     start = datetime.date(y, m, day)
-    return (start, today)
+    return start, today
 
 def mean(xs):
     return sum(xs) * 1.0 / len(xs)
@@ -732,3 +732,33 @@ def jsonEncode(obj):
     elif isinstance(obj, plays.Play):
         return obj.toMap()
     raise TypeError(obj.__class__.__name__)
+
+class BestFit(object):
+    def __init__(self):
+        self.sigmaxy = 0.0
+        self.sigmax = 0.0
+        self.sigmay = 0.0
+        self.sigmaxx = 0.0
+        self.n = 0
+        self.denom = None
+
+    def plot(self, x, y):
+        self.sigmaxx += x * x
+        self.sigmax += x
+        self.sigmay += y
+        self.sigmaxy += x * y
+        self.n += 1
+        self.denom = self.n * self.sigmaxx - self.sigmax * self.sigmax
+
+    def valid(self):
+        return self.denom is not None and self.denom != 0
+
+    def a(self):
+        return ((self.sigmay * self.sigmaxx) - (self.sigmax * self.sigmaxy)) / self.denom
+
+    def b(self):
+        return (self.n * self.sigmaxy - self.sigmax * self.sigmay) / self.denom
+
+    def line(self):
+        return self.a(), self.b()
+
