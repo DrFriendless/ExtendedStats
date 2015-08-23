@@ -595,7 +595,7 @@ def getMultiYearData(context):
         total = sum([p.value for p in plays])
         result.append([ whiteThing(games[gid].name) ] + plays + [ whiteThing(total), whiteThing(yearCounts[gid]) ])
     result.sort(lambda r1, r2: cmp(r1[0].value.lower(), r2[0].value.lower()))
-    return (result, USED_YEARS + ["Total", "Count"])
+    return result, USED_YEARS + ["Total", "Count"]
     
 def whiteThing(value):   
     import library 
@@ -627,7 +627,7 @@ def getPlayRateData(context, selector):
             p = 25
         names.add(p, r, gg.game.name)
         counts.add(p, r)
-    return (counts, names)
+    return counts, names
 
 def getRatingByPublishedYearData(context):
     import library

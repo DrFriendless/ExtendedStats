@@ -1,5 +1,3 @@
-from dbaccess import NoSuchGeekException
-
 DAY = 24 * 3600
 
 EXPANSION = 1
@@ -10,14 +8,16 @@ def esc(s):
     return MySQLdb.escape_string(s)    
     
 class Thing:
-    def __init__(self):
-        pass
+    def __init__(self, name="Thing"):
+        self.name = name
         
     def __str__(self):
-        return "Thing[%s]" % str(self.__dict__)
+        # return "%s[%s]" % (self.name, str(self.__dict__))
+        return "%s[%s]" % (self.name, "")
 
     def __repr__(self):
-        return "Thing[%s]" % str(self.__dict__)
+        # return "%s[%s]" % (self.name, str(self.__dict__))
+        return "%s[%s]" % (self.name, "")
 
 def between(s, before, after):
     i = s.find(before)
@@ -761,4 +761,11 @@ class BestFit(object):
 
     def line(self):
         return self.a(), self.b()
+
+class NoSuchGeekException(Exception):
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "Geek '%s' does not exist" % self.name
 

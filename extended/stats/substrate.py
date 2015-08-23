@@ -20,7 +20,7 @@ class Substrate:
         self.series = None
         
     def getGames(self, ids):
-        "returns Game objects from the cache"
+        """returns Game objects from the cache"""
         otherIds = []
         result = {}
         for id in ids:
@@ -32,7 +32,6 @@ class Substrate:
         self.detailedGames.update(moreGames)
         result.update(moreGames)
         if len(moreGames) < len(otherIds):
-            # 1/0
             pass
         return result  
   
@@ -78,7 +77,7 @@ class Substrate:
         sql = "select distinct game from plays where geek = %s and game not in (select distinct game from geekgames where geek = %s)"
         playedData = [ d[0] for d in mydb.query(sql, [self.geek, self.geek]) ]
         playedGames = getGames(playedData)
-        for bggid in playedGames:
+        for bggid in playedGames.keys():
             gg = createEmptyGeekGame(playedGames[bggid])
             gg.game = bggid
             geekgames.append(gg)
@@ -90,7 +89,7 @@ class Substrate:
         games = self.getGames([ gg.game for gg in geekgames ])
         games.update(playedGames)
         for gg in geekgames:
-            gg.game = games.get(gg.game)      
+            gg.game = games[gg.game]
         if options.excludeExpansions:
             geekgames = [ gg for gg in geekgames if not gg.game.expansion ]
         self.collections[key] = geekgames
@@ -288,11 +287,12 @@ def processPlays(plays):
         p.expansionNames = ", ".join([e.name for e in p.expansions])
         
 def getGames(ids):
-    import library, mydb, models
+    """ Returns map from long to Game objects from the database. """
+    import library, mydb, models, dbaccess
     if len(ids) == 0:
         return {}
     ids = library.uniq(ids)
-    games = models.Games.objects.in_bulk(ids)
+    games = dbaccess.getGames(ids)
     mechanics = library.DictOfSets()
     categories = library.DictOfSets()
     publishers = library.DictOfSets()
@@ -398,7 +398,7 @@ def _inferExtraPlaysForADate(games, plays):
                     orig = len(plays)
                     others = [ op for op in plays if op is not play and op is not bgplay ]
                     messages.append(u"%s %s expands %s %d + %d <= %d" % (unicode(play.date), play.game.name, bgplay.game.name, len(newps), len(others), orig))
-                    return (others + newps, messages, True)
+                    return others + newps, messages, True
             # no known basegame
             if len(play.game.basegames) == 1:
                 basegame = play.game.basegames[0]
@@ -410,16 +410,16 @@ def _inferExtraPlaysForADate(games, plays):
                 p = Play(games[basegame], [play.game] + play.expansions, play.date, play.count, play.raters, play.ratingsTotal,  "")
                 others = [ op for op in plays if op is not play ]
                 #messages.append(u"%s Inferred a play of %s from %s, %s\nothers = %s\nplays = %s" % (play.date, games[basegame].name, play.game.name, str(p.expansions), str(others), str(plays)))
-                return (others + [p], messages, True)
+                return others + [p], messages, True
             else:
                 messages.append("Can't figure out what %s expanded on %s: %s" % (play.game.name, play.date, library.gameNames(play.game.basegames, games)))
             messages.append("No idea about %s" % bgplay.game.name)
         result.append(play)
-    return (result, messages, False)    
+    return result, messages, False
 
 def createEmptyGeekGame(g):
     import library
-    gg = library.Thing()
+    gg = library.Thing("GeekGame")
     gg.rating = 0
     gg.game = g
     gg.owned = False

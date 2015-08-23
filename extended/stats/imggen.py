@@ -667,7 +667,7 @@ def createPlaysByPublishedYearGraph(context, data, upsideDown):
         draw.text((x0+20, ylo-14), str(len(data[year])), fill=BLACK)
         year += 1
     del draw
-    return (img, imap)
+    return img, imap
 
 def createPlayRateGraph(context, (data, names)):
     import math
@@ -724,7 +724,7 @@ def createPlayRateGraph(context, (data, names)):
         prev = (x, y)
     draw.text((25, 5), "Scatter Plot of Number of Plays vs Rating", fill=BLACK)
     del draw
-    return (img, imap)
+    return img, imap
 
 def createPlaysForYearByQuarterPlot(data, imgspec, startYear):
     # data is a DictOfCounts

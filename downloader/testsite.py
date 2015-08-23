@@ -102,6 +102,7 @@ GENERAL = [
     ]
         
 import urllib, time, sitedata
+startAt = time.time()
 errors = []
 all = [ g % sitedata.site for g in GENERAL ]
 for user in USERS:
@@ -128,3 +129,4 @@ if len(errors) > 0:
         print e
 print        
 print "Site is %d%% working!" % ((len(all) - len(errors)) * 100 / len(all))
+print "Tests took %d seconds" % int(time.time() - startAt)
