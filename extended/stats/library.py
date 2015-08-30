@@ -769,3 +769,9 @@ class NoSuchGeekException(Exception):
     def __str__(self):
         return "Geek '%s' does not exist" % self.name
 
+def calcHIndex(ns):
+    ns.sort(lambda n1,  n2: cmp(n2,  n1))
+    h = 0
+    while len(ns) > h and ns[h] > h:
+        h += 1
+    return h

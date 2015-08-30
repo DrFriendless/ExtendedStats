@@ -2096,7 +2096,7 @@ def getTemporalHotnessMonthData(context):
     monthTotals = library.Counts()
     tot = 0
     for y in years:
-        t = library.Thing()
+        t = library.Thing(str(y))
         t.year = y
         counts = library.Counts()
         result.append(t)
@@ -2114,8 +2114,7 @@ def getTemporalHotnessMonthData(context):
             monthTotals.add(i,m.count)
         totals.append(t.count)
         tot += t.count
-    t = library.Thing()
-    t.year = ""
+    t = library.Thing("Total")
     t.count = tot
     t.months = []
     counts = []
@@ -2161,8 +2160,7 @@ def getTemporalHotnessDayData(context):
     result = []
     values = []
     for y in years:
-        t = library.Thing()
-        t.name = y
+        t = library.Thing(str(y))
         t.data = []
         t.count = yearTotals[y]
         result.append(t)
@@ -2176,7 +2174,7 @@ def getTemporalHotnessDayData(context):
     (avg, sd) = stddev(values)
     for year in result:
         applyHotnessClasses(year.data, avg, sd)    
-    all = library.Thing()
+    all = library.Thing("Total")
     all.count = sum([y.count for y in result])
     all.data = []
     for dow in range(7):
@@ -2196,7 +2194,7 @@ def getTemporalHotnessDateData(context):
     values = []
     totals = []
     for m in range(len(months)):
-        t = library.Thing()
+        t = library.Thing(str(months[m]))
         t.index = m+1
         t.name = months[m]
         t.data = [ library.Thing() for d in range(31) ]
@@ -2216,7 +2214,7 @@ def getTemporalHotnessDateData(context):
             t.count = t.count + n
         totals.append(t.count)
         tot += t.count
-    all = library.Thing()
+    all = library.Thing("Total")
     all.count = tot
     all.data = []
     for i in range(31):

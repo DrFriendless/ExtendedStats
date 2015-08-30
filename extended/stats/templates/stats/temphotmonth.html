@@ -7,7 +7,7 @@
 </thead>
 <tbody>
 {% for year in thm %}
-<tr><td class="{{year.cssClass}}">{{year.count}}</td><td>{{year.year}}</td>
+<tr><td class="{{year.cssClass}}">{{year.count}}</td><td>{{year.name}}</td>
 {% for month in year.months %}
 <td class="{{month.cssClass}}">{{month.count}}</td>
 {% endfor %}

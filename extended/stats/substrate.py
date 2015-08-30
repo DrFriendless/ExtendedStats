@@ -301,13 +301,13 @@ def getGames(ids):
         ds = models.GameDesigners.objects.filter(["gameId", "designerId"], gameId=ids)[1]
         dids = [ did for (gid, did) in ds ]
         if len(dids) > 0:
-            dess = models.Designers.objects.in_bulk(dids)
+            dess = dbaccess.getDesigners(dids)
             for (gid, did) in ds:
                 designers.add(gid, dess[did])
         ps = models.GamePublishers.objects.filter(["gameId", "publisherId"], gameId=ids)[1]
         pids = [ pid for (gid, pid) in ps ]
         if len(pids) > 0:
-            pubs = models.Publishers.objects.in_bulk(pids)
+            pubs = dbaccess.getPublishers(pids)
             for (gid, pid) in ps:
                 publishers.add(gid, pubs[pid])
         ms = models.GameMechanics.objects.filter(["gameId", "mechanic"], gameId=ids)[1]
@@ -317,14 +317,7 @@ def getGames(ids):
         cs = models.GameCategories.objects.filter(["gameId", "category"], gameId=ids)[1]
         for (i, c) in cs:
             categories.add(i, c)
-    sql = "select basegame, expansion from expansions where %s or %s" % (library.inlist("basegame", ids), library.inlist("expansion", ids))
-    expData = mydb.query(sql, [])
-    sql = "select ruletype, bggid from metadata"
-    ruleData = mydb.query(sql, [])
-    basegames = [ int(gameId) for (rule, gameId) in ruleData if rule == library.BASEGAME ]
-    # games which are marked wrongly as basegames in BGG!
-    expansions = [ int(gameId) for (rule, gameId) in ruleData if rule == library.EXPANSION ]
-    expData = [ (b,e) for (b,e) in expData if b not in expansions ]
+    (basegames, expData) = getMetadata()
     for g in games.values():
         g.basegames = []
         g.expansions = []
@@ -340,7 +333,24 @@ def getGames(ids):
         g.categories = categories[g.bggid]
         g.publishers = publishers[g.bggid]
         g.designers = designers[g.bggid]               
-    return games       
+    return games
+
+METADATA = None
+
+def getMetadata():
+    global METADATA
+    if METADATA is None:
+        import mydb, library
+        sql = "select ruletype, bggid from metadata"
+        ruleData = mydb.query(sql, [])
+        basegames = [ int(gameId) for (rule, gameId) in ruleData if rule == library.BASEGAME ]
+        # games which are marked wrongly as basegames in BGG!
+        expansions = [ int(gameId) for (rule, gameId) in ruleData if rule == library.EXPANSION ]
+        sql = "select basegame, expansion from expansions"
+        expData = mydb.query(sql, [])
+        expData = [ (b,e) for (b,e) in expData if b not in expansions ]
+        METADATA = basegames, expData
+    return METADATA
      
 def _inferExtraPlays(games, plays):
     import library

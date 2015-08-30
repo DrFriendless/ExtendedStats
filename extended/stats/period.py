@@ -28,12 +28,9 @@ class Period:
         return result
 
     def calcHIndex(self):
+        import library
         plays = self.playsByGame.values()[:]
-        plays.sort(lambda n1,  n2: cmp(n2,  n1))
-        h = 0
-        while len(plays) > h and plays[h] > h:
-            h += 1
-        return h
+        return library.calcHIndex(plays)
 
     def __cmp__(self, other):
         return cmp(self.name, other.name)
@@ -87,7 +84,25 @@ class Month(Period):
             self.hotGames |= set(cs)
 
     def calculateProperties(self, playsSoFar, ratingsForGames):
+        self.new = list(self.new)
+        self.new.sort()
+        self.played = list(self.played)
+        self.played.sort()
+        self.expPlayed = list(self.expPlayed)
+        self.expPlayed.sort()
+        self.newExpPlayed = list(self.newExpPlayed)
+        self.newExpPlayed.sort()
         self.calcHotGames(playsSoFar, ratingsForGames)
+        self.hotGames = list(self.hotGames)
+        self.hotGames.sort()
+        self.everDollars = list(self.everDollars)
+        self.everDollars.sort()
+        self.everNickels = list(self.everNickels)
+        self.everNickels.sort()
+        self.everQuarters = list(self.everQuarters)
+        self.everQuarters.sort()
+        self.everDimes = list(self.everDimes)
+        self.everDimes.sort()
         self.distinctCount = len(self.played)
         self.daysPlayed = len(self.daysPlayedOn)
         self.newCount = len(self.new)
