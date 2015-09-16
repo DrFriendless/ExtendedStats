@@ -87,6 +87,12 @@ def getSelectorFromString(s):
         fields = fields[1:]
     return getSelectorFromFields(fields)    
     
+def getSelectorsFromString(s):
+    fields = s.split("/")
+    if fields[0] == "":
+        fields = fields[1:]
+    return getSelectorsFromFields(fields)
+
 def getSelectorFromFields(fields):
     chain = parseSelectorChain(fields)
     stack = interpretChain(chain)

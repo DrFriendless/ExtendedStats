@@ -86,7 +86,22 @@ def interpretRequestAndSelector(request, param, default):
     if len(fields) == 0:
         fields = default.split("/")
     selector = selectors.getSelectorFromFields(fields)
-    return (context, selector)
+    return context, selector
+
+
+def interpretRequestAndSelectorChain(request, param, default):
+    import selectors
+    if "/" in param:
+        fields = param.split("/")
+    else:
+        raise BadUrlException("expected at least a user and a selector")
+    context = interpretRequest(request, fields[0])
+    fields = fields[1:]
+    if len(fields) == 0:
+        fields = default.split("/")
+    selector = selectors.getSelectorsFromFields(fields)
+    return context, selector
+
 
 def interpretRequestAndSelectors(request, param, default):
     import selectors
@@ -103,7 +118,7 @@ def interpretRequestAndSelectors(request, param, default):
     if len(fields) == 0:
         fields = default.split("/")
     selector = selectors.getSelectorsFromFields(fields)
-    return (context, selector, index, "/".join(fields))
+    return context, selector, index, "/".join(fields)
 
 def interpretRequestAndParams(request, param):
     if "/" in param:
@@ -111,7 +126,7 @@ def interpretRequestAndParams(request, param):
     else:
         fields = [ param ]
     context = interpretRequest(request, fields[0])
-    return (context, fields[1:])
+    return context, fields[1:]
 
 def manageCollections(request, param):
     import collections, library
@@ -600,6 +615,17 @@ def generic(request, param):
     except library.NoSuchGeekException:
         return render_to_response("stats/geek_error.html", locals())
 
+def gini(request, param):
+    import features, library
+    try:
+        (context, selector) = interpretRequestAndSelectorChain(request, param, "played/owned")
+        feature = features.GiniTable(selector)
+        all = feature.generate(context)
+        all.update({"username" : context.geek})
+        return render_to_response("stats/gini_result.html", all)
+    except library.NoSuchGeekException:
+        return render_to_response("stats/geek_error.html", locals())
+
 def favourites(request, param):
     import features, library
     try:
@@ -659,7 +685,6 @@ def playLogging(request, param):
 
 def server(request, param):
     return render_to_response("stats/server.html", locals())
-
 
 def recordProfileView(username):
     import mydb, datetime, library

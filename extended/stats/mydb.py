@@ -19,8 +19,6 @@ def get():
     return db
 
 def query(sql, args=None):
-    with open("/home/john/subjects/geek/sql_log.txt", "a") as f:
-        f.write(sql + "\n")
     db = get()
     dbc = db.cursor()
     dbc.execute(sql, args)

@@ -356,6 +356,32 @@ def createPBMGraph(context, data):
     del draw
     return img
 
+def createGiniGraph(context, data):
+    (img, draw, xlo, xhi, ylo, yhi) = newImage(400, 300)
+    draw.polygon([(xlo, yhi), (xhi, ylo), (xhi, yhi)], outline=BLACK, fill="#b0c4d6")
+    draw.line([(xlo, ylo), (xlo, yhi)], WHITE)
+    draw.line([(xhi, ylo), (xhi, yhi)], BLACK)
+    points = [(xlo, yhi)]
+    totalPlays = data[0].totalPlays
+    playsSoFar = 0
+    i = 0
+    imap = []
+    for gg in data:
+        x1 = xlo + (xhi - xlo) * i / len(data)
+        i += 1
+        playsSoFar += gg.plays
+        x2 = xlo + (xhi - xlo) * i / len(data)
+        y = yhi - (yhi - ylo) * playsSoFar / totalPlays
+        points.append((x1,y))
+        points.append((x2,y))
+        mapRow = Thing()
+        (mapRow.x1, mapRow.y1, mapRow.x2, mapRow.y2) = (x1, yhi, x2, ylo)
+        mapRow.title = gg.name
+        imap.append(mapRow)
+    draw.polygon(points, outline=BLACK, fill="#80b3ff")
+    del draw
+    return img, imap
+
 def createPogoHistogram(context, data):
     count = {}
     expansions = {}

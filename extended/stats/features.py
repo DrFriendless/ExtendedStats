@@ -239,8 +239,40 @@ class Pogo(Feature):
         (img, pogomap) = imggen.createPogoHistogram(context, pogoImgData)
         ss = selectors.getSelectorData(context)
         title = self.selector.name
-        return { "collection" : pogoCollections[0], "pogomap" : pogomap, "selectors" : ss, "title" : title, "url" : "/dynamic/image/pogo" }        
+        return { "collection" : pogoCollections[0], "pogomap" : pogomap, "selectors" : ss, "title" : title,
+                 "url" : "/dynamic/image/pogo", "username" : context.geek }
         
+class GiniTable(Feature):
+    def __init__(self, selector):
+        Feature.__init__(self, "Pogo", "stats/gini.html", "gini", "Gini Coefficient")
+        if type(selector) == type(""):
+            import selectors
+            selector = selectors.getSelectorsFromString(selector)
+        self.selectors = selector
+
+    def generate(self, context):
+        import generate, imggen, library
+        result = []
+        i = 0
+        for selector in self.selectors:
+            pogoData = generate.getPogoData(context, selector)[0]
+            if len(pogoData) == 0:
+                continue
+            t = library.Thing(selector.name)
+            pogoData.sort(lambda gg1, gg2: cmp(gg1.plays, gg2.plays))
+            giniCoefficient, giniData = generate.produceGiniDataFromPogoDate(pogoData)
+            (img, map) = imggen.createGiniGraph(context, giniData)
+            t.data = giniData
+            t.img = imageBinaryData(img)
+            t.map = map
+            t.id = "ginirow%d" % i
+            i += 1
+            t.coefficient = giniCoefficient
+            result.append(t)
+        if len(result) == 0:
+            return None
+        return { "giniData" : result }
+
 class FavesByPublishedYear(Feature):
     def __init__(self):
         Feature.__init__(self, "FaveByPubYear", "stats/fgbpy.html", "fgbpy", "Your Favourite Games By Published Year")
@@ -477,7 +509,8 @@ FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan()
              Unusual(), ShouldPlay(), FirstPlaysVsRating(),
              ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
              TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
-             Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear(), PlayLocations() ]
+             Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear(), PlayLocations(),
+             GiniTable(views.POGO_SELECTOR)]
 
 FEATURES_BY_KEY = {}
 for f in FEATURES:

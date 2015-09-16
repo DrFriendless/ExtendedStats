@@ -264,6 +264,24 @@ def getPlaysClass(n):
         #fill = DARKGREEN
         return "plays6"
 
+def produceGiniDataFromPogoDate(data):
+    if len(data) == 0:
+        return 1.0, data
+    totalPlays = sum([gg.plays for gg in data])
+    expectedPerGame = totalPlays * 1.0 / len(data)
+    betweenCurves = 0.0
+    playsSum = 0
+    expectedSum = 0.0
+    denom = 0.0
+    for gg in data:
+        playsSum += gg.plays
+        expectedSum += expectedPerGame
+        betweenCurves += expectedSum - playsSum
+        denom += expectedSum
+        gg.totalPlays = totalPlays
+    giniCoefficient = betweenCurves / denom
+    return giniCoefficient, data
+
 def getPogoData(context, selector):
     import library
     opts = context.options.pogo
@@ -289,7 +307,7 @@ def getPogoData(context, selector):
             r.rating = gg.rating
             result.append(r)
     result.sort(lambda gg1, gg2: -cmp(gg1.plays, gg2.plays))
-    return (result, collections)
+    return result, collections
 
 def getChecklistData(context):
     import library

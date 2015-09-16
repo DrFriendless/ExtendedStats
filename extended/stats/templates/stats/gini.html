@@ -1,0 +1,26 @@
+
+<div id="gini" class="section gini">
+
+The <A HREF="https://en.wikipedia.org/wiki/Gini_coefficient">Gini Coefficient</A> is a measure of inequality.
+In this case, it's a matter of how unequally you play your board games.
+This feature was suggested by <A HREF="https://boardgamegeek.com/image/2650538/megamau">megamau</A>.
+<P>
+This feature is not finished yet.
+
+{% for gd in giniData %}
+
+<H2>Gini Coefficient for {{gd.name}}</h2>
+
+Your Gini Coefficient is <b>{{gd.coefficient}}</b>.
+
+<img border="0" usemap="#{{gd.id}}" src="data:image/png,{{gd.img}}">
+
+<map name="{{gd.id}}">
+{% for row in gd.map %}
+<area shape="rect" coords="{{row.x1}},{{row.y1}},{{row.x2}},{{row.y2}}" onMouseover="showtip(this, event, '{{row.title}}')" onMouseout="hidetip()" alt="{{row.title}}">
+{% endfor %}
+</map>
+
+{% endfor %}
+
+</div>
