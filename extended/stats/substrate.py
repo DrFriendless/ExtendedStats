@@ -217,7 +217,6 @@ class Substrate:
                 last = None
                 playsByMonth = library.Counts()
                 for play in data:
-                    d = play.__dict__
                     playCount = playCount + play.count
                     if ((first is None) or (play.date < first)) and not play.date.endswith("00"):
                         first = play.date

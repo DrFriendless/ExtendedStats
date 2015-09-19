@@ -483,6 +483,69 @@ def getAldiesColour(rating):
         return ALDIES_COLOURS[r-1]
     return None
 
+def createMostPlayedTimelineGraph(context, data):
+    import library, datetime
+    (minDate, data, mostPlays) = data
+    mostPlays = ((mostPlays / 50) + 1) * 50
+    imgspec = context.imageSpec
+    (img, draw, xlo, xhi, ylo, yhi) = newImage(imgspec.width, imgspec.height)
+    timespan = library.daysSince(minDate)
+    # background
+    shadeDate = datetime.date(minDate.year, 1, 1)
+    while shadeDate.year <= library.TODAY.year:
+        days = (shadeDate - minDate).days
+        x1 = xlo + days * (xhi - xlo) / timespan
+        shadeDate = datetime.date(shadeDate.year+1, 1, 1)
+        days = (shadeDate - minDate).days
+        x2 = xlo + days * (xhi - xlo) / timespan
+        if x1 < xlo:
+            x1 = xlo
+        if x2 > xhi:
+            x2 = xhi
+        draw.rectangle(((x1, ylo), (x2, yhi)), fill = [WHITE, LIGHTGRAY][shadeDate.year % 2])
+    # data
+    keys = None
+    keyToDate = {}
+    for mptd in data:
+        if keys is None:
+            keys = mptd.playsByMonth.keys()[:]
+            keys.sort()
+            for key in keys:
+                keyToDate[key] = datetime.datetime.strptime(key + "-01", "%Y-%m-%d").date()
+        line = []
+        accum = 0
+        lastAccum = -1
+        for key in keys:
+            accum += mptd.playsByMonth[key]
+            days = library.daysBetween(minDate, keyToDate[key])
+            x = xlo + days * (xhi - xlo) / timespan
+            y = yhi - (yhi - ylo) * accum / mostPlays
+            line.append((x,y))
+            if accum == 0 and lastAccum == 0:
+                line = line[1:]
+            lastAccum = accum
+        draw.line(line, mptd.colour, width=2)
+    # label axes
+    labelDate = datetime.date(minDate.year, 6, 30)
+    while labelDate.year <= library.TODAY.year:
+        if labelDate >= minDate:
+            days = (labelDate - minDate).days
+            x = xlo + days * (xhi - xlo) / timespan - 16
+            y = yhi + 14
+            draw.text((x,y), str(labelDate.year), BLACK)
+        labelDate = datetime.date(labelDate.year+1, 6, 30)
+    tot = 50
+    while tot <= mostPlays:
+        x = 10
+        y = yhi - (yhi - ylo) * tot / mostPlays
+        draw.text((x,y), str(tot), BLACK)
+        tot += 50
+    # redraw axes
+    draw.line([(xlo, ylo), (xlo, yhi)], BLACK)
+    draw.line([(xlo, yhi), (xhi, yhi)], BLACK)
+    del draw
+    return img
+
 def createFirstPlayVsRatingGraph(context, data, years):
     import library, time, datetime
     imgspec = context.imageSpec

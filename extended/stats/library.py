@@ -54,8 +54,13 @@ LIGHTGREY = "#eeeeee"
 LIGHTGRAY = "#dddddd"
 LIGHTBLUE = "#add8e6"
 LIGHTSALMON = "#FFA07A"
+PURPLE = "#800080"
+MAGENTA = "#ff00ff"
+OLIVE = "#808000"
 
 SPECTRUM = [ PINK, RED, ORANGE, YELLOW, YELLOWGREEN, GREEN, BLUEGREEN, BLUE, INDIGO, VIOLET ]
+
+COLOURS = SPECTRUM + [ BLACK, CYAN, DARKGREEN, DARKBLUE, DARKRED, DARKGRAY, LIGHTBLUE, LIGHTSALMON, PURPLE, MAGENTA, OLIVE ]
 
 def newImage(w=800, h=600, yextra=0, marginProportion=20):
     from PIL import Image, ImageDraw
@@ -91,8 +96,11 @@ def playsToColour(plays):
 def daysSince(d):
     import datetime
     try:
-        fields = [ int(x) for x in d.split("-") ]
-        pd = datetime.date(fields[0], fields[1], fields[2])
+        if type(d) == type(""):
+            fields = [ int(x) for x in d.split("-") ]
+            pd = datetime.date(fields[0], fields[1], fields[2])
+        else:
+            pd = d
     except AttributeError:
         print "daysSince AttributeError", d, type(d)
         return -1

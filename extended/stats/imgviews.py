@@ -87,7 +87,18 @@ def lagHistogram(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return HttpResponse(img, mimetype="image/png")
+
+def mostPlayedCumulativeTimeline(request, param):
+    import library, views, imggen, generate
+    try:
+        context = views.interpretRequest(request, param)
+        data = generate.getMostPlayedTimelineData(context)
+        img = imggen.createMostPlayedTimelineGraph(context, data)
+        return library.imageResponse(img)
+    except library.NoSuchGeekException:
+        img = open("error.png")
+        return HttpResponse(img, mimetype="image/png")
         
 def firstPlayVsRating(request, param):        
     import views, library, generate, imggen

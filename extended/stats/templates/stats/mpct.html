@@ -1,0 +1,15 @@
+<div id="mpct" class="section">
+<H1>Most Played Cumulative Timeline</h1>
+
+<img src="/dynamic/image/mpct/{{username}}">
+<P>
+This is a graph of your cumulative number of plays for each of your 20 most played games over the last 12 years or so.
+<P>
+<table>
+{% for mpct in mpctData %}
+<tr><td bgcolor="{{mpct.colour}}">&nbsp;&nbsp;</td><td>{{mpct.name}}</td></tr>
+{% endfor %}
+</table>
+<P>
+<A HREF="https://boardgamegeek.com/geeklist/196769/item/4141411#item4141411">Invented by tom-le-termite.</A>
+</div>

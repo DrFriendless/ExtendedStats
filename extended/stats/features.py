@@ -496,6 +496,15 @@ class FirstPlaysVsRating(Feature):
     def generate(self, context):
         return {  }
 
+class MostPlayedTimeline(Feature):
+    def __init__(self):
+        Feature.__init__(self, "MostPlayedTimeline", "stats/mpct.html", "mpct", "Most Played Cumulative Timeline")
+
+    def generate(self, context):
+        import generate
+        (minDate, data, mostPlays) = generate.getMostPlayedTimelineData(context)
+        return { "mpctData" : data }
+
 import selectors, views
 FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan(), Florence(), MorePie(),
              PlaysByPublishedYear(False), PlaysByPublishedYear(True),
@@ -510,7 +519,7 @@ FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan()
              ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
              TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
              Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear(), PlayLocations(),
-             GiniTable(views.POGO_SELECTOR)]
+             GiniTable(views.POGO_SELECTOR), MostPlayedTimeline()]
 
 FEATURES_BY_KEY = {}
 for f in FEATURES:

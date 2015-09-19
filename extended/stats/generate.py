@@ -918,6 +918,58 @@ def getFrontPagePlaysData():
     rows.sort(lambda g1, g2: cmp(g1.geek.lower(), g2.geek.lower()))
     return rows
 
+class MPTData(object):
+    def __init__(self, gg):
+        self.gg = gg
+        self.name = gg.game.name
+        self.playsByMonth = {}
+
+def getMostPlayedTimelineData(context):
+    import library, datetime
+    options = library.Thing()
+    options.excludeTrades = False
+    options.excludeExpansions = True
+    ggs = context.substrate.getAllPlayedGames(options)
+    ggs = [ gg for gg in ggs if gg.game.__dict__.has_key("plays")]
+    ggs.sort(lambda g1, g2: -cmp(g1.plays, g2.plays))
+    if len(ggs) > 20:
+        ggs = ggs[:20]
+    minDate = None
+    mostPlays = 0
+    for gg in ggs:
+        if gg.firstPlay is not None and (minDate is None or gg.firstPlay < minDate):
+            minDate = gg.firstPlay
+    if library.daysSince(minDate) > 12 * 366:
+        minDate = library.TODAY - datetime.timedelta(days=12 * 366)
+    result = [ MPTData(gg) for gg in ggs ]
+    ty = library.TODAY.year
+    tm = library.TODAY.month
+    for mptd in result:
+        accum = 0
+        y = minDate.year
+        m = minDate.month
+        while y < ty or (y == ty and m <= tm):
+            mptd.playsByMonth["%04d-%02d" % (y,m)] = 0
+            m += 1
+            if m > 12:
+                m = 1
+                y += 1
+        for p in mptd.gg.game.plays:
+            if p.date.endswith("00"):
+                accum += p.count
+                continue
+            d = datetime.datetime.strptime(p.date, "%Y-%m-%d").date()
+            if d < minDate:
+                d = minDate
+            key = "%04d-%02d" % (d.year, d.month)
+            mptd.playsByMonth[key] += p.count
+            accum += p.count
+            if accum > mostPlays:
+                mostPlays = accum
+    for i in range(len(result)):
+        result[i].colour = library.COLOURS[i]
+    return minDate, result, mostPlays
+
 def getFirstPlayVsRatingData(geek):
     import mydb
     sql = "select game, min(playDate), rating from geekgames inner join plays using (geek, game) where geek = %s and rating > 0 group by game order by 2 asc"

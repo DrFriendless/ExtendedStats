@@ -86,7 +86,8 @@ TAGS = ["pbpy", "pbpyu", "obpy", "obpyu", "rbpy", "rbpyu",
         "mmmpie", "pogo", "pogotable", "mostunplayed", "playrate", "playrateown", "playrateprev",
         "pbmever", "pbmytd", "pbmgraph", "pr", "pbq", "favourites", "fgbpy", "bestdays", "ratingByRanking", "unusual", "least",
         "shouldplay", "shouldplayown", "timeline", "thm", "thd", "thday", "dimesbydesigner", "florence", "streaks",
-        "pby", "consistency", "morepie", "generic", "playsByRanking", "yearly", "locations", "fpvr" ]
+        "pby", "consistency", "morepie", "generic", "playsByRanking", "yearly", "locations", "fpvr",
+        "mpct", "gini"]
 CHOOSE_URL = "%sdynamic/choose/%s/%s"
 JSON_URL = "%sdynamic/json/%s/%s"
 GENERAL = [
