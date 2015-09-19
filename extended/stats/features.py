@@ -261,6 +261,8 @@ class GiniTable(Feature):
             t = library.Thing(selector.name)
             pogoData.sort(lambda gg1, gg2: cmp(gg1.plays, gg2.plays))
             giniCoefficient, giniData = generate.produceGiniDataFromPogoDate(pogoData)
+            if giniData is None:
+                return None
             (img, map) = imggen.createGiniGraph(context, giniData)
             t.data = giniData
             t.img = imageBinaryData(img)
@@ -503,6 +505,8 @@ class MostPlayedTimeline(Feature):
     def generate(self, context):
         import generate
         (minDate, data, mostPlays) = generate.getMostPlayedTimelineData(context)
+        if minDate is None:
+            return None
         return { "mpctData" : data }
 
 import selectors, views

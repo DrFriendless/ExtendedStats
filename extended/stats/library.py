@@ -721,20 +721,15 @@ def dbTime(dt):
     return MySQLdb.Timestamp(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
 
 def jsonEncode(obj):
-    import datetime, generate, models, plays, period
+    import datetime, generate, plays, period
     if isinstance(obj, datetime.date):
         return str(obj)
     elif isinstance(obj, Thing):
         return obj.__dict__
-    elif isinstance(obj, period.Period):
+    elif isinstance(obj, period.Period) or isinstance(obj, generate.MPTData):
         return obj.toMap()
     elif isinstance(obj, generate.DesignerPlaysData):
         return obj.__dict__
-    elif isinstance(obj, models.Games) or isinstance(obj, models.Publishers) or isinstance(obj, models.Designers):
-        # we should not be exposing these things via JSON
-        return obj.__dict__
-    elif obj.__class__.__name__ == "ModelState":
-        return {}
     elif isinstance(obj, set):
         return list(obj)
     elif isinstance(obj, plays.Play):

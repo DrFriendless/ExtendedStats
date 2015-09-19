@@ -279,6 +279,8 @@ def produceGiniDataFromPogoDate(data):
         betweenCurves += expectedSum - playsSum
         denom += expectedSum
         gg.totalPlays = totalPlays
+    if denom == 0.0:
+        return None, None
     giniCoefficient = betweenCurves / denom
     return giniCoefficient, data
 
@@ -924,6 +926,9 @@ class MPTData(object):
         self.name = gg.game.name
         self.playsByMonth = {}
 
+    def toMap(self):
+        return {"name" : self.name, "playsByMonth":self.playsByMonth}
+
 def getMostPlayedTimelineData(context):
     import library, datetime
     options = library.Thing()
@@ -939,6 +944,8 @@ def getMostPlayedTimelineData(context):
     for gg in ggs:
         if gg.firstPlay is not None and (minDate is None or gg.firstPlay < minDate):
             minDate = gg.firstPlay
+    if minDate is None:
+        return None, None, None
     if library.daysSince(minDate) > 12 * 366:
         minDate = library.TODAY - datetime.timedelta(days=12 * 366)
     result = [ MPTData(gg) for gg in ggs ]
