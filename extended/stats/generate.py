@@ -1443,7 +1443,7 @@ def getBestDays(context, year=None):
                 q = 1.5
             if r < 0:
                 continue
-            score = score + math.copysign(q * math.pow(math.copysign(r-5.0,  1),  1.75),  r - 5.0)
+            score += math.copysign(q * math.pow(math.copysign(r-5.0,  1),  1.75),  r - 5.0)
         calcs.append((d,  playDescs,  score))
     calcs.sort(lambda d1,  d2: -cmp(d1[2],  d2[2]))  
     result = []
@@ -1470,6 +1470,21 @@ class DesignerPlaysData:
         self.baseGames = []
         self.expansions = []
         self.games = []
+
+    def toMap(self):
+        result = {}
+        result["bggid"] = self.bggid
+        result["name"] = self.name
+        result["totalPlays"] = self.totalPlays
+        result["totalCount"] = self.totalCount
+        result["baseGamePlays"] = self.baseGamePlays
+        result["baseGameCount"] = self.baseGameCount
+        result["expansionPlays"] = self.expansionPlays
+        result["expansionCount"] = self.expansionCount
+        result["baseGames"] = self.baseGames
+        result["expansions"] = self.expansions
+        result["games"] = self.games
+        return result
         
 def getDimesByDesigner(context, year=None):
     import library, mydb

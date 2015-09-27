@@ -1,7 +1,5 @@
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import RequestContext
-from django.shortcuts import render_to_response
 import generate, imggen
+import django_webserver as webserver
 
 POGO_SELECTOR = "/owned/books/minus/\"Owned\""
 
@@ -67,7 +65,7 @@ class OptimisationContext(object):
         return self.byGeek[geek]
 
 def interpretRequest(request, param):
-    "look at the request and set up our context objects from it"
+    """look at the request and set up our context objects from it"""
     import library
     from imgviews import ImageSpecs
     ispec = ImageSpecs(request)
@@ -129,16 +127,16 @@ def interpretRequestAndParams(request, param):
     return context, fields[1:]
 
 def manageCollections(request, param):
-    import collections, library
+    import game_collections, library
     try:
         context = interpretRequest(request, param)
         username = context.geek
         colls = context.substrate.getCollections().values()[:]
         colls.sort(lambda c1, c2: cmp(c1.index, c2.index))
-        newIndex = collections.getNextCollectionIndex(context)
-        return render_to_response("stats/collections.html", locals())
+        newIndex = game_collections.getNextCollectionIndex(context)
+        return webserver.render("stats/collections.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def viewSelections(request, param):
     import features, library, generate
@@ -179,17 +177,17 @@ def viewSelections(request, param):
             visible = "Name,Rating,Plays"
         all.update({"tabs" : tabs, "contents" : contents, "tab" : tabs[index-1], "username" : context.geek,
                     "tabs" : tabs, "fragment" : fragment, "visibleColumns" : visible})
-        return render_to_response("stats/viewSelections.html", all)
+        return webserver.render("stats/viewSelections.html", all, request)
     except BadUrlException, mesg:
         import selectors
         context = interpretRequest(request, param.split("/")[0])
         all = { "mesg" : mesg, "selectors" : selectors.getSelectorData(context), "username" : context.geek }
-        return render_to_response("stats/selectionsDoc.html", all)
+        return webserver.render("stats/selectionsDoc.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def viewCollection(request, param):
-    import collections, features, selectors, generate, library
+    import game_collections, features, selectors, generate, library
     features = [ features.GenericTable, features.PogoTable ]
     all = {}
     try:
@@ -199,13 +197,13 @@ def viewCollection(request, param):
             index = int(fields[1])
             groupindex = int(fields[2])
         else:
-            return render_to_response("stats/badurl.html")
-        collection = collections.getCollectionForGeek(context, index, True)
+            return webserver.render("stats/badurl.html", {}, request)
+        collection = game_collections.getCollectionForGeek(context, index, True)
         groups = [ g for g in collection.groups if g.display ]
         group = collection.byGroup.get(groupindex)
         if group is None or not group.display:
             minIndex = min([g.index for g in groups ])
-            return HttpResponseRedirect("/dynamic/viewCollection/%s/%d/%d" % (context.geek, index, minIndex))
+            return webserver.redirect("/dynamic/viewCollection/%s/%d/%d" % (context.geek, index, minIndex))
         selector = selectors.CollectionSelector(index, groupindex)
         groups.sort(lambda g1, g2: cmp(g1.index, g2.index))
         contents = []
@@ -216,9 +214,9 @@ def viewCollection(request, param):
             ff = f(selector)
             all.update(ff.generate(context))
             contents.append(ff)
-        return render_to_response("stats/viewCollection.html", all)
+        return webserver.render("stats/viewCollection.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def editCollection(request, params):
     import selectors, library
@@ -229,25 +227,25 @@ def editCollection(request, params):
             index = int(fields[1])
             sels = selectors.getSelectorData(context)
             username = context.geek
-            return render_to_response("stats/editCollection.html", locals())
+            return webserver.render("stats/editCollection.html", locals(), request)
         else:
-            return render_to_response("stats/badurl.html")
+            return webserver.render("stats/badurl.html", {}, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def deleteCollection(request, params):
-    import collections, library
+    import game_collections, library
     try:
         fields = params.split("/")
         if len(fields) == 2:
             context = interpretRequest(request, fields[0])
             index = int(fields[1])
-            collections.deleteCollection(context, index)
-            return HttpResponseRedirect("/dynamic/collections/%s" % context.geek)
+            game_collections.deleteCollection(context, index)
+            return webserver.redirect("/dynamic/collections/%s" % context.geek)
         else:
-            return render_to_response("stats/badurl.html")
+            return webserver.render("stats/badurl.html", {}, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def saveManageCollection(request):
     def post(key, singleton=False):
@@ -255,35 +253,35 @@ def saveManageCollection(request):
         if v is not None and singleton and type(v) == type([]):
             v = v[0]
         return v
-    import simplejson, library, collections
+    import simplejson, library, game_collections
     try:
         geek = post("geek", True)
         username = library.checkGeek(geek, request)
         cindex = int(post("collection", True))
         model = post("model", True)
         model = simplejson.loads(model)
-        collections.saveCollectionFromJson(username, cindex, model)
+        game_collections.saveCollectionFromJson(username, cindex, model)
         data = { "success" : True }
-        return HttpResponse(simplejson.dumps(data), content_type="application/json")
+        return webserver.response(simplejson.dumps(data), content_type="application/json")
     except library.NoSuchGeekException:
         data = { "success" : False, "message" : "User not found" }
-        return HttpResponse(simplejson.dumps(data), content_type="application/json")
+        return webserver.response(simplejson.dumps(data), content_type="application/json")
 
 def ajaxSubmit(request):
-    import collections, simplejson
+    import game_collections, simplejson
     results = { 'success' : False }
-    form = collections.AjaxForm( request.GET )
+    form = game_collections.AjaxForm( request.GET )
     if form.is_valid():
         results['name'] = form.cleaned_data['input']
         results['success'] = True
-    return HttpResponse( simplejson.dumps( results ), mimetype='application/json' )
+    return webserver.response( simplejson.dumps( results ), mimetype='application/json' )
 
 def listOfGeeks(request):
     import dbaccess
     names = dbaccess.getAllGeekNames()
     names.sort(lambda a,b: cmp(a.lower(), b.lower()))
     title = "Users of Extended Stats"
-    return render_to_response("stats/list.html", { "title" : title, "items" : names })
+    return webserver.render("stats/list.html", { "title" : title, "items" : names }, request)
 
 def ipod(request, param):
     import selectors, library
@@ -294,9 +292,9 @@ def ipod(request, param):
         favourites = favourites[:50]
         shouldPlayOwn = generate.getShouldPlayOwnData(context)
         (pogo, pogoCollections) = generate.getPogoData(context, selectors.OwnedGamesSelector())
-        return render_to_response("stats/ipod_main.html", locals())
+        return webserver.render("stats/ipod_main.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/ipod_geek_error.html", locals())
+        return webserver.render("stats/ipod_geek_error.html", locals(), request)
 
 def selector(request, param):
     import library, simplejson
@@ -312,10 +310,10 @@ def selector(request, param):
             result.append(d)
     except library.NoSuchGeekException:
         pass
-    return HttpResponse(simplejson.dumps(result), content_type="application/json")
+    return webserver.response(simplejson.dumps(result), content_type="application/json")
 
 def collection(request, param):
-    import simplejson, collections, library
+    import simplejson, game_collections, library
     result = {}
     try:
         (context, params) = interpretRequestAndParams(request, param)
@@ -323,7 +321,7 @@ def collection(request, param):
         try:
             c = context.substrate.getCollection(cindex)
         except KeyError:
-            c = collections.makeNewCollection(context, cindex)
+            c = game_collections.makeNewCollection(context, cindex)
         result = { "name" : c.name, "description" : c.description, "index" : c.index }
         groups = []
         for g in c.groups:
@@ -336,7 +334,7 @@ def collection(request, param):
         result["groups"] = groups
     except library.NoSuchGeekException:
         pass
-    return HttpResponse(simplejson.dumps(result), content_type="application/json")
+    return webserver.response(simplejson.dumps(result), content_type="application/json")
 
 def whatif(request, param):
     import library
@@ -344,9 +342,9 @@ def whatif(request, param):
         context = interpretRequest(request, param)
         games = generate.getWhatIfData(context)
         username = context.geek
-        return render_to_response("stats/whatif.html", locals())
+        return webserver.render("stats/whatif.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def locations(request, param):
     import library
@@ -354,9 +352,9 @@ def locations(request, param):
         context = interpretRequest(request, param)
         locations = generate.getPlayLocationsData(context)
         username = context.geek
-        return render_to_response("stats/locations_result.html", locals())
+        return webserver.render("stats/locations_result.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def playscsv(request, param):
     import library
@@ -364,9 +362,9 @@ def playscsv(request, param):
         context = interpretRequest(request, param)
         plays = generate.getPlaysCSVData(context)
         username = context.geek
-        return render_to_response("stats/plays.csv", locals(), mimetype="text/csv")
+        return webserver.render("stats/plays.csv", locals(), request, mimetype="text/csv")
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def updates(request, param):
     import library, dbaccess
@@ -374,9 +372,9 @@ def updates(request, param):
         context = interpretRequest(request, param)
         updates = dbaccess.getFilesForGeek(context.geek)
         updates.sort(lambda f1, f2: -cmp(f1.description, f2.description))
-        return render_to_response("stats/updates.html", {"username" : context.geek, "updates" : updates}, context_instance=RequestContext(request))
+        return webserver.render("stats/updates.html", {"username" : context.geek, "updates" : updates}, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -392,30 +390,30 @@ def refresh(request, param):
     vals.update(csrf(request))
     l = len(param)
     if param is None or len(param) > 190 or "'" in param:
-        return render_to_response("stats/refresh.html", vals, context_instance=RequestContext(request))
+        return webserver.render("stats/refresh.html", vals, request)
     param = urllib2.unquote(param)
     sql = "update files set lastUpdate = null where url = %s"
     result = mydb.update(sql, [param])
-    return render_to_response("stats/refresh.html", vals, context_instance=RequestContext(request))
+    return webserver.render("stats/refresh.html", vals, request)
 
 def quickRefresh(request, param):
     if len(param) > 32 or "'" in param:
-        return render_to_response("stats/refresh.html", locals())
+        return webserver.render("stats/refresh.html", locals(), request)
     import mydb
     sql = "update files set lastUpdate = null where geek = %s and char_length(tillNextUpdate) <= 8"
     with open("/tmp/url.txt", "w") as f:
         f.write(param + "\n" + str(request))
     mydb.update(sql, [param])
-    return render_to_response("stats/refresh.html", locals(), context_instance=RequestContext(request))
+    return webserver.render("stats/refresh.html", locals(), request)
 
 def numplayers(request, param):
     import library
     try:
         context = interpretRequest(request, param)
         data = generate.getNumPlayersData(context)
-        return render_to_response("stats/numplayers.html", locals())
+        return webserver.render("stats/numplayers.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 
 class Link(object):
@@ -505,11 +503,11 @@ def gamesCalendar(request, param):
                 else:
                     day.tooltip = "\n".join(set(day.tooltip))
             months = splitMonths(months)
-            return render_to_response("stats/calendars.html", locals())
+            return webserver.render("stats/calendars.html", locals(), request)
         else:
-            return render_to_response("stats/badurl.html")
+            return webserver.render("stats/badurl.html", {}, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def plays(request, param):
     import library
@@ -543,22 +541,22 @@ def plays(request, param):
             if totals:
                 plays = generate.totalPlays(plays)
                 generate.addGeekData(context.geek, plays)
-                return render_to_response("stats/totalplays.html", locals())
+                return webserver.render("stats/totalplays.html", locals(), request)
             elif florence:
                 data = generate.florenceData(plays)
                 img = imggen.createFlorenceDiagram(context.geek, data)
                 return library.imageResponse(img)
             generate.addGeekData(context.geek, plays)
-            return render_to_response("stats/plays.html", locals())
+            return webserver.render("stats/plays.html", locals(), request)
         else:
-            return render_to_response("stats/badurl.html")
+            return webserver.render("stats/badurl.html", {}, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def meta(request):
     items = [("%s = %s" % (k, v)) for (k,v) in request.META.items()]
     title = "Meta-Information Sent with the HTTP Request"
-    return render_to_response("stats/list.html", locals())
+    return webserver.render("stats/list.html", locals(), request)
 
 def checklist(request, param):
     import library
@@ -566,9 +564,9 @@ def checklist(request, param):
         context = interpretRequest(request, param)
         rows = generate.getChecklistData(context)
         username = context.geek
-        return render_to_response("stats/checklist.html", locals())
+        return webserver.render("stats/checklist.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def crazy(request, param):
     import library
@@ -576,16 +574,16 @@ def crazy(request, param):
         context = interpretRequest(request, param)
         rows = generate.getCrazyRecommendationsData(context)
         username = context.geek
-        return render_to_response("stats/crazy.html", locals())
+        return webserver.render("stats/crazy.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def getBrowser(request):
     return str(request.META.get("HTTP_USER_AGENT"))
 
 def rankings(request, param):
     (categories, mechanics, title, data) = generate.getTopRankedData(param)
-    return render_to_response("stats/rankings.html", locals())
+    return webserver.render("stats/rankings.html", locals(), request)
 
 def playrate(request, param):
     import library
@@ -595,13 +593,13 @@ def playrate(request, param):
         data = generate.getPlayRateData(context, selector)
         (img, imap) = imggen.createPlayRateGraph(context, data)
         all =  {"username" : context.geek, "prdata" : features.imageBinaryData(img), "prmap": imap, "selector" : selector }
-        return render_to_response("stats/playrate_result.html", all)
+        return webserver.render("stats/playrate_result.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def normrankings(request, param):
     (categories, mechanics, title, data) = generate.getNormRankedData(param)
-    return render_to_response("stats/normrankings.html", locals())
+    return webserver.render("stats/normrankings.html", locals(), request)
 
 def generic(request, param):
     import features, library
@@ -611,9 +609,9 @@ def generic(request, param):
         all = feature.generate(context)
         visible = "Name,Rating,Plays"
         all.update({ "username" : context.geek, "visibleColumns" : visible, "title" : selector.name, "url" : "/dynamic/generic" })
-        return render_to_response("stats/generic_result.html", all)
+        return webserver.render("stats/generic_result.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def gini(request, param):
     import features, library
@@ -622,9 +620,9 @@ def gini(request, param):
         feature = features.GiniTable(selector)
         all = feature.generate(context)
         all.update({"username" : context.geek})
-        return render_to_response("stats/gini_result.html", all)
+        return webserver.render("stats/gini_result.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def favourites(request, param):
     import features, library
@@ -634,9 +632,9 @@ def favourites(request, param):
         all = feature.generate(context)
         visible = "Name,Rating,Plays,BGG Ranking,BGG Rating,First Played,Last Played,Months Played,Hours Played,FHM,HHM,R!UHM,Year Published"
         all.update({ "visibleColumns" : visible, "games" : all["favourites"], "username" : context.geek, "url" : "/dynamic/favourites" })
-        return render_to_response("stats/favourites_result.html", all)
+        return webserver.render("stats/favourites_result.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def favourites2(request, param):
     import library
@@ -646,45 +644,45 @@ def favourites2(request, param):
         bggCorrelation = generate.calcCorrelation(favourites)
         bggCorrelationRankedOnly = generate.calcCorrelationRankedOnly(favourites)
         hindex = generate.calcHIndex(favourites)
-        return render_to_response("stats/favourites2_result.html", locals())
+        return webserver.render("stats/favourites2_result.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def unusual(request, param):
     import library
     try:
         context = interpretRequest(request, param)
         unusual = generate.getUnusualData(context)
-        return render_to_response("stats/unusual_result.html", locals())
+        return webserver.render("stats/unusual_result.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def multiyear(request, param):
     import generate, library
     try:
         context = interpretRequest(request, param)
         (multiyear, myyears) = generate.getMultiYearData(context)
-        return render_to_response("stats/multiyear_result.html", locals())
+        return webserver.render("stats/multiyear_result.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def sgoyt(request, param):
     import generate
     geeklist = int(param)
     data = generate.sgoyt(param)
-    return render_to_response("stats/sgoyt.html", locals())
+    return webserver.render("stats/sgoyt.html", locals(), request)
 
 def playLogging(request, param):
     import generate, library
     try:
         context = interpretRequest(request, param)
         (players, locations) = generate.getPlayLoggingData(context)
-        return render_to_response("stats/playlogging_result.html", locals())
+        return webserver.render("stats/playlogging_result.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def server(request, param):
-    return render_to_response("stats/server.html", locals())
+    return webserver.render("stats/server.html", locals(), request)
 
 def recordProfileView(username):
     import mydb, datetime, library
@@ -708,9 +706,9 @@ def comparativeYears(request, param):
         username = context.geek
         florence = imggen.getFlorenceSettings()
         playsYears = generate.getPlaysRecordedYears(context)
-        return render_to_response("stats/yearcomparison.html", locals())
+        return webserver.render("stats/yearcomparison.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def dimesByDesigner(request, param):
     import features, library
@@ -718,9 +716,9 @@ def dimesByDesigner(request, param):
         context = interpretRequest(request, param)
         feature = features.DimesByDesigner()
         all = feature.generate(context)
-        return render_to_response(feature.resultFile, all)
+        return webserver.render(feature.resultFile, all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def tabbed(request,  param):
     import generate, features, selectors, library
@@ -792,9 +790,9 @@ def tabbed(request,  param):
             runFeatures([features.FeatureList()], all, context)
         recordProfileView(context.geek)
         all.update({"username" : context.geek, "tab" : tab })
-        return render_to_response("stats/result_tabbed.html", all, context_instance=RequestContext(request))
+        return webserver.render("stats/result_tabbed.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def runFeatures(fs, all, context):
     firstpass = [(f, f.generate(context)) for f in fs]
@@ -817,9 +815,9 @@ def featureList(request, param):
         all = {}
         all.update({"username" : context.geek })
         runFeatures([features.FeatureList()], all, context)
-        return render_to_response("stats/featurelist_result.html", all, context_instance=RequestContext(request))
+        return webserver.render("stats/featurelist_result.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def result(request, param):
     import features, selectors, library
@@ -842,9 +840,9 @@ def result(request, param):
         all.update(locals())
         all["selectors"] = selectors.getSelectorData(context)
         recordProfileView(context.geek)
-        return render_to_response("stats/result.html", all, context_instance=RequestContext(request))
+        return webserver.render("stats/result.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def consistency(request, param):
     import selectors, features, library
@@ -858,15 +856,15 @@ def consistency(request, param):
             else:
                 selector = selectors.getSelectorFromFields(["played"])
         else:
-            return render_to_response("stats/badurl.html")
+            return webserver.render("stats/badurl.html", {}, request)
         if months <= 0:
             months = 96
         f = features.Consistency(selector, months)
         all = { "username" : context.geek }
         runFeatures([f], all, context)
-        return render_to_response("stats/consistency_result.html", all)
+        return webserver.render("stats/consistency_result.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def choose(request, param):
     import features, library
@@ -886,9 +884,9 @@ def choose(request, param):
                     contents.append(featuresByKey[ff])
         all = { "username" : context.geek }
         runFeatures(contents, all, context)
-        return render_to_response("stats/choose.html", all)
+        return webserver.render("stats/choose.html", all, request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def json(request, param):
     import features, simplejson, library
@@ -910,10 +908,10 @@ def json(request, param):
         runFeatures(contents, all, context)
         all["success"] = True
         j = simplejson.dumps(all, default=library.jsonEncode)
-        return HttpResponse(j, content_type="application/json")
+        return webserver.response(j, content_type="application/json")
     except library.NoSuchGeekException:
         data = { "success" : False, "message" : "User not found" }
-        return HttpResponse(simplejson.dumps(data), content_type="application/json")
+        return webserver.response(simplejson.dumps(data), content_type="application/json")
 
 def year(request, param):
     import library
@@ -923,7 +921,7 @@ def year(request, param):
             context = interpretRequest(request, fields[0])
             year = int(fields[1])
         else:
-            return render_to_response("stats/badurl.html")
+            return webserver.render("stats/badurl.html", {}, request)
         username = context.geek
         florence = imggen.getFlorenceSettings()
         florenceDefault = str(year)
@@ -933,17 +931,17 @@ def year(request, param):
         designerDimes = generate.getDimesByDesigner(context, year)
         ndd = generate.getNickelAndDime(context, year)
         playedLastYear = generate.getPlayedLastYearNotThis(context, year)
-        return render_to_response("stats/year.html", locals())
+        return webserver.render("stats/year.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def frontPage(request):
     playsData = generate.getFrontPagePlaysData()
-    return render_to_response("stats/front_page.html", locals())
+    return webserver.render("stats/front_page.html", locals(), request)
 
 def australiaFrontPage(request):
     playsData = generate.getAustraliaFrontPagePlaysData()
-    return render_to_response("stats/front_page.html", locals())
+    return webserver.render("stats/front_page.html", locals(), request)
 
 def splitIntoRows(objects, n):
     result = []
@@ -960,9 +958,9 @@ def categoryGraphs(request, param):
         mecsToGraph = splitIntoRows(generate.getMechanicsToGraph(context), 4)
         dessToGraph = splitIntoRows(generate.getDesignersToGraph(context), 4)
         pubsToGraph = splitIntoRows(generate.getPublishersToGraph(context), 4)
-        return render_to_response("stats/catgraphs.html", locals())
+        return webserver.render("stats/catgraphs.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def series(request, param):
     import library
@@ -970,9 +968,9 @@ def series(request, param):
         context = interpretRequest(request, param)
         series = generate.getSeriesData(context)
         username = context.geek
-        return render_to_response("stats/series.html", locals())
+        return webserver.render("stats/series.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 GRAPH_METHODS = { "category" : generate.getCategoriesToGraph,
                   "mechanic" : generate.getMechanicsToGraph,
@@ -988,25 +986,25 @@ def category(request, param):
             username = context.geek
             typ = fields[1]
             if typ not in GRAPH_METHODS.keys():
-                return render_to_response("stats/badurl.html")
+                return webserver.render("stats/badurl.html", {}, request)
         else:
-            return render_to_response("stats/badurl.html")
+            return webserver.render("stats/badurl.html", {}, request)
         rows = generate.getCatMecData(context, typ)
         toGraph = splitIntoRows(GRAPH_METHODS[typ](context), 4)
-        return render_to_response("stats/cat_%s.html" % typ, locals())
+        return webserver.render("stats/cat_%s.html" % typ, locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())
+        return webserver.render("stats/geek_error.html", locals(), request)
 
 def trade(request, param):
     import library
     try:
         fields = param.split("/")
         if len(fields) != 1:
-            return render_to_response("stats/badurl.html")
+            return webserver.render("stats/badurl.html", {}, request)
         context = interpretRequest(request, fields[0])
         username = context.geek
         (country, geeks, games, mostWanted, leastWanted) = generate.getTradeData(context)
         username = context.geek
-        return render_to_response("stats/trade.html", locals())
+        return webserver.render("stats/trade.html", locals(), request)
     except library.NoSuchGeekException:
-        return render_to_response("stats/geek_error.html", locals())        
+        return webserver.render("stats/geek_error.html", locals(), request)

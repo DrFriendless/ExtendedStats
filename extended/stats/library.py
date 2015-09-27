@@ -726,14 +726,11 @@ def jsonEncode(obj):
         return str(obj)
     elif isinstance(obj, Thing):
         return obj.__dict__
-    elif isinstance(obj, period.Period) or isinstance(obj, generate.MPTData):
+    elif isinstance(obj, period.Period) or isinstance(obj, generate.MPTData) or \
+            isinstance(obj, plays.Play) or isinstance(obj, generate.DesignerPlaysData):
         return obj.toMap()
-    elif isinstance(obj, generate.DesignerPlaysData):
-        return obj.__dict__
     elif isinstance(obj, set):
         return list(obj)
-    elif isinstance(obj, plays.Play):
-        return obj.toMap()
     raise TypeError(obj.__class__.__name__)
 
 class BestFit(object):

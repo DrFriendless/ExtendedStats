@@ -96,9 +96,9 @@ class Substrate:
         return geekgames   
        
     def getCollections(self):
-        import collections
+        import game_collections
         if self.colls is None:
-            cs = collections.getAllCollectionsForGeek(self.context, True)
+            cs = game_collections.getAllCollectionsForGeek(self.context, True)
             self.colls = {}
             for c in cs:
                 self.colls[c.index] = c
