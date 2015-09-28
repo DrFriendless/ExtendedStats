@@ -1,16 +1,21 @@
-import sitedata
+TESTING = False
 
 def get():
-    import MySQLdb
-    db = MySQLdb.connect(host=sitedata.dbhost, user=sitedata.dbuser , passwd=sitedata.password, db=sitedata.dbname)
-    db.autocommit = True
-    db.set_character_set('utf8')
-    dbc = db.cursor()
-    dbc.execute('SET NAMES utf8;')
-    dbc.execute('SET CHARACTER SET utf8;')
-    dbc.execute('SET character_set_connection=utf8;')
-    dbc.close()
-    db.optimised = False
+    import sitedata
+    if TESTING:
+        import sqlite3
+        db = sqlite3.connect(":memory:")
+    else:
+        import MySQLdb
+        db = MySQLdb.connect(host=sitedata.dbhost, user=sitedata.dbuser , passwd=sitedata.password, db=sitedata.dbname)
+        db.autocommit = True
+        db.set_character_set('utf8')
+        dbc = db.cursor()
+        dbc.execute('SET NAMES utf8;')
+        dbc.execute('SET CHARACTER SET utf8;')
+        dbc.execute('SET character_set_connection=utf8;')
+        dbc.close()
+        db.optimised = False
     return db
 
 def query(sql, args=None):
@@ -21,18 +26,6 @@ def query(sql, args=None):
     dbc.close()
     db.close()
     return result
-    
-def queryDb(sql, args=None):
-    dbc = db.cursor()
-    dbc.execute(sql, args)
-    result = dbc.fetchall()
-    dbc.close()
-    return result
-    
-def getRow(table):
-    db = get()
-    import library
-    return library.Row(db, table)
     
 def update(sql, args=None):
     db = get()

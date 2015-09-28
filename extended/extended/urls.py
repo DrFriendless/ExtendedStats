@@ -1,11 +1,12 @@
-from stats import imgviews, views, cookies
-from django.conf.urls import patterns, url, include
+from django.conf.urls import patterns
+from stats import views, cookies, imgviews
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^consistency/(.*)', views.consistency),
     (r'^sgoyt/(.*)', views.sgoyt),
     (r'^playlogging/(.*)', views.playLogging),
     (r'^dimesbydesigner/(.*)', views.dimesByDesigner),
@@ -20,6 +21,8 @@ urlpatterns = patterns('',
     (r'^submit/$', views.ajaxSubmit),
     (r'^calendar/(.*)', views.gamesCalendar),
     (r'^choose/(.*)', views.choose),
+    (r'^gini/(.*)', views.gini),
+    (r'^json/(.*)', views.json),
     (r'^features/(.*)', views.featureList),
     (r'^locations/(.*)', views.locations),
     (r'^ipod/(.*)', views.ipod),
@@ -46,8 +49,7 @@ urlpatterns = patterns('',
     (r'^catgraphs/(.*)', views.categoryGraphs),
     (r'^year/(.*)', views.year),
     (r'^server/(.*)', views.server),
-    (r'^badge/(.*)', imgviews.badge),
-    (r'^checklist/(.*)', views.checklist),    
+    (r'^checklist/(.*)', views.checklist),
     (r'^crazy/(.*)', views.crazy),
     (r'^meta/$', views.meta),
     (r'^numplayers/(.*)', views.numplayers),
@@ -57,7 +59,9 @@ urlpatterns = patterns('',
     (r'^image/lag/(.*)', imgviews.lagHistogram),    
     (r'^image/newPlays/(.*)', imgviews.newPlays),    
     (r'^image/fpvr/(.*)', imgviews.firstPlayVsRating),    
-    (r'^image/rbpy/(.*)', imgviews.ratingByPublishedYear),    
+    (r'^image/mpct/(.*)', imgviews.mostPlayedCumulativeTimeline),
+    (r'^image/rbpy/(.*)', imgviews.ratingByPublishedYear),
+    (r'^image/rbpyu/(.*)', imgviews.ratingByPublishedYearUpsideDown),
     (r'^image/pogo/(.*)', imgviews.pogo),
     (r'^image/pbm/(.*)', imgviews.pbmGraph),
     (r'^image/pbq/(.*)', imgviews.playsByQuarter),

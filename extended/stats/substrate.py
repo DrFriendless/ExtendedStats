@@ -6,7 +6,7 @@ def optionKey(options):
     return "%s%s" % (str(options.excludeTrades), str(options.excludeExpansions))
 
 class Substrate:
-    "A wrapper around a geek to provide lookups common to the entire app."
+    """A wrapper around a geek to provide lookups common to the entire app."""
     
     def __init__(self, geek, context):
         self.geek = geek
@@ -20,7 +20,7 @@ class Substrate:
         self.series = None
         
     def getGames(self, ids):
-        "returns Game objects from the cache"
+        """returns Game objects from the cache"""
         otherIds = []
         result = {}
         for id in ids:
@@ -32,7 +32,6 @@ class Substrate:
         self.detailedGames.update(moreGames)
         result.update(moreGames)
         if len(moreGames) < len(otherIds):
-            # 1/0
             pass
         return result  
   
@@ -45,14 +44,14 @@ class Substrate:
         return [ gg for gg in all if gg.game.bggid in ids ]
         
     def __processGeekGames(self, geekgames):
-        import dynlib, math
+        import library
         self.addPlaysDataToGeekGames(geekgames)
         for gg in geekgames:
-            gg.utilisation = int(dynlib.cdf(gg.plays, LAMBDA) * 1000.0) / 10.0  
+            gg.utilisation = int(library.cdf(gg.plays, LAMBDA) * 1000.0) / 10.0
         
     def getTheseGeekGames(self, games):
-        "returns GeekGame objects whether the user has a record for them or not"
-        import library, models
+        """returns GeekGame objects whether the user has a record for them or not"""
+        import library
         opts = library.Thing()
         opts.excludeExpansions = False
         opts.excludeTrades = False
@@ -69,16 +68,16 @@ class Substrate:
         return result
                 
     def getAllGeekGamesWithOptions(self,  options):         
-        "returns GeekGame objects"
-        import models, mydb
+        """returns GeekGame objects"""
+        import mydb, dbaccess
         key = optionKey(options)
         if self.collections.get(key) is not None:
             return self.collections[key]
-        geekgames = models.GeekGames.objects.getObjects(geek=self.geek)
+        geekgames = dbaccess.getGeekGamesForGeek(self.geek)
         sql = "select distinct game from plays where geek = %s and game not in (select distinct game from geekgames where geek = %s)"
         playedData = [ d[0] for d in mydb.query(sql, [self.geek, self.geek]) ]
         playedGames = getGames(playedData)
-        for bggid in playedGames:
+        for bggid in playedGames.keys():
             gg = createEmptyGeekGame(playedGames[bggid])
             gg.game = bggid
             geekgames.append(gg)
@@ -90,16 +89,16 @@ class Substrate:
         games = self.getGames([ gg.game for gg in geekgames ])
         games.update(playedGames)
         for gg in geekgames:
-            gg.game = games.get(gg.game)      
+            gg.game = games[gg.game]
         if options.excludeExpansions:
             geekgames = [ gg for gg in geekgames if not gg.game.expansion ]
         self.collections[key] = geekgames
         return geekgames   
        
     def getCollections(self):
-        import collections
+        import game_collections
         if self.colls is None:
-            cs = collections.getAllCollectionsForGeek(self.context, True)
+            cs = game_collections.getAllCollectionsForGeek(self.context, True)
             self.colls = {}
             for c in cs:
                 self.colls[c.index] = c
@@ -174,9 +173,9 @@ class Substrate:
         return [ d for d in data if d.plays > 0 ]
    
     def __getAllPlays(self):
-        import models
+        import dbaccess
         if self.allPlays is None:
-            (columns, plays) = models.Plays.objects.filter(cols = ["game", "playDate", "quantity", "raters", "ratingsTotal"], geek=self.geek, playdate = (None, None))     
+            plays = dbaccess.getPlays(self.geek, None, None)
             self.allPlays = self.__reconstructPlays(plays)   
         return self.allPlays
         
@@ -185,16 +184,16 @@ class Substrate:
         if startDate is not None or endDate is not None:
             # dateless plays can never match any criteria with a date
             result = [ p for p in result if p.dt is not None ]
-        return ([ p for p in result if (startDate is None or p.dt >= startDate) and (endDate is None or p.dt <= endDate) ], messages)
+        return [ p for p in result if (startDate is None or p.dt >= startDate) and (endDate is None or p.dt <= endDate) ], messages
       
     def getPlaysForDescribedRange(self, fields):
-        import dynlib
-        (year, month, day, args, startDate, endDate) = dynlib.getDateRangeForDescribedRange(fields)
+        import library
+        (year, month, day, args, startDate, endDate) = library.getDateRangeForDescribedRange(fields)
         (plays,  messages) = self.filterPlays(startDate, endDate)
-        return (plays, messages, year, month, day, args)         
+        return plays, messages, year, month, day, args
       
     def addPlaysDataToGeekGames(self, geekgames):
-        import dynlib, library
+        import library
         plays = self.getPlaysForDescribedRange([])[0]
         byGame = {}
         for p in plays:
@@ -216,10 +215,8 @@ class Substrate:
                 playCount = 0
                 first = None
                 last = None
-                monthCount = 0
                 playsByMonth = library.Counts()
                 for play in data:
-                    d = play.__dict__
                     playCount = playCount + play.count
                     if ((first is None) or (play.date < first)) and not play.date.endswith("00"):
                         first = play.date
@@ -229,11 +226,11 @@ class Substrate:
                     playsByMonth.add(playDateMonth, play.count)
                 monthCount = len(playsByMonth)
                 try:
-                    firstPlay = dynlib.parseYYYYMMDD(first)
+                    firstPlay = library.parseYYYYMMDD(first)
                 except ValueError:
                     firstPlay = None
                 try:
-                    lastPlay = dynlib.parseYYYYMMDD(last)
+                    lastPlay = library.parseYYYYMMDD(last)
                 except ValueError:
                     lastPlay = None
                 (gg.plays, gg.firstPlay, gg.lastPlay, gg.monthsPlayed, gg.pbm) = (playCount, firstPlay, lastPlay, monthCount, playsByMonth)
@@ -242,8 +239,8 @@ class Substrate:
         import plays
         ids = []
         for p in playsData:
-            if p[0] not in ids:
-                ids.append(p[0])
+            if p.game not in ids:
+                ids.append(p.game)
         games = self.getGames(ids)
         moreGames = []
         for g in games.values():
@@ -255,20 +252,20 @@ class Substrate:
         for (id,  g) in mgames.items():
             games[id] = g
         result = []
-        for (id, ts, q, r, t) in playsData:       
-            game = games[id]        
-            result.append(plays.Play(game, [], ts, q, r, t,  ""))
+        for p in playsData:
+            game = games[p.game]
+            result.append(plays.Play(game, [], p.playDate, p.quantity, p.raters, p.ratingsTotal, p.location))
         (result, messages) = _inferExtraPlays(games, result)
         processPlays(result)
         result.sort()
-        return (result,  messages)
+        return result,  messages
         
     def getAllSeries(self):
-        import models, library
+        import mydb, library
         if self.series is not None:
             return self.series
         sql = "select name, game from series"
-        data = models.Plays.objects.query(sql, [])
+        data = mydb.query(sql, [])
         self.series = library.DictOfSets()
         games = []
         for (name, bggid) in data:
@@ -289,11 +286,12 @@ def processPlays(plays):
         p.expansionNames = ", ".join([e.name for e in p.expansions])
         
 def getGames(ids):
-    import library, dynlib, models
+    """ Returns map from long to Game objects from the database. """
+    import library, mydb, models, dbaccess
     if len(ids) == 0:
         return {}
     ids = library.uniq(ids)
-    games = models.Games.objects.in_bulk(ids)
+    games = dbaccess.getGames(ids)
     mechanics = library.DictOfSets()
     categories = library.DictOfSets()
     publishers = library.DictOfSets()
@@ -302,13 +300,13 @@ def getGames(ids):
         ds = models.GameDesigners.objects.filter(["gameId", "designerId"], gameId=ids)[1]
         dids = [ did for (gid, did) in ds ]
         if len(dids) > 0:
-            dess = models.Designers.objects.in_bulk(dids)
+            dess = dbaccess.getDesigners(dids)
             for (gid, did) in ds:
                 designers.add(gid, dess[did])
         ps = models.GamePublishers.objects.filter(["gameId", "publisherId"], gameId=ids)[1]
         pids = [ pid for (gid, pid) in ps ]
         if len(pids) > 0:
-            pubs = models.Publishers.objects.in_bulk(pids)
+            pubs = dbaccess.getPublishers(pids)
             for (gid, pid) in ps:
                 publishers.add(gid, pubs[pid])
         ms = models.GameMechanics.objects.filter(["gameId", "mechanic"], gameId=ids)[1]
@@ -318,14 +316,7 @@ def getGames(ids):
         cs = models.GameCategories.objects.filter(["gameId", "category"], gameId=ids)[1]
         for (i, c) in cs:
             categories.add(i, c)
-    sql = "select basegame, expansion from expansions where %s or %s" % (dynlib.inlist("basegame", ids), dynlib.inlist("expansion", ids))
-    expData = models.Plays.objects.query(sql, []) 
-    sql = "select ruletype, bggid from metadata"
-    ruleData = models.Plays.objects.query(sql, []) 
-    basegames = [ int(gameId) for (rule, gameId) in ruleData if rule == library.BASEGAME ]
-    # games which are marked wrongly as basegames in BGG!
-    expansions = [ int(gameId) for (rule, gameId) in ruleData if rule == library.EXPANSION ]
-    expData = [ (b,e) for (b,e) in expData if b not in expansions ]
+    (basegames, expData) = getMetadata()
     for g in games.values():
         g.basegames = []
         g.expansions = []
@@ -341,7 +332,24 @@ def getGames(ids):
         g.categories = categories[g.bggid]
         g.publishers = publishers[g.bggid]
         g.designers = designers[g.bggid]               
-    return games       
+    return games
+
+METADATA = None
+
+def getMetadata():
+    global METADATA
+    if METADATA is None:
+        import mydb, library
+        sql = "select ruletype, bggid from metadata"
+        ruleData = mydb.query(sql, [])
+        basegames = [ int(gameId) for (rule, gameId) in ruleData if rule == library.BASEGAME ]
+        # games which are marked wrongly as basegames in BGG!
+        expansions = [ int(gameId) for (rule, gameId) in ruleData if rule == library.EXPANSION ]
+        sql = "select basegame, expansion from expansions"
+        expData = mydb.query(sql, [])
+        expData = [ (b,e) for (b,e) in expData if b not in expansions ]
+        METADATA = basegames, expData
+    return METADATA
      
 def _inferExtraPlays(games, plays):
     import library
@@ -357,14 +365,14 @@ def _inferExtraPlays(games, plays):
         count = 0
         mms = []
         while True:
-	    mms = []
+            mms = []
             (rs, ms, changed) = _inferExtraPlaysForADate(games, datePs)
             mms = mms + ms
             if not changed:
                 break
-            count = count + 1
+            count += 1
             if count == 200:
-	        mms = mms + ["Got really confused"]
+                mms = mms + ["Got really confused"]
                 break
             datePs = rs
         result = result + rs
@@ -375,7 +383,7 @@ def __intersect(lista, listb):
     return len([a for a in lista if a in listb]) > 0
     
 def _inferExtraPlaysForADate(games, plays):
-    import dynlib
+    import library
     from plays import Play
     result = []
     messages = []
@@ -384,7 +392,7 @@ def _inferExtraPlaysForADate(games, plays):
             for bgplay in plays:
                 if play is bgplay:
                     continue
-		exids = [ x.bggid for x in bgplay.expansions ]
+                exids = [ x.bggid for x in bgplay.expansions ]
                 if (bgplay.game.bggid in play.game.basegames or __intersect(play.game.basegames, exids)) and play.game not in bgplay.expansions:
                     nq = min(play.count, bgplay.count)
                     play.count = play.count - nq
@@ -399,7 +407,7 @@ def _inferExtraPlaysForADate(games, plays):
                     orig = len(plays)
                     others = [ op for op in plays if op is not play and op is not bgplay ]
                     messages.append(u"%s %s expands %s %d + %d <= %d" % (unicode(play.date), play.game.name, bgplay.game.name, len(newps), len(others), orig))
-                    return (others + newps, messages, True)
+                    return others + newps, messages, True
             # no known basegame
             if len(play.game.basegames) == 1:
                 basegame = play.game.basegames[0]
@@ -411,16 +419,16 @@ def _inferExtraPlaysForADate(games, plays):
                 p = Play(games[basegame], [play.game] + play.expansions, play.date, play.count, play.raters, play.ratingsTotal,  "")
                 others = [ op for op in plays if op is not play ]
                 #messages.append(u"%s Inferred a play of %s from %s, %s\nothers = %s\nplays = %s" % (play.date, games[basegame].name, play.game.name, str(p.expansions), str(others), str(plays)))
-                return (others + [p], messages, True)
+                return others + [p], messages, True
             else:
-                messages.append("Can't figure out what %s expanded on %s: %s" % (play.game.name, play.date, dynlib.gameNames(play.game.basegames, games)))
+                messages.append("Can't figure out what %s expanded on %s: %s" % (play.game.name, play.date, library.gameNames(play.game.basegames, games)))
             messages.append("No idea about %s" % bgplay.game.name)
         result.append(play)
-    return (result, messages, False)    
+    return result, messages, False
 
 def createEmptyGeekGame(g):
     import library
-    gg = library.Thing()
+    gg = library.Thing("GeekGame")
     gg.rating = 0
     gg.game = g
     gg.owned = False

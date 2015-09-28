@@ -1,4 +1,4 @@
-import time, library, os, sitedata
+import time, library
 
 END_YEAR = time.localtime()[0]
 END_MONTH = time.localtime()[1]
@@ -6,7 +6,7 @@ NEW_PLAYED_URL = "http://boardgamegeek.com/xmlapi2/plays?username=%s&mindate=%d-
 DAY = library.DAY
 
 class Play:
-    def __init__(self, game, expansions, date, count, raters, totalRatings,  location):
+    def __init__(self, game, expansions, date, count, raters, totalRatings, location):
         import datetime
         self.game = game
         self.expansions = expansions
@@ -51,26 +51,16 @@ class Play:
             c = cmp(self.count, other.count)
         return c
 
+    def toMap(self):
+        return { "game" : self.game.name, "gameid" : self.game.bggid, "count" : self.count, "location" : self.location,
+                 "date" : str(self.date), "year" : self.year, "month" : self.month, "day" : self.day,
+                 "expansions" : [e.name for e in self.expansions], "expansionIds" : [e.bggid for e in self.expansions] }
+
     def allGames(self):
         return [ self.game ] + self.expansions
 
     def __hash__(self):
         return self.hashcode
-
-def createPlays(date, ps):
-    import geek
-    ps = [ (geek.getGame(id), q, r, t, loc, playerRecs) for (id, q, r, t,  loc, playerRecs) in ps ]
-    # filter out plays of games which don't exist
-    ps = [ p for p in ps if p[0] is not None ]
-    plays = []
-    recs = []
-    for (game, quantity, raters, ratingsTotal, location, playerRecs) in ps:
-        try:
-            plays.append(Play(game,  [],  date,  quantity,  raters,  ratingsTotal,  location))
-            recs = recs + playerRecs
-        except OverflowError:
-            print "BAD DATE in play: %s" % str(date)
-    return (plays, recs)
 
 def processPlaysFile(filename, recorded):
     import xml.dom.minidom
@@ -124,7 +114,7 @@ def getRatings(pe):
         r = float(pn.getAttribute("rating"))
         if r < 1 or r > 10:
             continue 
-        count = count + 1
-        total = total + r
+        count += 1
+        total += r
     return (count, int(total))
 

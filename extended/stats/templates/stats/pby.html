@@ -1,0 +1,14 @@
+{% if pbyData %}
+<div id="pby" class="section tablesection">
+<H1>Plays By Year</h1>
+
+<P>
+<table class="sortable shaded" id="pbytable"><thead>
+<tr><td>Year</td><td>Total Plays</td><td>Different Games</td><td>New Games</td><td>Hours Played</td><td>Days Played On</td><td>Nickels</td><td>Dimes</td><td>Quarters</td><td>Dollars</td></tr>
+</thead><tbody>
+{% for row in pbyData %}
+<td><A HREF="/dynamic/plays/{{username}}/{{row.year}}/totals">{{row.year}}</A></td><td>{{row.totalPlays}}</td><td>{{row.distinctGames}}</td><td>{{row.newGames}}</td><td>{{row.playHours}}</td><td>{{row.daysPlayedOn}}</td><td>{{row.nickels}}</td><td>{{row.dimes}}</td><td>{{row.quarters}}</td><td>{{row.dollars}}</td></tr>
+{% endfor %}
+</tbody></table>
+</div>
+{% endif %}

@@ -6,6 +6,9 @@ class CookieForm(forms.Form):
     username = forms.CharField(max_length=100,  label="BGG user name", required=False)
     width = forms.IntegerField(label = "Image width", required=False)
     height = forms.IntegerField(label = "Image height", required=False)
+    rbpyUpsideDown = forms.BooleanField(label="Show Ratings By Published Year Upside Down", required=False)
+    obpyUpsideDown = forms.BooleanField(label="Show Games Owned By Published Year Upside Down", required=False)
+    pbpyUpsideDown = forms.BooleanField(label="Show Plays of Games Owned By Published Year Upside Down", required=False)
     pogoExpansions = forms.BooleanField(label="Plays Of Games Owned: exclude expansions", required=False)
     pogoTrades = forms.BooleanField(label="Plays Of Games Owned: exclude items up for trade", required=False)
     faveExpansions = forms.BooleanField(label="Favourites: exclude expansions", required=False)
@@ -38,6 +41,15 @@ class CookieForm(forms.Form):
         height = self.cleaned_data['height']
         if height is not None:
             set_cookie(response, 'height', height)
+        rbpyUpsideDown = self.cleaned_data['rbpyUpsideDown']
+        if rbpyUpsideDown is not None:
+            set_cookie(response, 'rbpyUpsideDown', rbpyUpsideDown)
+        obpyUpsideDown = self.cleaned_data['obpyUpsideDown']
+        if obpyUpsideDown is not None:
+            set_cookie(response, 'obpyUpsideDown', obpyUpsideDown)
+        pbpyUpsideDown = self.cleaned_data['pbpyUpsideDown']
+        if pbpyUpsideDown is not None:
+            set_cookie(response, 'pbpyUpsideDown', pbpyUpsideDown)
         pogoExpansions = self.cleaned_data['pogoExpansions']
         if pogoExpansions is not None:
             set_cookie(response, 'pogoExpansions', pogoExpansions)

@@ -1,12 +1,17 @@
 <html>
 <head>
 {% include 'stats/pretitle.html' %}
-<title>Error</title>
+<title>Gini Coefficient Data for {{username}}</title>
 {% include 'stats/stylesheets.html' %}
 </head>
 <body>
 {% include 'stats/navbar.html' %}
-<P>
-That URL doesn't make any sense. 404, dude.
+<h1>Gini Coefficient Data</h1>
+
+<div id="contents">
+{% include 'stats/gini.html' %}
+</div>
+
 </body>
 </html>
+

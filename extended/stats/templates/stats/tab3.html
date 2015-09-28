@@ -1,0 +1,54 @@
+<div id="contents">
+What should you own? What should you not own?
+<P>
+<ul class="BulletList">
+{% if pogo %}
+<LI class="ThisPage"><A HREF="#pogo">Plays of Games Owned</A>
+{% endif %}
+<LI class="ThisPage"><A HREF="#pbpy">Plays of Games Owned By Published Year</A>
+{% if shouldPlay %}
+<LI class="ThisPage"><A HREF="#shouldplay">Games You Should Play Soon</A>
+{% endif %}
+{% if shouldPlayOwn %}
+<LI class="ThisPage"><A HREF="#shouldplayown">Games You Should Play Soon Which You Own</A>
+{% endif %}
+{% if least %}
+<LI class="ThisPage"><A HREF="#least">Why Do You Even Own These?</A>
+{% endif %}
+{% if unusual %}
+<li class="ThisPage"><A href="#unusual">The Most Unusual Games You Own</A> <A HREF="/dynamic/unusual/{{username}}"><img src="/images/eye.png" alt=""/> Full List</A>
+{% endif %}
+<LI class="OtherPage"><A HREF="/dynamic/checklist/{{username}}">Collection Checklist</A>
+<LI class="OtherPage"><A HREF="/dynamic/whatif/{{username}}">What If...</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=numplays&sortdir=desc&own=0&played=1">Most Played Games You Don't Own</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&own=0&rated=1">Favourite Games You Don't Own</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&minplays=1&maxplays=1&own=1">You Like It, You Own It, You've Only Played It Once</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?own=1&played=0">You Own It and You Haven't Played It</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?minplays=1&maxplays=1&own=1">You Own It and You've Only Played It Once</A>
+<LI class="External"><A HREF="http://bggtools.com/?u={{username}}&Selection=Collection">Rick Baptist's Collection Valuation</A>
+<LI class="External"><A HREF="http://lautapeliopas.fi/bgg/collection.php?user1={{username}}">Mikko Saari's BGG Collection Rarity</A>
+</ul>
+</div>
+
+{% if pogo %}
+{% include 'stats/pogo.html' %}
+{% include 'stats/pogotable.html' %}
+{% endif %}
+
+{% include 'stats/pbpy.html' %}
+
+{% if shouldPlay %}
+{% include 'stats/shouldplay.html' %}
+{% endif %}
+
+{% if shouldPlayOwn %}
+{% include 'stats/shouldplayown.html' %}
+{% endif %}
+
+{% if least %}
+{% include 'stats/least.html' %}
+{% endif %}
+
+{% if unusual %}
+{% include 'stats/unusual.html' %}
+{% endif %}

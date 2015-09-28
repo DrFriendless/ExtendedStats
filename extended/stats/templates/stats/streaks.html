@@ -1,0 +1,13 @@
+<div id="streaks" class="section tablesection">
+<H1>Most Consecutive Days Playing Games</h1>
+
+<P>
+<table class="sortable shaded" id="streakstable"><thead>
+<tr><td>Min Games Played</td><td>Start Date</td><td>End Date</td><td>Streak Length</td></tr></thead>
+<tbody>
+{% for streak in streaks %}
+<tr><td>{{streak.count}}</td><td>{{streak.start}}</td><td>{{streak.finish}}</td><td>{{streak.length}}</td></tr>
+{% endfor %}
+</tbody></table>
+</div>
+

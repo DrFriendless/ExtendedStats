@@ -17,7 +17,7 @@ At the moment, the only files which are not scheduled for updates are plays for 
 <div class="section">
 <table><thead><tr><td>URL</td><td>Last Updated</td><td>Next Update</td></tr></thead><tbody>
 {% for row in updates %}
-<TR><TD><A HREF="{{row.url}}">{{row.description}}</A></td><td>{{row.lastupdate}}</td><td>{{row.nextupdate}}</td><td>
+<TR><TD><A HREF="{{row.url}}">{{row.description}}</A></td><td>{{row.lastUpdate}}</td><td>{{row.nextUpdate}}</td><td>
 <form name="input" action="{% url "stats.views.refresh" row.url %}" method="post">
 {% csrf_token %}
 <input type="submit" value="Refresh" />

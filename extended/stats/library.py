@@ -8,19 +8,16 @@ def esc(s):
     return MySQLdb.escape_string(s)    
     
 class Thing:
-    def __init__(self):
-        pass
+    def __init__(self, name="Thing"):
+        self.name = name
         
     def __str__(self):
-        return "Thing[%s]" % str(self.__dict__)
+        # return "%s[%s]" % (self.name, str(self.__dict__))
+        return "%s[%s]" % (self.name, "")
 
     def __repr__(self):
-        return "Thing[%s]" % str(self.__dict__)
-
-def sort(l):
-    l = l[:]
-    l.sort()
-    return l
+        # return "%s[%s]" % (self.name, str(self.__dict__))
+        return "%s[%s]" % (self.name, "")
 
 def between(s, before, after):
     i = s.find(before)
@@ -57,8 +54,13 @@ LIGHTGREY = "#eeeeee"
 LIGHTGRAY = "#dddddd"
 LIGHTBLUE = "#add8e6"
 LIGHTSALMON = "#FFA07A"
+PURPLE = "#800080"
+MAGENTA = "#ff00ff"
+OLIVE = "#808000"
 
 SPECTRUM = [ PINK, RED, ORANGE, YELLOW, YELLOWGREEN, GREEN, BLUEGREEN, BLUE, INDIGO, VIOLET ]
+
+COLOURS = SPECTRUM + [ BLACK, CYAN, DARKGREEN, DARKBLUE, DARKRED, DARKGRAY, LIGHTBLUE, LIGHTSALMON, PURPLE, MAGENTA, OLIVE ]
 
 def newImage(w=800, h=600, yextra=0, marginProportion=20):
     from PIL import Image, ImageDraw
@@ -70,7 +72,7 @@ def newImage(w=800, h=600, yextra=0, marginProportion=20):
     xhi = img.size[0] - xlo
     draw.line([(xlo, ylo), (xlo, yhi)], BLACK)
     draw.line([(xlo, yhi), (xhi, yhi)], BLACK)
-    return (img, draw, xlo, xhi, ylo, yhi)
+    return img, draw, xlo, xhi, ylo, yhi
 
 import datetime
 TODAY = datetime.date.today()
@@ -92,12 +94,16 @@ def playsToColour(plays):
         return DARKGREEN
 
 def daysSince(d):
-    import datetime, time, sys
+    import datetime
     try:
-        fields = [ int(x) for x in d.split("-") ]
-        pd = datetime.date(fields[0], fields[1], fields[2])
+        if type(d) == type(""):
+            fields = [ int(x) for x in d.split("-") ]
+            pd = datetime.date(fields[0], fields[1], fields[2])
+        else:
+            pd = d
     except AttributeError:
-        print d, type(d)
+        print "daysSince AttributeError", d, type(d)
+        return -1
     except ValueError:
         print "COULD NOT PARSE <%s>" % d
         import traceback
@@ -226,7 +232,7 @@ class DictOfLists:
     def size(self):
         tot = 0
         for v in self.data.values():
-            tot = tot + len(v)
+            tot += len(v)
         return tot        
         
     def __repr__(self):
@@ -234,43 +240,6 @@ class DictOfLists:
         
     def __str__(self):
         return str(self.data)
-
-class Set:
-    def __init__(self):
-        self.data = []
-
-    def add(self, value):
-        if value not in self.data:
-            self.data.append(value)
-
-    def remove(self, value):
-        if value in self.data:
-            self.data.remove(value)
-
-    def __iter__(self):
-        return self.data.__iter__()
-
-    def __len__(self):
-        return len(self.data)
-
-    def size(self):
-        return len(self.data)
-
-    def __repr__(self):
-        return "{" + ", ".join([str(x) for x in self.data]) + "}"
-
-    def addAll(self, stuff):
-        for x in stuff:
-            self.add(x)
-          
-    def removeAll(self, stuff):
-        for x in stuff:
-            self.remove(x)
-          
-    def sort(self):
-        ret = self.data[:]
-        ret.sort()
-        return ret
 
 class DictOfCounts:
     def __init__(self):
@@ -281,7 +250,7 @@ class DictOfCounts:
             self.data[key] = {}
         if self.data[key].get(value) is None:
             self.data[key][value] = 0
-        self.data[key][value] = self.data[key][value] + count
+        self.data[key][value] += count
 
     def __getitem__(self, key):
         if self.data.get(key) is None:
@@ -320,7 +289,7 @@ class Counts:
     def add(self, key, count=1):
         if self.data.get(key) is None:
             self.data[key] = 0
-        self.data[key] = self.data[key] + count
+        self.data[key] += count
 
     def items(self):
         return self.data.items()[:]
@@ -357,6 +326,9 @@ class Counts:
         
     def __len__(self):
         return len(self.data)
+
+    def __repr__(self):
+        return str(self.data)
     
 class AnnotatedCounts(Counts):
     def __init__(self):
@@ -390,6 +362,19 @@ def beforeSlash(s):
         return s
     return s[:s.find("/")]
 
+def consecutiveDays(day1, day2):
+    return nextday(day1) == day2
+
+def parseDate(yyyydashmmdashdd):
+    import datetime
+    fields = yyyydashmmdashdd.split('-')
+    y = int(fields[0])
+    m = int(fields[1])
+    d = int(fields[2])
+    if y == 0 or m == 0 or d == 0:
+        return None
+    return datetime.date(y, m, d)
+
 def prevday(d):
     import datetime
     if d.day > 1:
@@ -398,9 +383,9 @@ def prevday(d):
     m = d.month
     if m == 1:
         m = 12
-        y = y - 1
+        y -= 1
     else:
-        m = m - 1
+        m -= 1
     for dd in [31, 30, 29, 28]:
         try:
             return datetime.date(y, m, dd)
@@ -531,7 +516,7 @@ def findBetween(pos, start, end, s):
     p2 = s.find(end, p1)
     if p2 < 0:
         raise ValueError()
-    p1 = p1 + len(start)
+    p1 += len(start)
     before = s[:p1]
     after = s[p2:]
     middle = s[p1:p2]
@@ -552,7 +537,7 @@ def findLinesBetween(lines, start, end):
     return result        
     
 def deleteFileIfBad(filename):    
-    "Return whether the file exists now or not."
+    """Return whether the file exists now or not."""
     import os
     if os.access(filename, os.R_OK):
         with open(filename) as f:
@@ -570,7 +555,7 @@ def deleteFileIfBad(filename):
         return True
     return False
 
-def downloadFile(url, filename, verbose=False):
+def downloadFile(url, filename):
     import subprocess, time
     try:
         t = time.time()
@@ -582,11 +567,211 @@ def downloadFile(url, filename, verbose=False):
         print "curl failed to get %s" % url
         return 0
             
-def getFile(url, filename, verbose=False):
+def getFile(url, filename):
     deleteFileIfBad(filename)
     print "Retrieving %s" % url
     url = url.replace(' ', '%20')
-    if not downloadFile(url, filename, verbose):
+    if not downloadFile(url, filename):
         return 0
     return 1
     
+def parsePlaysParams(fields):
+    year = None
+    month = None
+    day = None
+    args = []
+    stop = False
+    for field in fields:
+        if not stop and field == "stop":
+            stop = True
+        elif not stop and (year is None or month is None or day is None):
+            try:
+                n = int(field)
+                if n > 1000 and year is None:
+                    year = n
+                elif 0 < n < 13 and month is None:
+                    month = n
+                elif 0 < n < 32 and month is not None and day is None:
+                    day = n
+            except ValueError:
+                args.append(field)
+        else:
+            args.append(field)
+    return (year, month, day, args)
+
+def getDateRangeForDescribedRange(fields):
+    (year, month, day, args) = parsePlaysParams(fields)
+    (startDate, endDate) = makeDateRange(year, month, day)
+    if "lastyear" in args:
+        (startDate, endDate) = makeLastYearDateRange(endDate)
+    elif "lastmonth" in args:
+        (startDate, endDate) = makeLastMonthDateRange(endDate)
+    return year, month, day, args, startDate, endDate
+
+def checkGeek(param, request=None):
+    import dbaccess
+    username = unicode(param)
+    if not username and request is not None:
+        username = request.COOKIES.get("username")
+        if username is None:
+            username = ""
+    return dbaccess.checkGeek(username)
+
+def checkGeekGetSelector(param, request, default):
+    import selectors
+    if param is None:
+        username = None
+        fields = []
+    elif "/" not in param:
+        username = unicode(param)
+        fields = []
+    else:
+        fields = param.split("/")
+        username = unicode(fields[0])
+        fields = fields[1:]
+    username = checkGeek(username, request)
+    if len(fields) == 0:
+        fields = default.split("/")
+    selector = selectors.getSelectorFromFields(fields)
+    return username, selector
+
+def imageResponse(img):
+    from django.http import HttpResponse
+    response = HttpResponse(content_type='image/png')
+    img.save(response, "PNG")
+    return response
+
+def parseYYYYMMDD(dateStr):
+    if dateStr is None:
+        return None
+    import datetime
+    fields = dateStr.split("-")
+    return datetime.date(int(fields[0]), int(fields[1]), int(fields[2]))
+
+def inlist(lhs, rhs):
+    if len(rhs) == 1:
+        return "%s = %d" % (lhs, rhs[0])
+    else:
+        return "%s in (%s)" % (lhs, ",".join(map(str, rhs)))
+
+def strinlist(lhs, rhs):
+    if len(rhs) == 1:
+        return "%s = '%s'" % (lhs, rhs[0])
+    else:
+        rhs = [ "'%s'" % s for s in rhs ]
+        return "%s in (%s)" % (lhs, ",".join(rhs))
+
+def gameName(g1, g2):
+    import locale
+    locale.setlocale(locale.LC_COLLATE, "en_US.utf8")
+    return locale.strcoll(g1.name, g2.name)
+
+def gameNames(ids, byId):
+    strs = []
+    for id in ids:
+        if byId.get(id) is None:
+            strs.append(str(id))
+        else:
+            strs.append(byId[id].name)
+    return ",".join(strs)
+
+def makeDateRange(y, m, d):
+    import datetime, calendar
+    if y is None:
+        return (None, None)
+    elif m is None:
+        return (datetime.date(y, 1, 1), datetime.date(y, 12, 31))
+    elif d is None:
+        return (datetime.date(y, m, 1), datetime.date(y, m, calendar.monthrange(y,m)[1]))
+    else:
+        return (datetime.date(y, m, d), datetime.date(y, m, d))
+
+def makeLastYearDateRange(today):
+    import datetime, calendar
+    if today is None:
+        today = datetime.date.today()
+    day = today.day
+    if day > calendar.monthrange(today.year-1, today.month)[1]:
+        day = calendar.monthrange(today.year-1, today.month)[1]
+    start = datetime.date(today.year-1, today.month, day)
+    return (start, today)
+
+def makeLastMonthDateRange(today):
+    import datetime, calendar
+    if today is None:
+        today = datetime.date.today()
+    y = today.year
+    m = today.month - 1
+    if m == 0:
+        m = 12
+        y -= 1
+    day = today.day
+    if day > calendar.monthrange(today.year-1, today.month)[1]:
+        day = calendar.monthrange(today.year-1, today.month)[1]
+    start = datetime.date(y, m, day)
+    return start, today
+
+def mean(xs):
+    return sum(xs) * 1.0 / len(xs)
+
+
+def dbTime(dt):
+    """convert datetime.time to MYSQL time"""
+    import MySQLdb
+    return MySQLdb.Timestamp(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+
+def jsonEncode(obj):
+    import datetime, generate, plays, period
+    if isinstance(obj, datetime.date):
+        return str(obj)
+    elif isinstance(obj, Thing):
+        return obj.__dict__
+    elif isinstance(obj, period.Period) or isinstance(obj, generate.MPTData) or \
+            isinstance(obj, plays.Play) or isinstance(obj, generate.DesignerPlaysData):
+        return obj.toMap()
+    elif isinstance(obj, set):
+        return list(obj)
+    raise TypeError(obj.__class__.__name__)
+
+class BestFit(object):
+    def __init__(self):
+        self.sigmaxy = 0.0
+        self.sigmax = 0.0
+        self.sigmay = 0.0
+        self.sigmaxx = 0.0
+        self.n = 0
+        self.denom = None
+
+    def plot(self, x, y):
+        self.sigmaxx += x * x
+        self.sigmax += x
+        self.sigmay += y
+        self.sigmaxy += x * y
+        self.n += 1
+        self.denom = self.n * self.sigmaxx - self.sigmax * self.sigmax
+
+    def valid(self):
+        return self.denom is not None and self.denom != 0
+
+    def a(self):
+        return ((self.sigmay * self.sigmaxx) - (self.sigmax * self.sigmaxy)) / self.denom
+
+    def b(self):
+        return (self.n * self.sigmaxy - self.sigmax * self.sigmay) / self.denom
+
+    def line(self):
+        return self.a(), self.b()
+
+class NoSuchGeekException(Exception):
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "Geek '%s' does not exist" % self.name
+
+def calcHIndex(ns):
+    ns.sort(lambda n1,  n2: cmp(n2,  n1))
+    h = 0
+    while len(ns) > h and ns[h] > h:
+        h += 1
+    return h

@@ -1,12 +1,16 @@
 <html>
 <head>
 {% include 'stats/pretitle.html' %}
-<title>Error</title>
+<title>Consistency of Play for {{username}}</title>
 {% include 'stats/stylesheets.html' %}
 </head>
 <body>
 {% include 'stats/navbar.html' %}
-<P>
-That URL doesn't make any sense. 404, dude.
+
+<div id="contents">
+{% include 'stats/consistency.html' %}
+</div>
+
 </body>
 </html>
+

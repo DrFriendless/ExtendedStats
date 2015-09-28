@@ -1,0 +1,28 @@
+<div id="contents">
+What should you play?
+<P>
+<ul class="BulletList">
+{% if mostUnplayed %}
+<LI class="ThisPage"><A HREF="#mostunplayed">Most Played Games That You Haven't Played</A>
+{% endif %}
+<LI class="OtherPage"><A HREF="/dynamic/numplayers/{{username}}">Favourite Games for Numbers of Players</A>
+<LI class="OtherPage"><A HREF="/dynamic/crazy/{{username}}">Crazy Recommendations (slow)</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=numplays&sortdir=desc&own=0&played=1">Most Played Games You Don't Own</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&own=0&rated=1">Favourite Games You Don't Own</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?sort=rating&sortdir=desc&minplays=1&maxplays=1&own=1">You Like It, You Own It, You've Only Played It Once</A>
+<LI class="BGG"><A HREF="http://boardgamegeek.com/collection/user/{{username}}?own=1&played=0">You Own It and You Haven't Played It</A>
+<LI class="External">Brad Beattie's board game menus:
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=1">1 Player</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=2">2 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=3">3 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=4">4 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=5">5 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=6">6 Players</A>
+<A HREF="http://boardgamemenu.com/?include={{username}}&players=7">7 Players</A>
+</ul>
+</div>
+
+{% if mostUnplayed %}
+{% include 'stats/mostunplayed.html' %}
+{% endif %}
+

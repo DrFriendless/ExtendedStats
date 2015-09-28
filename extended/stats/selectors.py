@@ -87,6 +87,12 @@ def getSelectorFromString(s):
         fields = fields[1:]
     return getSelectorFromFields(fields)    
     
+def getSelectorsFromString(s):
+    fields = s.split("/")
+    if fields[0] == "":
+        fields = fields[1:]
+    return getSelectorsFromFields(fields)
+
 def getSelectorFromFields(fields):
     chain = parseSelectorChain(fields)
     stack = interpretChain(chain)
@@ -362,9 +368,9 @@ class CategorySelector(Selector):
         self.name = name
         
     def getGames(self, context, opts):
-        import models, substrate
+        import mydb, substrate
         sql = "select gameId from gameCategories where category = %s"
-        data = models.Plays.objects.query(sql, [self.cat])     
+        data = mydb.query(sql, [self.cat])
         data = [ d[0] for d in  data ]
         return context.substrate.getTheseGeekGames(substrate.getGames(data).values())
         
@@ -385,17 +391,16 @@ class MechanicSelector(Selector):
         self.name = name
         
     def getGames(self, context, opts):
-        import models, substrate
+        import mydb, substrate
         sql = "select gameId from gameMechanics where mechanic = %s"
-        data = models.Plays.objects.query(sql, [self.cat])     
+        data = mydb.query(sql, [self.cat])
         data = [ d[0] for d in  data ]
         return context.substrate.getTheseGeekGames(substrate.getGames(data).values())
         
 class ExpansionSelector(Selector):  
     key = "expansion"
     arity = 0
-    def __init__(self):    
-        import library
+    def __init__(self):
         Selector.__init__(self, "Expansions", ExpansionSelector.key)
         
     def getGames(self, context, opts):
@@ -407,8 +412,7 @@ GEEKLIST_URL = "http://boardgamegeek.com/xmlapi/geeklist/%d?comments=0"
 class GeeklistSelector(Selector):  
     key = "geeklist"
     arity = 1
-    def __init__(self, id):    
-        import library
+    def __init__(self, id):
         Selector.__init__(self, "Geeklist", GeeklistSelector.key)  
         self.id = int(id)      
         
@@ -438,8 +442,7 @@ class GeeklistSelector(Selector):
 class PlayedInYearSelector(Selector):  
     key = "piy"
     arity = 1
-    def __init__(self, year):    
-        import library
+    def __init__(self, year):
         self.year = int(year)
         if self.year == 0:
             import library
@@ -461,8 +464,7 @@ class PlayedInYearSelector(Selector):
 class FirstPlayedInYearSelector(Selector):  
     key = "fpiy"
     arity = 1
-    def __init__(self, year):    
-        import library
+    def __init__(self, year):
         self.year = int(year)
         if self.year == 0:
             import library
@@ -476,8 +478,7 @@ class FirstPlayedInYearSelector(Selector):
 class LastPlayedInYearSelector(Selector):  
     key = "lpiy"
     arity = 1
-    def __init__(self, year):    
-        import library
+    def __init__(self, year):
         self.year = int(year)
         if self.year == 0:
             import library
@@ -491,8 +492,7 @@ class LastPlayedInYearSelector(Selector):
 class PlayedInMonthSelector(Selector):  
     key = "pim"
     arity = 2
-    def __init__(self, year, month):    
-        import library
+    def __init__(self, year, month):
         self.year = int(year)
         self.month = int(month)        
         Selector.__init__(self, "Played in %d/%d" % (self.year, self.month), PlayedInMonthSelector.key)
@@ -649,8 +649,7 @@ class DupOperator(Operator):
     arity = 1
     key = "dup"
     
-    def __init__(self, offset):    
-        import library
+    def __init__(self, offset):
         self.offset = int(offset) 
     
     def operate(self, stack):
@@ -679,8 +678,7 @@ class MapOperator(Operator):
     arity = 1
     key = "map"
     
-    def __init__(self, op):    
-        import library
+    def __init__(self, op):
         self.op = OP_BY_KEY[op]()   
     
     def operate(self, stack):

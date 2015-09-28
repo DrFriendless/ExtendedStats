@@ -229,7 +229,7 @@ def processCollection(db, filename, geek, url):
     try:
         dom = xml.dom.minidom.parse(filename)
     except xml.parsers.expat.ExpatError, e:
-        logging.exception('')
+        logging.exception(str(e))
         return 0
     if len(dom.getElementsByTagName("items")) == 0:
         logging.warning("no items in %s" % filename)
@@ -241,7 +241,7 @@ def processCollection(db, filename, geek, url):
     return 1
 
 def addGamesFromFile(db, dom, geek):
-    import mydb
+    import downloaderdb, library
     owned = {}
     if len(dom.getElementsByTagName("items")) == 0:
         return 0
@@ -257,7 +257,7 @@ def addGamesFromFile(db, dom, geek):
         if owned.get(g) is not None:
             game = owned[g]
         else:
-            game = mydb.Row()
+            game = downloaderdb.Row()
             game.game = g
             game.owned = False
             game.prevowned = False
@@ -280,7 +280,7 @@ def addGamesFromFile(db, dom, geek):
             game.rating = -1.0
         comments = gameNode.getElementsByTagName("comment")
         if len(comments) > 0:
-            game.comment = getText(comments[0])
+            game.comment = library.getText(comments[0])
         else:
             game.comment = "&nbsp;"
         if len(game.comment) > 1024:
@@ -309,7 +309,7 @@ def addGamesFromFile(db, dom, geek):
                 tag = library.Row()
                 tag.geek = geek
                 tag.game = game.game
-                tag.tag = getText(tagNode).encode('utf8')
+                tag.tag = library.getText(tagNode).encode('utf8')
                 if tag.tag.startswith("own:"):
                     continue
                 db.saveRow(tag, "geekgametags", "geek = '%s' and game = %d" % (tag.geek, tag.game))
@@ -721,7 +721,7 @@ def ensureGame(db, game,  recurseCheck=[]):
         db.execute("insert into games (bggid) values (%d)" % game)
     basegames = getBaseGames(db, game)
     for g in basegames:
-        if g not in basegames:
+        if g not in recurseCheck:
             ensureGame(db, g,  recurseCheck + basegames + [game])
 
 def addGame(db, id):

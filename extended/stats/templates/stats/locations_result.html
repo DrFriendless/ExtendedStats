@@ -1,3 +1,17 @@
+<html>
+<head>
+{% include 'stats/pretitle.html' %}
+<title>Play Locations for {{username}}</title>
+{% include 'stats/stylesheets.html' %}
+
+</head>
+<body>
+{% include 'stats/geekwidget.html' %}
+{% include 'stats/navbar.html' %}
+<h1>Play Locations for {{username}}</h1>
+
+This page was Almecho's idea! The row colouring is way too complicated for me to figure out at the moment.
+
 <div id="locations" class="section tablesection">
 
 <table class="sortable shaded" id="playlocations">
@@ -25,4 +39,7 @@
 </table>
 
 </div>
+
+</body>
+</html>
 

@@ -1,3 +1,5 @@
+"""A feature is an encapsulation of a table / image / something that can be presented by itself on a page."""
+
 class Feature(object):
     def __init__(self, name, htmlFile, tag, title, contentsFile=None, cssClass="ThisPage"):
         self.name = name
@@ -19,7 +21,7 @@ class PogoTable(Feature):
         self.selector = selector
         
     def generate(self, context):
-        import generate, imggen
+        import generate
         (pogo, pogoCollections) = generate.getPogoData(context, self.selector)
         return { "pogo" : pogo }
 
@@ -45,40 +47,54 @@ class MorePie(Feature):
         Feature.__init__(self, "More Pie Charts", "stats/morepie.html", "morepie", "Mike Hulsebus-style Pie Chart")
         
     def generate(self, context):
-        import imggen
         morePieDefault = "lastyear"   
         return { "morePieDefault" : morePieDefault }
         
 class PlaysByPublishedYear(Feature):
-    def __init__(self):
-        Feature.__init__(self, "Pbpy", "stats/pbpy.html", "pbpy", "Plays of Games Owned by Published Year")
+    def __init__(self, upsideDown):
+        if upsideDown:
+            Feature.__init__(self, "Pbpyu", "stats/pbpy.html", "pbpyu", "Plays of Games Owned by Published Year Upside Down")
+        else:
+            Feature.__init__(self, "Pbpy", "stats/pbpy.html", "pbpy", "Plays of Games Owned by Published Year")
+        self.upsideDown = upsideDown
     
     def generate(self, context):
-        import imgviews        
-        (img, rbpymap) = imgviews.playsByPublishedYear(context)    
+        import imgviews
+        (img, rbpymap) = imgviews.playsByPublishedYear(context, self.upsideDown)
         return {"pbpydata" : imageBinaryData(img), "pbpymap" : rbpymap }
         
 class OwnedByPublishedYear(Feature):
-    def __init__(self):
-        Feature.__init__(self, "Obpy", "stats/obpy.html", "obpy", "Games Owned by Published Year")
+    def __init__(self, upsideDown):
+        if upsideDown:
+            Feature.__init__(self, "Obpyu", "stats/obpy.html", "obpyu", "Games Owned by Published Year Upside Down")
+        else:
+            Feature.__init__(self, "Obpy", "stats/obpy.html", "obpy", "Games Owned by Published Year")
+        self.upsideDown = upsideDown
         
     def generate(self, context):
-        import imgviews    
-        (img, obpymap) = imgviews.ownedByPublishedYear(context)    
+        import imgviews
+        (img, obpymap) = imgviews.ownedByPublishedYear(context, self.upsideDown)
         return { "obpydata" : imageBinaryData(img), "obpymap" : obpymap }
         
 class RatingByPublishedYear(Feature):        
-    def __init__(self):
-        Feature.__init__(self, "Rbpy", "stats/rbpy.html", "rbpy", "Ratings by Published Year")
+    def __init__(self, upsideDown):
+        if upsideDown:
+            Feature.__init__(self, "Rbpyu", "stats/rbpy.html", "rbpyu", "Ratings by Published Year Upside Down")
+        else:
+            Feature.__init__(self, "Rbpy", "stats/rbpy.html", "rbpy", "Ratings by Published Year")
+        self.upsideDown = upsideDown
         
     def generate(self, context):
-        import imgviews       
-        (img, rbpymap) = imgviews.ratingByPublishedYear(context)     
+        import imgviews
+        if self.upsideDown:
+            (img, rbpymap) = imgviews.ratingByPublishedYearUpsideDown(context)
+        else:
+            (img, rbpymap) = imgviews.ratingByPublishedYear(context)
         if len(rbpymap) == 0:
             return None
         return { "rbpydata" : imageBinaryData(img), "rbpymap" : rbpymap }
 
-class MostUnplayed(Feature):        
+class MostUnplayed(Feature):
     def __init__(self):
         Feature.__init__(self, "MostUnplayed", "stats/mostunplayed.html", "mostunplayed", "Most Played Games That You Haven't Played")
         
@@ -100,12 +116,12 @@ class PlayRate(Feature):
         self.selector = selector
         
     def generate(self, context):
-        import imggen, generate, urllib, StringIO  
+        import imggen, generate
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
             return None
         (img, imap) = imggen.createPlayRateGraph(context, data)        
-        return { "prdata" : imageBinaryData(img), "prmap" : imap }
+        return {"prdata" : imageBinaryData(img), "prmap" : imap }
 
 class PlayRateOwn(Feature):        
     def __init__(self):
@@ -114,7 +130,6 @@ class PlayRateOwn(Feature):
         self.selector = selectors.getSelectorFromString("/owned/books/minus")
         
     def generate(self, context):
-        import selectors
         import imggen, generate    
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
@@ -199,7 +214,7 @@ class Favourites(GenericTable):
         self.selector = selector
         
     def generate(self, context):
-        import generate, selectors
+        import generate
         all = GenericTable.generate(self, context)
         favourites = all["games"]
         del(all["games"])
@@ -224,8 +239,42 @@ class Pogo(Feature):
         (img, pogomap) = imggen.createPogoHistogram(context, pogoImgData)
         ss = selectors.getSelectorData(context)
         title = self.selector.name
-        return { "collection" : pogoCollections[0], "pogomap" : pogomap, "selectors" : ss, "title" : title, "url" : "/dynamic/image/pogo" }        
+        return { "collection" : pogoCollections[0], "pogomap" : pogomap, "selectors" : ss, "title" : title,
+                 "url" : "/dynamic/image/pogo", "username" : context.geek }
         
+class GiniTable(Feature):
+    def __init__(self, selector):
+        Feature.__init__(self, "Pogo", "stats/gini.html", "gini", "Gini Coefficient")
+        if type(selector) == type(""):
+            import selectors
+            selector = selectors.getSelectorsFromString(selector)
+        self.selectors = selector
+
+    def generate(self, context):
+        import generate, imggen, library
+        result = []
+        i = 0
+        for selector in self.selectors:
+            pogoData = generate.getPogoData(context, selector)[0]
+            if len(pogoData) == 0:
+                continue
+            t = library.Thing(selector.name)
+            pogoData.sort(lambda gg1, gg2: cmp(gg1.plays, gg2.plays))
+            giniCoefficient, giniData = generate.produceGiniDataFromPogoDate(pogoData)
+            if giniData is None:
+                return None
+            (img, map) = imggen.createGiniGraph(context, giniData)
+            t.data = giniData
+            t.img = imageBinaryData(img)
+            t.map = map
+            t.id = "ginirow%d" % i
+            i += 1
+            t.coefficient = giniCoefficient
+            result.append(t)
+        if len(result) == 0:
+            return None
+        return { "giniData" : result }
+
 class FavesByPublishedYear(Feature):
     def __init__(self):
         Feature.__init__(self, "FaveByPubYear", "stats/fgbpy.html", "fgbpy", "Your Favourite Games By Published Year")
@@ -247,6 +296,17 @@ class BestDays(Feature):
         if len(bestDays) == 0:
             return None
         return { "bestDays" : bestDays }          
+        
+class Streaks(Feature):
+    def __init__(self):
+        Feature.__init__(self, "Streaks", "stats/streaks.html", "streaks", "Most Consecutive Days Playing Games")
+        
+    def generate(self, context):
+        import generate
+        streaks = generate.getStreaks(context)
+        if len(streaks) == 0:
+            return None
+        return { "streaks" : streaks }          
         
 class RatingByRanking(Feature):
     def __init__(self):
@@ -393,25 +453,77 @@ class FeatureList(Feature):
 class Consistency(Feature):
     DEFAULT_SELECTOR = "/played"
     
-    def __init__(self, selector):
+    def __init__(self, selector, months):
         Feature.__init__(self, "consistency", "stats/consistency.html", "consistency", "Consistency of Play Graph")
+        if type(selector) == type(""):
+            import selectors
+            selector = selectors.getSelectorFromString(selector)
         self.selector = selector
+        self.months = months
         
     def generate(self, context):
         import generate
-        (data, monthNames) = generate.getConsistencyData(context, self.selector)
-        return { "data" : data, "monthNames" : monthNames }
+        data = generate.getConsistencyData(context, self.selector, self.months)
+        if len(data) == 0:
+            return None
+        return { "consistencyData" : data }
 
+
+class PlaysByYear(Feature):
+    def __init__(self):
+        Feature.__init__(self, "PlaysByYear", "stats/pby.html", "pby", "Plays By Year")
+
+    def generate(self, context):
+        import generate
+        data = generate.getPlaysByYearData(context)
+        if len(data) == 0:
+            return None
+        return { "pbyData" : data }
         
-import selectors, views      
-FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan(), Florence(), MorePie(), PlaysByPublishedYear(),
-            OwnedByPublishedYear(), RatingByPublishedYear(), MostUnplayed(), GenericTable(selectors.OwnedGamesSelector()),
-            PlayRate(selectors.PlayedGamesSelector()), PlayRateOwn(), PlayRatePrevOwn(),
-            PlaysByMonthEver(), PlaysByMonthYTD(), PlaysByMonthGraph(), PlayRatings(), Favourites(selectors.AllGamesSelector()),
-            FavesByPublishedYear(), BestDays(), RatingByRanking(), PlaysByRanking(), LeastWanted(), Unusual(), ShouldPlay(),
-            ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
-            TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
-            Consistency(Consistency.DEFAULT_SELECTOR) ]
+class PlayLocations(Feature):
+    def __init__(self):
+        Feature.__init__(self, "PlayLocations", "stats/locations.html", "locations", "Play Locations")
+
+    def generate(self, context):
+        import generate
+        data = generate.getPlayLocationsData(context)
+        if len(data) == 0:
+            return None
+        return { "locations" : data }
+
+class FirstPlaysVsRating(Feature):
+    def __init__(self):
+        Feature.__init__(self, "FirstPlayVsRating", "stats/fpvr.html", "fpvr", "First Plays vs Rating")
+
+    def generate(self, context):
+        return {  }
+
+class MostPlayedTimeline(Feature):
+    def __init__(self):
+        Feature.__init__(self, "MostPlayedTimeline", "stats/mpct.html", "mpct", "Most Played Cumulative Timeline")
+
+    def generate(self, context):
+        import generate
+        (minDate, data, mostPlays) = generate.getMostPlayedTimelineData(context)
+        if minDate is None:
+            return None
+        return { "mpctData" : data }
+
+import selectors, views
+FEATURES = [ Pogo(views.POGO_SELECTOR), PogoTable(views.POGO_SELECTOR), Morgan(), Florence(), MorePie(),
+             PlaysByPublishedYear(False), PlaysByPublishedYear(True),
+             OwnedByPublishedYear(False), OwnedByPublishedYear(True),
+             RatingByPublishedYear(False), RatingByPublishedYear(True), MostUnplayed(),
+             GenericTable(selectors.OwnedGamesSelector()),
+             PlayRate(selectors.PlayedGamesSelector()), PlayRateOwn(), PlayRatePrevOwn(),
+             PlaysByMonthEver(), PlaysByMonthYTD(), PlaysByMonthGraph(), PlayRatings(),
+             Favourites(selectors.AllGamesSelector()),
+             FavesByPublishedYear(), BestDays(), Streaks(), RatingByRanking(), PlaysByRanking(), LeastWanted(),
+             Unusual(), ShouldPlay(), FirstPlaysVsRating(),
+             ShouldPlayOwn(), YearlySummaries(), PlaysByQuarter(), TemporalHotnessMonth(), TemporalHotnessDate(),
+             TemporalHotnessDay(), PlaysByMonthTimeline(), DimesByDesigner(),
+             Consistency(Consistency.DEFAULT_SELECTOR, 96), PlaysByYear(), PlayLocations(),
+             GiniTable(views.POGO_SELECTOR), MostPlayedTimeline()]
 
 FEATURES_BY_KEY = {}
 for f in FEATURES:

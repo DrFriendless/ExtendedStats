@@ -1,0 +1,38 @@
+HOW TO INSTALL EXTENDED STATS ON AMAZON RDS AND EC2 FREE INSTANCES
+
+1. Get your RDS and EC2 virtual machines and make sure they're in the same security group. The security group should allow SSH, MySQL and HTTP inbound. I also made sure they were in the same availability zone, but that might not be important. Choose a MySQL RDS instance. Remember the database user and password of the RDS instance. Use "extended" for the database name.
+
+2. Connect to the RDS instance and create the schema. I used MySQL workbench and just cut and pasted the contents of database_schema.sql in and ran it. You will need the hostname, user name, and password from step 1.
+
+3. Connect to the EC2 instance and install stuff.
+
+sudo apt-get update
+sudo apt-get install git
+sudo apt-get install python-mysqldb
+sudo apt-get install apache2
+sudo apt-get install mysql-client
+sudo apt-get install python-django
+sudo apt-get install libapache2-mod-wsgi
+sudo apt-get install python-imaging
+sudo apt-get install python-pip
+
+sudo pip install simplejson
+
+3. In the EC2 instance, get the Extended Stats code from github.
+
+git clone https://github.com/DrFriendless/ExtendedStats extended
+
+4. In the EC2 instance, edit usernames.txt to have the correct set of users.
+
+5. Edit sitesettings.py to tell the downloader and the web server everything they need to know. Change dbhost, dbuser and password to the settings from step 1.
+
+6. Configure the web server.
+
+sudo cp stats.conf /etc/apache2/conf-enabled/
+sudo service apache2 restart
+
+7. Edit the crontab to have a line like this (by running "sudo crontab -e"):
+
+*/10 * * * * /home/ubuntu/extended/downloader/downloader
+
+8. Look to see if it's working!
