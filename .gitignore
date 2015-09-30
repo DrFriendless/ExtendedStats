@@ -1,3 +1,11 @@
 *.pyc
 *.swp
 *.bak
+/db/
+*.log
+*.log.*
+*~
+/.idea/
+/sql_log (copy).txt
+/sql_log.txt
+/ec2_rds.txt
