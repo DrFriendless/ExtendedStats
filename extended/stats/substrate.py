@@ -287,7 +287,7 @@ def processPlays(plays):
         
 def getGames(ids):
     """ Returns map from long to Game objects from the database. """
-    import library, mydb, models, dbaccess
+    import library, dbaccess
     if len(ids) == 0:
         return {}
     ids = library.uniq(ids)
@@ -297,25 +297,25 @@ def getGames(ids):
     publishers = library.DictOfSets()
     designers = library.DictOfSets()
     if len(ids) > 0:
-        ds = models.GameDesigners.objects.filter(["gameId", "designerId"], gameId=ids)[1]
-        dids = [ did for (gid, did) in ds ]
+        ds = dbaccess.getGameDesigners(ids)
+        dids = [ t.designerId for t in ds ]
         if len(dids) > 0:
             dess = dbaccess.getDesigners(dids)
-            for (gid, did) in ds:
-                designers.add(gid, dess[did])
-        ps = models.GamePublishers.objects.filter(["gameId", "publisherId"], gameId=ids)[1]
-        pids = [ pid for (gid, pid) in ps ]
+            for t in ds:
+                designers.add(t.gameId, dess[t.designerId])
+        ps = dbaccess.getGamePublishers(ids)
+        pids = [ t.publisherId for t in ps ]
         if len(pids) > 0:
             pubs = dbaccess.getPublishers(pids)
-            for (gid, pid) in ps:
-                publishers.add(gid, pubs[pid])
-        ms = models.GameMechanics.objects.filter(["gameId", "mechanic"], gameId=ids)[1]
-        for (i,m) in ms:
-            mechanics.add(i, m)
+            for t in ps:
+                publishers.add(t.gameId, pubs[t.publisherId])
+        ms = dbaccess.getGameMechanics(ids)
+        for m in ms:
+            mechanics.add(m.gameId, m.mechanic)
     if len(ids) > 0:
-        cs = models.GameCategories.objects.filter(["gameId", "category"], gameId=ids)[1]
-        for (i, c) in cs:
-            categories.add(i, c)
+        cs = dbaccess.getGameCategories(ids)
+        for c in cs:
+            categories.add(c.gameId, c.category)
     (basegames, expData) = getMetadata()
     for g in games.values():
         g.basegames = []

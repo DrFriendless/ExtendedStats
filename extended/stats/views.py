@@ -1,5 +1,5 @@
-import generate, imggen
-import django_webserver as webserver
+import generate, imggen, webserver_factory
+webserver = webserver_factory.get()
 
 POGO_SELECTOR = "/owned/books/minus/\"Owned\""
 
@@ -11,34 +11,34 @@ class Options(object):
         import features, library
         self.consistencyMonths = 96
         self.pogo = library.Thing()
-        self.upsideDownRbpy = (request.COOKIES.get("rbpyUpsideDown") == "True")
-        self.upsideDownObpy = (request.COOKIES.get("obpyUpsideDown") == "True")
-        self.upsideDownPbpy = (request.COOKIES.get("pbpyUpsideDown") == "True")
-        self.pogo.excludeExpansions = (request.COOKIES.get("pogoExpansions") == "True")
-        self.pogo.excludeTrades = (request.COOKIES.get("pogoTrades") == "True")
+        self.upsideDownRbpy = (webserver.get_cookie(request, "rbpyUpsideDown") == "True")
+        self.upsideDownObpy = (webserver.get_cookie(request, "obpyUpsideDown") == "True")
+        self.upsideDownPbpy = (webserver.get_cookie(request, "pbpyUpsideDown") == "True")
+        self.pogo.excludeExpansions = (webserver.get_cookie(request, "pogoExpansions") == "True")
+        self.pogo.excludeTrades = (webserver.get_cookie(request, "pogoTrades") == "True")
         self.fave = library.Thing()
-        self.fave.excludeExpansions = (request.COOKIES.get("faveExpansions") == "True")
-        self.fave.excludeTrades = (request.COOKIES.get("faveTrades") == "True")
+        self.fave.excludeExpansions = (webserver.get_cookie(request, "faveExpansions") == "True")
+        self.fave.excludeTrades = (webserver.get_cookie(request, "faveTrades") == "True")
         self.obpy = library.Thing()
-        self.obpy.excludeExpansions = (request.COOKIES.get("obpyExpansions") == "True")
-        self.obpy.excludeTrades = (request.COOKIES.get("obpyTrades") == "True")
+        self.obpy.excludeExpansions = (webserver.get_cookie(request, "obpyExpansions") == "True")
+        self.obpy.excludeTrades = (webserver.get_cookie(request, "obpyTrades") == "True")
         self.pbm = library.Thing()
-        self.pbm.excludeExpansions = (request.COOKIES.get("pbmExpansions") == "True")
-        self.pbm.excludeTrades = (request.COOKIES.get("pbmTrades") == "True")
+        self.pbm.excludeExpansions = (webserver.get_cookie(request, "pbmExpansions") == "True")
+        self.pbm.excludeTrades = (webserver.get_cookie(request, "pbmTrades") == "True")
         self.pbm.timelineHeight = 400
         self.pbm.timelineWidth = 30000
         self.playrate = library.Thing()
-        self.playrate.excludeExpansions = (request.COOKIES.get("playrateExpansions") == "True")
-        self.playrate.excludeTrades = (request.COOKIES.get("playrateTrades") == "True")
-        self.playrate.excludeUnrated = (request.COOKIES.get("playrateUnrated") == "True")
+        self.playrate.excludeExpansions = (webserver.get_cookie(request, "playrateExpansions") == "True")
+        self.playrate.excludeTrades = (webserver.get_cookie(request, "playrateTrades") == "True")
+        self.playrate.excludeUnrated = (webserver.get_cookie(request, "playrateUnrated") == "True")
         self.user = library.Thing()
         for feature in features.FEATURES:
             key = feature.name
-            self.user.__dict__["include" + key] = (request.COOKIES.get("user" + key) == "True")
-        if request.COOKIES.get("timelineHeight"):
-            self.pbm.timelineHeight = int(request.COOKIES.get("timelineHeight"))
-        if request.COOKIES.get("timelineWidth"):
-            self.pbm.timelineWidth = int(request.COOKIES.get("timelineWidth"))
+            self.user.__dict__["include" + key] = (webserver.get_cookie(request, "user" + key) == "True")
+        if webserver.get_cookie(request, "timelineHeight"):
+            self.pbm.timelineHeight = int(webserver.get_cookie(request, "timelineHeight"))
+        if webserver.get_cookie(request, "timelineWidth"):
+            self.pbm.timelineWidth = int(webserver.get_cookie(request, "timelineWidth"))
 
     def __str__(self):
         return "Options[pogo[%s %s] fave[%s %s] obpy[%s %s] pbm[%d %d %s %s] playrate[%s %s %s] User Tab[%s]" % (`self.pogo.excludeExpansions`, `self.pogo.excludeTrades`,
@@ -376,18 +376,15 @@ def updates(request, param):
     except library.NoSuchGeekException:
         return webserver.render("stats/geek_error.html", locals(), request)
 
-from django.views.decorators.csrf import csrf_exempt
-
 def refresh(request, param):
     import urllib2, mydb
-    from django.core.context_processors import csrf
     arg = request.META["REQUEST_URI"]
     if arg is not None and arg.startswith("/dynamic/refreshPage/"):
         param = arg[len("/dynamic/refreshPage/"):]
     if arg is None:
         errors = str(request.META)
     vals = {}
-    vals.update(csrf(request))
+    vals.update(webserver.csrf(request))
     l = len(param)
     if param is None or len(param) > 190 or "'" in param:
         return webserver.render("stats/refresh.html", vals, request)

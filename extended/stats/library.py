@@ -520,7 +520,7 @@ def findBetween(pos, start, end, s):
     before = s[:p1]
     after = s[p2:]
     middle = s[p1:p2]
-    return (before, middle, after, p2)
+    return before, middle, after, p2
     
 def findLinesBetween(lines, start, end):
     result = []
@@ -597,7 +597,7 @@ def parsePlaysParams(fields):
                 args.append(field)
         else:
             args.append(field)
-    return (year, month, day, args)
+    return year, month, day, args
 
 def getDateRangeForDescribedRange(fields):
     (year, month, day, args) = parsePlaysParams(fields)
@@ -678,13 +678,13 @@ def gameNames(ids, byId):
 def makeDateRange(y, m, d):
     import datetime, calendar
     if y is None:
-        return (None, None)
+        return None, None
     elif m is None:
-        return (datetime.date(y, 1, 1), datetime.date(y, 12, 31))
+        return datetime.date(y, 1, 1), datetime.date(y, 12, 31)
     elif d is None:
-        return (datetime.date(y, m, 1), datetime.date(y, m, calendar.monthrange(y,m)[1]))
+        return datetime.date(y, m, 1), datetime.date(y, m, calendar.monthrange(y,m)[1])
     else:
-        return (datetime.date(y, m, d), datetime.date(y, m, d))
+        return datetime.date(y, m, d), datetime.date(y, m, d)
 
 def makeLastYearDateRange(today):
     import datetime, calendar
@@ -694,7 +694,7 @@ def makeLastYearDateRange(today):
     if day > calendar.monthrange(today.year-1, today.month)[1]:
         day = calendar.monthrange(today.year-1, today.month)[1]
     start = datetime.date(today.year-1, today.month, day)
-    return (start, today)
+    return start, today
 
 def makeLastMonthDateRange(today):
     import datetime, calendar

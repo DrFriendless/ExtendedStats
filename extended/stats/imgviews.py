@@ -1,17 +1,20 @@
-from django.http import HttpResponse
+import webserver_factory
+webserver = webserver_factory.get()
 
 class ImageSpecs(object):
     def __init__(self, request):
         self.width = 800
         self.height = 600
-        if request.COOKIES.get("width") is not None:
+        w = webserver.get_cookie(request, "width")
+        h = webserver.get_cookie(request, "height")
+        if w is not None:
             try:
-                self.width = int(request.COOKIES["width"])
+                self.width = int(w)
             except:
                 pass
-        if request.COOKIES.get("height") is not None:
+        if h is not None:
             try:
-                self.height = int(request.COOKIES["height"])
+                self.height = int(h)
             except:
                 pass
 
@@ -27,7 +30,7 @@ def pogo(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def getImage(*args, **kwargs):
     import StringIO, urllib2, Image
@@ -43,7 +46,7 @@ def pbmGraph(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def newPlays(request, param):
     import views, library, generate, imggen
@@ -54,7 +57,7 @@ def newPlays(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def lifetime(request, param):
     import views, library, generate, imggen
@@ -65,7 +68,7 @@ def lifetime(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def lifetimeByRating(request, param):
     import views, library, generate, imggen
@@ -76,7 +79,7 @@ def lifetimeByRating(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def lagHistogram(request, param):
     import views, library, generate, imggen
@@ -87,7 +90,7 @@ def lagHistogram(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png")
+        return webserver.response(img, mimetype="image/png")
 
 def mostPlayedCumulativeTimeline(request, param):
     import library, views, imggen, generate
@@ -98,7 +101,7 @@ def mostPlayedCumulativeTimeline(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")
-        return HttpResponse(img, mimetype="image/png")
+        return webserver.response(img, mimetype="image/png")
         
 def firstPlayVsRating(request, param):        
     import views, library, generate, imggen
@@ -110,7 +113,7 @@ def firstPlayVsRating(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def playsByPublishedYear(context, upsideDown):
     import generate, imggen
@@ -148,7 +151,7 @@ def playrate(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def playrateown(request, param):    
     import views, library, generate, imggen
@@ -160,7 +163,7 @@ def playrateown(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def playrateprevown(request, param):    
     import views, library, generate, imggen
@@ -172,7 +175,7 @@ def playrateprevown(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png") 
+        return webserver.response(img, mimetype="image/png") 
         
 def playsByQuarter(request, param):    
     import views, library, generate, imggen
@@ -183,7 +186,7 @@ def playsByQuarter(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png")    
+        return webserver.response(img, mimetype="image/png")    
         
 def morgansPieCharts(request, param):
     import views, library, generate, imggen
@@ -194,7 +197,7 @@ def morgansPieCharts(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png")     
+        return webserver.response(img, mimetype="image/png")     
         
 def morePieCharts(request, param):  
     import library, imggen, generate, views
@@ -208,10 +211,10 @@ def morePieCharts(request, param):
             return library.imageResponse(img)
         else:
             img = open("error.png")
-            return HttpResponse(img, mimetype="image/png")
+            return webserver.response(img, mimetype="image/png")
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png")     
+        return webserver.response(img, mimetype="image/png")     
         
 def category(request, param):
     import library, views, imggen
@@ -224,4 +227,4 @@ def category(request, param):
         return library.imageResponse(img)
     except library.NoSuchGeekException:
         img = open("error.png")   
-        return HttpResponse(img, mimetype="image/png")                 
+        return webserver.response(img, mimetype="image/png")                 

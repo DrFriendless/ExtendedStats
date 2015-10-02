@@ -28,7 +28,9 @@ GAMES_FIELDS = ["bggid", "name", "average", "rank", "yearpublished", "minplayers
                 "userstrading", "userswanting", "userswishing", "averageweight", "bayesaverage", "stddev", "median",
                 "numcomments", "expansion", "usersowned", "subdomain"]
 DESIGNER_FIELDS = ["name", "bggid", "boring", "url"]
+GAME_DESIGNER_FIELDS = ["gameId", "designerId"]
 PUBLISHER_FIELDS = ["name", "bggid", "url"]
+GAME_PUBLISHER_FIELDS = ["gameId", "publisherId"]
 
 def __extract(fields, name, constructor):
     def func(row):
@@ -90,3 +92,31 @@ def getPublishers(ids):
     sql = __inlistSQL(PUBLISHER_FIELDS, "publishers", "bggid", ids)
     gs = map(__extract(PUBLISHER_FIELDS, "Publisher", library.Thing), mydb.query(sql))
     return { g.bggid : g for g in gs }
+
+def getGameDesigners(ids):
+    import mydb, library
+    sql = __inlistSQL(GAME_DESIGNER_FIELDS, "gameDesigners", "gameId", ids)
+    gs = map(__extract(GAME_DESIGNER_FIELDS, "GameDesigner", library.Thing), mydb.query(sql))
+    return gs
+
+def getGamePublishers(ids):
+    import mydb, library
+    sql = __inlistSQL(GAME_PUBLISHER_FIELDS, "gamePublishers", "gameId", ids)
+    gs = map(__extract(GAME_PUBLISHER_FIELDS, "GamePublisher", library.Thing), mydb.query(sql))
+    return gs
+
+GAME_MECHANIC_FIELDS = ["gameId", "mechanic"]
+
+def getGameMechanics(ids):
+    import mydb, library
+    sql = __inlistSQL(GAME_MECHANIC_FIELDS, "gameMechanics", "gameId", ids)
+    gs = map(__extract(GAME_MECHANIC_FIELDS, "GameMechanic", library.Thing), mydb.query(sql))
+    return gs
+
+GAME_CATEGORY_FIELDS = ["gameId", "category"]
+
+def getGameCategories(ids):
+    import mydb, library
+    sql = __inlistSQL(GAME_CATEGORY_FIELDS, "gameCategories", "gameId", ids)
+    gs = map(__extract(GAME_CATEGORY_FIELDS, "GameCategory", library.Thing), mydb.query(sql))
+    return gs
