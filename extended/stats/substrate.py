@@ -7,18 +7,18 @@ def optionKey(options):
 
 class Substrate:
     """A wrapper around a geek to provide lookups common to the entire app."""
-    
+
     def __init__(self, geek, context):
         self.geek = geek
         self.context = context
         # cache of loaded lists of geekgames
         self.collections = {}
         # cache of loaded games
-        self.detailedGames = {}     
+        self.detailedGames = {}
         self.allPlays = None
         self.colls = None
         self.series = None
-        
+
     def getGames(self, ids):
         """returns Game objects from the cache"""
         otherIds = []
@@ -33,8 +33,8 @@ class Substrate:
         result.update(moreGames)
         if len(moreGames) < len(otherIds):
             pass
-        return result  
-  
+        return result
+
     def getGeekGames(self, ids):
         import library
         options = library.Thing()
@@ -42,13 +42,13 @@ class Substrate:
         options.excludeTrades = False
         all = self.getAllGeekGamesWithOptions(options)
         return [ gg for gg in all if gg.game.bggid in ids ]
-        
+
     def __processGeekGames(self, geekgames):
         import library
         self.addPlaysDataToGeekGames(geekgames)
         for gg in geekgames:
             gg.utilisation = int(library.cdf(gg.plays, LAMBDA) * 1000.0) / 10.0
-        
+
     def getTheseGeekGames(self, games):
         """returns GeekGame objects whether the user has a record for them or not"""
         import library
@@ -66,8 +66,8 @@ class Substrate:
             new.append(gg)
         self.addPlaysDataToGeekGames(new)
         return result
-                
-    def getAllGeekGamesWithOptions(self,  options):         
+
+    def getAllGeekGamesWithOptions(self,  options):
         """returns GeekGame objects"""
         import mydb, dbaccess
         key = optionKey(options)
@@ -93,8 +93,8 @@ class Substrate:
         if options.excludeExpansions:
             geekgames = [ gg for gg in geekgames if not gg.game.expansion ]
         self.collections[key] = geekgames
-        return geekgames   
-       
+        return geekgames
+
     def getCollections(self):
         import game_collections
         if self.colls is None:
@@ -103,10 +103,10 @@ class Substrate:
             for c in cs:
                 self.colls[c.index] = c
         return self.colls
-      
+
     def getCollection(self, index):
         return self.getCollections()[index]
-        
+
     def getAllCategories(self, options):
         items = self.getAllGeekGamesWithOptions(options)
         cats = []
@@ -115,7 +115,7 @@ class Substrate:
                 if c not in cats:
                     cats.append(c)
         return cats
-        
+
     def getAllMechanics(self, options):
         items = self.getAllGeekGamesWithOptions(options)
         cats = []
@@ -124,7 +124,7 @@ class Substrate:
                 if c not in cats:
                     cats.append(c)
         return cats
-        
+
     def getAllDesigners(self, options):
         items = self.getAllGeekGamesWithOptions(options)
         cats = []
@@ -133,65 +133,73 @@ class Substrate:
                 if c not in cats:
                     cats.append(c)
         return cats
-        
-    def getAllGamesExcludingBooks(self, options):     
+
+    def getAllGamesExcludingBooks(self, options):
         items = self.getAllGeekGamesWithOptions(options)
-        items = [ gg for gg in items if not "Book" in gg.game.categories ]       
-        return items 
-        
-    def getOwnedGamesExcludingBooks(self, options):     
+        items = [ gg for gg in items if not "Book" in gg.game.categories ]
+        return items
+
+    def getOwnedGamesExcludingBooks(self, options):
         items = self.getAllGeekGamesWithOptions(options)
         items = [ gg for gg in items if gg.owned ]
-        items = [ gg for gg in items if not "Book" in gg.game.categories ]       
-        return items 
-        
-    def getOwnedGames(self):     
+        items = [ gg for gg in items if not "Book" in gg.game.categories ]
+        return items
+
+    def getOwnedGames(self):
         import library
         opts = library.Thing()
         opts.excludeExpansions = False
         opts.excludeTrades = False
         items = self.getAllGeekGamesWithOptions(opts)
-        items = [ gg for gg in items if gg.owned ]     
-        return items 
-        
-    def getPreviouslyOwnedGamesExcludingBooks(self, options):     
+        items = [ gg for gg in items if gg.owned ]
+        return items
+
+    def getPreviouslyOwnedGamesExcludingBooks(self, options):
         items = self.getAllGamesExcludingBooks(options)
-        items = [ gg for gg in items if gg.prevowned and not gg.owned ]     
-        return items 
-        
-    def getPreviouslyOwnedGames(self, options):     
+        items = [ gg for gg in items if gg.prevowned and not gg.owned ]
+        return items
+
+    def getPreviouslyOwnedGames(self, options):
         items = self.getAllGeekGamesWithOptions(options)
-        items = [ gg for gg in items if gg.prevowned ]     
-        return items 
-        
+        if self.geek == "Friendless":
+            with open("/tmp/before.txt", "w") as f:
+                import pprint
+                pprint.pprint(items, f)
+        items = [ gg for gg in items if gg.prevowned ]
+        if self.geek == "Friendless":
+            with open("/tmp/after.txt", "w") as f:
+                import pprint
+                pprint.pprint(items, f)
+        return items
+
     def getAllRatedGames(self, options):
         data = self.getAllGeekGamesWithOptions(options)
         return [ d for d in data if d.rating > 0 ]
-   
+
     def getAllPlayedGames(self, options):
         data = self.getAllGeekGamesWithOptions(options)
         return [ d for d in data if d.plays > 0 ]
-   
+
     def __getAllPlays(self):
         import dbaccess
         if self.allPlays is None:
             plays = dbaccess.getPlays(self.geek, None, None)
-            self.allPlays = self.__reconstructPlays(plays)   
+            self.allPlays = self.__reconstructPlays(plays)
         return self.allPlays
-        
+
     def filterPlays(self, startDate, endDate):
         (result, messages) = self.__getAllPlays()
         if startDate is not None or endDate is not None:
             # dateless plays can never match any criteria with a date
             result = [ p for p in result if p.dt is not None ]
         return [ p for p in result if (startDate is None or p.dt >= startDate) and (endDate is None or p.dt <= endDate) ], messages
-      
+
     def getPlaysForDescribedRange(self, fields):
         import library
         (year, month, day, args, startDate, endDate) = library.getDateRangeForDescribedRange(fields)
         (plays,  messages) = self.filterPlays(startDate, endDate)
         return plays, messages, year, month, day, args
-      
+
     def addPlaysDataToGeekGames(self, geekgames):
         import library
         plays = self.getPlaysForDescribedRange([])[0]
@@ -234,7 +242,7 @@ class Substrate:
                 except ValueError:
                     lastPlay = None
                 (gg.plays, gg.firstPlay, gg.lastPlay, gg.monthsPlayed, gg.pbm) = (playCount, firstPlay, lastPlay, monthCount, playsByMonth)
-        
+
     def __reconstructPlays(self, playsData):
         import plays
         ids = []
@@ -259,7 +267,7 @@ class Substrate:
         processPlays(result)
         result.sort()
         return result,  messages
-        
+
     def getAllSeries(self):
         import mydb, library
         if self.series is not None:
@@ -278,13 +286,13 @@ class Substrate:
                 continue
             self.series.add(name, g)
         return self.series
-    
+
 def processPlays(plays):
     for p in plays:
         p.gameurl = p.game.url
         p.gamename = p.game.name
         p.expansionNames = ", ".join([e.name for e in p.expansions])
-        
+
 def getGames(ids):
     """ Returns map from long to Game objects from the database. """
     import library, dbaccess
@@ -331,7 +339,7 @@ def getGames(ids):
         g.mechanics = mechanics[g.bggid]
         g.categories = categories[g.bggid]
         g.publishers = publishers[g.bggid]
-        g.designers = designers[g.bggid]               
+        g.designers = designers[g.bggid]
     return games
 
 METADATA = None
@@ -350,7 +358,7 @@ def getMetadata():
         expData = [ (b,e) for (b,e) in expData if b not in expansions ]
         METADATA = basegames, expData
     return METADATA
-     
+
 def _inferExtraPlays(games, plays):
     import library
     result = []
@@ -378,10 +386,10 @@ def _inferExtraPlays(games, plays):
         result = result + rs
         messages = messages + mms
     return (result, messages)
-  
+
 def __intersect(lista, listb):
     return len([a for a in lista if a in listb]) > 0
-    
+
 def _inferExtraPlaysForADate(games, plays):
     import library
     from plays import Play
@@ -406,7 +414,7 @@ def _inferExtraPlaysForADate(games, plays):
                         newps.append(bgplay)
                     orig = len(plays)
                     others = [ op for op in plays if op is not play and op is not bgplay ]
-                    messages.append(u"%s %s expands %s %d + %d <= %d" % (unicode(play.date), play.game.name, bgplay.game.name, len(newps), len(others), orig))
+                    messages.append(u"%s %s expands %s %d + %d <= %d" % (unicode(play.date), play.game.name.decode('utf-8'), bgplay.game.name.decode('utf-8'), len(newps), len(others), orig))
                     return others + newps, messages, True
             # no known basegame
             if len(play.game.basegames) == 1:
@@ -442,6 +450,6 @@ def createEmptyGeekGame(g):
     gg.wanttoplay = 0
     gg.preordered = 0
     gg.bggid = g.bggid
-    gg.utilisation = 0.0    
+    gg.utilisation = 0.0
     gg.timeweighted = 0.0
     return gg

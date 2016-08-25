@@ -56,7 +56,7 @@ def createNewPlaysGraph(context,  data):
     minYear = None
     maxYear = None
     if len(countPlaysByYear) > 0:
-        maxYear = library.TODAY.year
+        maxYear = datetime.date.today().year
         while countPlaysByYear[maxYear] == 0:
             maxYear -= 1
         minYear = maxYear
@@ -65,7 +65,7 @@ def createNewPlaysGraph(context,  data):
     if minYear is not None and maxYear is not None:
         oneDay = datetime.timedelta(1)
         startDate = datetime.date(minYear, 1, 1)
-        endDate = datetime.date(library.TODAY.year, 12, 31)
+        endDate = datetime.date(datetime.date.today().year, 12, 31)
         data = [ d for d in data if startDate <= d <= endDate ]
         widthInDays = (endDate - startDate).days
         daysX = 0
@@ -138,7 +138,7 @@ def createNewPlaysGraph(context,  data):
 
 def createLagHistogram(context,  data):
     """histogram of years since game was released till date of first play"""
-    # data is a library.Counts with keys of years since game published  
+    # data is a library.Counts with keys of years since game published
     imgspec = context.imageSpec
     (img, draw, xlo, xhi, ylo, yhi) = newImage(imgspec.width, imgspec.height)
     data = data.asMap()
@@ -188,7 +188,7 @@ def __sortLifetime(d1, d2):
 def createLifetimeGraph(context,  data):
     "histogram of days between first play and last play"
     # data is a list of (int, boolean, boolean) triples, where
-    # int is days between plays 
+    # int is days between plays
     # boolean is whether expansion or not
     # boolean is whether owned or not
     imgspec = context.imageSpec
@@ -251,7 +251,7 @@ def createLifetimeGraph(context,  data):
 def createLifetimeByRatingGraph(context,  data):
     "histogram of days between first play and last play coloured by rating"
     # data is a list of (int, rating) triples, where
-    # int is days between plays 
+    # int is days between plays
     # rating is rating given by the user on BGG
     imgspec = context.imageSpec
     height = imgspec.height
@@ -492,7 +492,7 @@ def createMostPlayedTimelineGraph(context, data):
     timespan = library.daysSince(minDate)
     # background
     shadeDate = datetime.date(minDate.year, 1, 1)
-    while shadeDate.year <= library.TODAY.year:
+    while shadeDate.year <= datetime.date.today().year:
         days = (shadeDate - minDate).days
         x1 = xlo + days * (xhi - xlo) / timespan
         shadeDate = datetime.date(shadeDate.year+1, 1, 1)
@@ -527,7 +527,7 @@ def createMostPlayedTimelineGraph(context, data):
         draw.line(line, mptd.colour, width=2)
     # label axes
     labelDate = datetime.date(minDate.year, 6, 30)
-    while labelDate.year <= library.TODAY.year:
+    while labelDate.year <= datetime.date.today().year:
         if labelDate >= minDate:
             days = (labelDate - minDate).days
             x = xlo + days * (xhi - xlo) / timespan - 16
@@ -747,7 +747,7 @@ def createPlaysByPublishedYearGraph(context, data, upsideDown):
                 draw.rectangle([x0, y0, x1, y1], outline=BLACK, fill=fill)
                 mapRow = Thing()
                 (mapRow.x1, mapRow.y1, mapRow.x2, mapRow.y2) = (int(x0), int(y1), int(x1), int(y0))
-                mapRow.name = escape(g.name)
+                mapRow.name = escape(g.name.decode('utf-8'))
                 mapRow.url = None
                 if bggid:
                     mapRow.url = GAME_PLAYS_URL % (g.bggid, bggid)
@@ -1019,4 +1019,4 @@ def drawPie(draw, x, y, values, colours, labels, title):
             words = words[1:]
         draw.text((x, yh), thisLine, fill=BLACK)
         yh += 15
-    
+

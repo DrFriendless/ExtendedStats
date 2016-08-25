@@ -19,7 +19,9 @@ def getAllGeekNames():
 def getGeekGamesForGeek(geek):
     import mydb
     sql = "select " + ",".join(GG_FIELDS) + " from geekgames where geek = %s"
-    return map(__extract(GG_FIELDS, "GeekGame", library.Thing), mydb.query(sql, [geek]))
+    data = mydb.query(sql, [geek])
+    result = map(__extract(GG_FIELDS, "GeekGame", library.Thing), data)
+    return result
 
 GG_FIELDS = ["game", "rating", "owned", "prevowned", "wanttobuy", "wanttoplay", "preordered", "want", "wish", "trade", "comment"]
 PLAYS_FIELDS = ["game", "playDate", "quantity", "raters", "ratingsTotal", "location"]
@@ -65,6 +67,8 @@ def getGames(ids):
     import mydb
     sql = __inlistSQL(GAMES_FIELDS, "games", "bggid", ids)
     gs = map(__extract(GAMES_FIELDS, "Game", Game), mydb.query(sql))
+    for g in gs:
+        g.name = g.name.encode('utf-8')
     return { g.bggid : g for g in gs }
 
 class Game(library.Thing):

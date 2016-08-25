@@ -15,7 +15,7 @@ def addCollectionSummary(context, groups):
     opts.excludeExpansions = False
     opts.excludeTrades = False
     allGeekGames = context.substrate.getAllGeekGamesWithOptions(opts)
-    allGames = {}    
+    allGames = {}
     for gg in allGeekGames:
         allGames[gg.game.bggid] = gg
     for group in groups:
@@ -117,7 +117,7 @@ def getPlayRatings(context):
         plays.append(g)
     plays.sort(library.gameName)
     return plays
-    
+
 def addGeekData(geek, plays):
     import mydb
     ids = []
@@ -206,7 +206,7 @@ def getConsistencyData(context, selector, monthsBack):
     if len(geekgames) > 0 and geekgames[0].plays > 10:
         geekgames = [ gg for gg in geekgames if gg.plays >= 10 ]
     geekgames.sort(lambda g1, g2: -cmp(g1.monthsPlayed, g2.monthsPlayed))
-    geekgames = geekgames[:100]  
+    geekgames = geekgames[:100]
     data = []
     for gg in geekgames:
         t = library.Thing()
@@ -221,7 +221,7 @@ def getConsistencyData(context, selector, monthsBack):
         t.played = [ playedData(gg, m, y) for (m,y) in months ]
         t.plays = gg.plays
         t.rating = gg.rating
-        data.append(t)        
+        data.append(t)
     return data
 
 def playedData(gg, m, y):
@@ -324,7 +324,7 @@ def getChecklistData(context):
         result.append(t)
     result.sort(lambda t1, t2: cmp(t1.name.lower(), t2.name.lower()))
     return result
-    
+
 def totalPlays(playsData):
     import library, plays, substrate
     exps = library.DictOfSets()
@@ -380,7 +380,7 @@ def getNewPlaysData(context):
     options.excludeExpansions = True
     geekgames = context.substrate.getAllGamesExcludingBooks(options)
     geekgames = [ gg for gg in geekgames if gg.plays > 0 and gg.firstPlay is not None ]
-    return [ gg.firstPlay for gg in geekgames ]   
+    return [ gg.firstPlay for gg in geekgames ]
 
 def getLifetimeData(context):
     import library, datetime
@@ -396,9 +396,9 @@ def getLifetimeData(context):
             published = datetime.date(gg.game.yearpublished, 1, 1)
         except ValueError:
             published = datetime.date(1900, 1, 1)
-        age = (library.TODAY - published).days + 1
+        age = (datetime.date.today() - published).days + 1
         result.append((lifetime, gg.game.expansion, gg.owned, age))
-    return result   
+    return result
 
 def getLifetimeByRatingData(context):
     import library
@@ -407,7 +407,7 @@ def getLifetimeByRatingData(context):
     options.excludeExpansions = False
     geekgames = context.substrate.getAllGamesExcludingBooks(options)
     geekgames = [ gg for gg in geekgames if gg.plays > 0 and gg.firstPlay is not None and gg.lastPlay != gg.firstPlay and gg.rating >= 0]
-    return [ ((gg.lastPlay - gg.firstPlay).days+1, gg.rating) for gg in geekgames ]   
+    return [ ((gg.lastPlay - gg.firstPlay).days+1, gg.rating) for gg in geekgames ]
 
 def getPlaysTableData(context):
     import library
@@ -419,14 +419,14 @@ def getPlaysTableData(context):
     result = []
     for gg in geekgames:
         result.append(gg.firstPlay)
-    return result    
+    return result
 
 def __addAllPlaysByGame(dest, src):
     for (game, count) in src.items():
         if dest.get(game) is None:
             dest[game] = count
         else:
-            dest[game] = dest[game] + count            
+            dest[game] = dest[game] + count
 
 def getPBMData(context):
     if context.pbm is not None:
@@ -445,7 +445,7 @@ def getPBMData(context):
     months = {}
     years = {}
     games = []
-    for play in playData:      
+    for play in playData:
         if not play.year:
             mn = "0000-00"
             play.year = 0
@@ -458,9 +458,9 @@ def getPBMData(context):
         m = months[mn]
         d = "%4d-%02d-%02d" % (play.year, play.month, play.day)
         m.daysPlayedOn.add(d)
-        m.count = m.count + play.count        
+        m.count = m.count + play.count
         m.plays.append(play)
-        m.played.add(play.game)     
+        m.played.add(play.game)
         if play.game not in games:
             games.append(play.game)
         for g in play.expansions:
@@ -471,7 +471,7 @@ def getPBMData(context):
     months = months.values()[:]
     months.sort()
     if len(months) > 0 and months[0].name == "0000-00":
-        months = months[1:] + [months[0]]    
+        months = months[1:] + [months[0]]
     # calculate year-to-date stuff
     playedSoFar = set()
     expPlayedSoFar = set()
@@ -501,8 +501,8 @@ def getPBMData(context):
                 m.everDollars.add(play.game)
             for e in play.expansions:
                 m.addPlaysForGame(e, play.count)
-                y.addPlaysForGame(e, play.count)                
-                ever.addPlaysForGame(e, play.count)                
+                y.addPlaysForGame(e, play.count)
+                ever.addPlaysForGame(e, play.count)
             playTime = playTime + play.count * play.game.playtime
         m.playHours = int((playTime + 30) / 60)
         y.count += m.count
@@ -532,7 +532,7 @@ def getPBMData(context):
         __addAllPlaysByGame(playsByGame, m.playsByGame)
     months.reverse()
     if len(months) > 0 and months[0].name == "0000-00":
-        months = months[1:]    
+        months = months[1:]
     context.pbm = months
     return months
 
@@ -546,9 +546,9 @@ def sgoyt(param):
         raise views.BadUrlException("Failed to download geeklist XML from %s" % url)
     data = []
     try:
-        dom = xml.dom.minidom.parse(dest)      
+        dom = xml.dom.minidom.parse(dest)
         geeklist = dom.getElementsByTagName("geeklist")[0]
-        gameNodes = geeklist.getElementsByTagName("item")            
+        gameNodes = geeklist.getElementsByTagName("item")
         for gameNode in gameNodes:
             try:
                 t = library.Thing()
@@ -557,10 +557,10 @@ def sgoyt(param):
                 t.gamename = gameNode.getAttribute("objectname")
                 data.append(t)
             except AttributeError:
-                continue            
+                continue
         return data
     except xml.parsers.expat.ExpatError, e:
-        raise views.BadUrlException("Error retrieving parsing geeklist: %s" % url)    
+        raise views.BadUrlException("Error retrieving parsing geeklist: %s" % url)
 
 def getPlayLoggingData(context):
     import library, mydb
@@ -577,13 +577,13 @@ def getPlayLoggingData(context):
         if name is None:
             name = ''
         if colour is None:
-            colour = ''            
+            colour = ''
         t.username = username
         t.name = name
         t.colour = colour
         players.append(t)
     return (players, locations)
-    
+
 def getMultiYearData(context):
     import library, mydb
     sql = "select year(playDate), game, sum(quantity) from plays where geek = %s group by year(playDate), game"
@@ -603,7 +603,7 @@ def getMultiYearData(context):
     for (y, gid, count) in data:
         if gid not in gameIds:
             continue
-        try:            
+        try:
             t = playsData[gid][y]
         except KeyError:
             continue
@@ -616,9 +616,9 @@ def getMultiYearData(context):
         result.append([ whiteThing(games[gid].name) ] + plays + [ whiteThing(total), whiteThing(yearCounts[gid]) ])
     result.sort(lambda r1, r2: cmp(r1[0].value.lower(), r2[0].value.lower()))
     return result, USED_YEARS + ["Total", "Count"]
-    
-def whiteThing(value):   
-    import library 
+
+def whiteThing(value):
+    import library
     t = library.Thing()
     t.value = value
     t.colour = library.WHITE
@@ -689,7 +689,7 @@ def getOwnedByPublishedYearData(context):
         for (year, count) in counter.get(rating).items():
             result.append((count, rating, year))
     return result
-    
+
 def getMostPlayedUnplayedGames(context):
     import mydb
     sql = "select sum(quantity), game from plays group by game order by 1 desc"
@@ -723,8 +723,8 @@ def addRanks(rows, valCol, rankCol, title):
             f.write(" ".join([str(d.__dict__) for d in data if d.__dict__.get("owned") is None]))
     lastValue = -1000
     lastRank = 0
-    for i in range(len(data)):        
-        if data[i].__dict__[valCol] == lastValue:            
+    for i in range(len(data)):
+        if data[i].__dict__[valCol] == lastValue:
             percent = math.ceil(lastRank * 100.0 / numRows)
             data[i].__dict__[rankCol] = "%d (top %d%% of %s)" % (lastRank, percent, title)
         else:
@@ -742,7 +742,7 @@ def getAllCatsAndMecs():
     mecs = mydb.query(sql)
     mecs = [ c[0] for c in mecs ]
     return (cats, mecs)
-  
+
 def getNormRankedData(category):
     import substrate, mydb
     (cats, mecs) = getAllCatsAndMecs()
@@ -777,7 +777,7 @@ def getNormRankedData(category):
         params = [ parts[1] ]
     else:
         raise Exception("No ranking criteria")
-    sql = "select distinct bggid from geekgames, games where geekgames.game = games.bggid and rating > 0 and %s" % categoryClause    
+    sql = "select distinct bggid from geekgames, games where geekgames.game = games.bggid and rating > 0 and %s" % categoryClause
     data = mydb.query(sql, params)
     ids = [ d[0] for d in data ]
     games = substrate.getGames(ids)
@@ -790,7 +790,7 @@ def getNormRankedData(category):
         g.normrank = ng.normrank
         result.append(g)
         result.sort(lambda g1, g2: cmp(g1.normrank, g2.normrank))
-    return (cats, mecs, title, result[:1000])      
+    return (cats, mecs, title, result[:1000])
 
 def getTopRankedData(category):
     import substrate, mydb
@@ -826,7 +826,7 @@ def getTopRankedData(category):
         params = [ parts[1] ]
     else:
         raise Exception("No ranking criteria")
-    sql = "select sum(rating), count(rating), name, bggid from geekgames, games where geekgames.game = games.bggid and rating > 0  and %s group by bggid order by 1 desc limit 1000" % categoryClause    
+    sql = "select sum(rating), count(rating), name, bggid from geekgames, games where geekgames.game = games.bggid and rating > 0  and %s group by bggid order by 1 desc limit 1000" % categoryClause
     data = mydb.query(sql, params)
     ids = [ d[3] for d in data ]
     games = substrate.getGames(ids)
@@ -855,8 +855,8 @@ def getTopRankedData(category):
         if games.get(g) is not None:
             games[g].totalPlays = q
     return (cats, mecs, title, result)
-    
-def getRawFrontPageData():   
+
+def getRawFrontPageData():
     import library, mydb
     sql = "select geek, totalPlays, distinctGames, top50, sdj, hindex, owned, want, wish, trade, prevOwned, friendless, cfm, utilisation, tens, zeros, ext100, mv from frontpagegeek"
     data = mydb.query(sql)
@@ -882,9 +882,9 @@ def getRawFrontPageData():
         t.ext100 = ext100
         t.mv = mv
         rows.append(t)
-    return rows    
-    
-def addPissingWarRanks(rows):    
+    return rows
+
+def addPissingWarRanks(rows):
     addRanks(rows, "owned", "ownedRank", "Games Owned")
     addRanks(rows, "totalPlays", "playsRank", "Plays Recorded")
     addRanks(rows, "distinctGames", "distinctRank", "Distinct Games Played")
@@ -901,8 +901,8 @@ def addPissingWarRanks(rows):
     addRanks(rows, "friendless", "friendlessRank", "Friendless Metric")
     addRanks(rows, "cfm", "cfmRank", "Continuous Friendless Metric")
     addRanks(rows, "zeros", "zerosRank", "Games Owned Played Zero Times")
-    addRanks(rows, "tens", "tensRank", "Games Owned Played 10 Times")    
-      
+    addRanks(rows, "tens", "tensRank", "Games Owned Played 10 Times")
+
 def getAustraliaFrontPagePlaysData():
     import mydb
     all = getRawFrontPageData()
@@ -913,7 +913,7 @@ def getAustraliaFrontPagePlaysData():
     addPissingWarRanks(rows)
     rows.sort(lambda g1, g2: cmp(g1.geek.lower(), g2.geek.lower()))
     return rows
-    
+
 def getFrontPagePlaysData():
     rows = getRawFrontPageData()
     addPissingWarRanks(rows)
@@ -946,11 +946,12 @@ def getMostPlayedTimelineData(context):
             minDate = gg.firstPlay
     if minDate is None:
         return None, None, None
+    today = datetime.date.today()
     if library.daysSince(minDate) > 12 * 366:
-        minDate = library.TODAY - datetime.timedelta(days=12 * 366)
+        minDate = today - datetime.timedelta(days=12 * 366)
     result = [ MPTData(gg) for gg in ggs ]
-    ty = library.TODAY.year
-    tm = library.TODAY.month
+    ty = today.year
+    tm = today.month
     for mptd in result:
         accum = 0
         y = minDate.year
@@ -989,7 +990,7 @@ def getGeekYears(geek):
     data = mydb.query(sql, [geek])
     return [ int(d[0]) for d in data ]
 
-def getShouldPlayGames(context, owned):  
+def getShouldPlayGames(context, owned):
     import library,  datetime
     substrate = context.substrate
     options = library.Thing()
@@ -1020,9 +1021,9 @@ def getShouldPlayGames(context, owned):
             gg.lastPlayed = gg.lastPlay
             gg.sincePlayed = int((now - gg.lastPlay).days)
             gg.score = float(gg.sincePlayed * r * r * r * r)
-    result.sort(lambda g1,  g2: -cmp(g1.score,  g2.score))        
+    result.sort(lambda g1,  g2: -cmp(g1.score,  g2.score))
     return result
-    
+
 def getShouldPlayData(context):
     ggs = getShouldPlayGames(context,  False)
     return ggs[:20]
@@ -1052,14 +1053,14 @@ def getFavouriteGamesByPublishedYear(context):
         t.games.sort(library.gameName)
         result.append(t)
     return result
-    
+
 def getWhatIfData(context):
     import library
     opts = context.options.pogo
     geekgames = context.substrate.getOwnedGamesExcludingBooks(opts)
     result = []
     for gg in geekgames:
-        r = library.Thing()        
+        r = library.Thing()
         r.name = gg.game.name
         r.plays = gg.plays
         if gg.owned:
@@ -1069,15 +1070,15 @@ def getWhatIfData(context):
         result.append(r)
     result.sort(library.gameName)
     return result
-    
+
 def getPlaysCSVData(context):
     return context.substrate.getPlaysForDescribedRange([])[0]
-        
+
 def getFavourites(context, selector):
     result = getGeekGames(context, selector)
     result.sort(lambda t1, t2: -cmp(t1.fave, t2.fave))
     return result
-    
+
 def getGeekGames(context, selector):
     import math,  library, datetime
     geekgames = selector.getGames(context, context.options.fave)
@@ -1105,7 +1106,7 @@ def getGeekGames(context, selector):
         t.monthsPlayed = int(gg.monthsPlayed)
         if t.lastPlay is not None and t.firstPlay is not None and t.monthsPlayed > 0 and t.rating > 0:
             t.flash = library.daysBetween(t.firstPlay,  t.lastPlay)
-            t.lag = library.daysBetween(t.lastPlay,  library.TODAY)
+            t.lag = library.daysBetween(t.lastPlay,  datetime.date.today())
             t.flmr = t.flash * 1.0 / t.lag * t.monthsPlayed * t.rating
             if t.flmr <= 1:
                 t.log = 0
@@ -1124,27 +1125,27 @@ def getGeekGames(context, selector):
         t.playTime = gg.game.playtime
         t.usersRated = gg.game.usersrated
         t.usersOwned = gg.game.usersowned
-        t.subdomain = gg.game.subdomain  
+        t.subdomain = gg.game.subdomain
         t.weight = gg.game.averageweight
         if t.lastPlay is not None:
-            t.sincePlayed = int((now - t.lastPlay).days)  
+            t.sincePlayed = int((now - t.lastPlay).days)
         else:
             t.sincePlayed = 0
         if t.lastPlay is None or t.rating < 7:
             t.shouldPlayScore = 0.0
         else:
             r = t.rating
-            t.shouldPlayScore = float(t.sincePlayed * r * r * r * r)    
+            t.shouldPlayScore = float(t.sincePlayed * r * r * r * r)
         t.utilisation = int(library.cdf(t.plays, LAMBDA) * 10000.0) / 100.0
         if t.rating > 0:
             t.whyOwn = float(t.sincePlayed) / t.rating / t.rating
         else:
-            t.whyOwn = 0.0        
+            t.whyOwn = 0.0
         result.append(t)
     result.sort(lambda t1, t2: -cmp(t1.fave, t2.fave))
     return result
-    
-def calcHIndex(data):    
+
+def calcHIndex(data):
     data = data[:]
     data.sort(lambda t1, t2: -cmp(t1.plays, t2.plays))
     hindex = 0
@@ -1321,7 +1322,7 @@ def getNumPlayersData(context):
             g = gs[gid]
             mult = 1.0
             if players < g.minplayers or players > g.maxplayers:
-                mult = 0.75      
+                mult = 0.75
             t = library.Thing()
             (t.name, t.url) = (g.name, g.url)
             t.rating = rating
@@ -1353,7 +1354,7 @@ def getLeastWanted(context):
         t.x = x
         result.append(t)
     return result
-  
+
 def getPlaysForYear(substrate, year):
     import library
     (startDate, endDate) = library.makeDateRange(year, None,  None)
@@ -1395,7 +1396,7 @@ def getStreaks(context):
             else:
                 # previous was just a single day
                 startDate = d
-            prevDate = d                
+            prevDate = d
         if streakLength > 1:
             streaks.append((startDate, prevDate, streakLength))
         if len(streaks) == 0:
@@ -1445,7 +1446,7 @@ def getBestDays(context, year=None):
                 continue
             score += math.copysign(q * math.pow(math.copysign(r-5.0,  1),  1.75),  r - 5.0)
         calcs.append((d,  playDescs,  score))
-    calcs.sort(lambda d1,  d2: -cmp(d1[2],  d2[2]))  
+    calcs.sort(lambda d1,  d2: -cmp(d1[2],  d2[2]))
     result = []
     for (d,  ps,  score) in calcs:
         t = library.Thing()
@@ -1485,7 +1486,7 @@ class DesignerPlaysData:
         result["expansions"] = self.expansions
         result["games"] = self.games
         return result
-        
+
 def getDimesByDesigner(context, year=None):
     import library, mydb
     range = []
@@ -1531,11 +1532,11 @@ def getDimesByDesigner(context, year=None):
         d.totalPlays = d.baseGamePlays + d.expansionPlays
         d.baseGameCount = len(d.baseGames)
         d.expansionCount = len(d.expansions)
-        d.totalCount = d.baseGameCount + d.expansionCount  
+        d.totalCount = d.baseGameCount + d.expansionCount
         d.games.sort(lambda g1, g2: -cmp(g1.plays, g2.plays))
-    result = [ d for d in designers.values() if d.totalPlays >= 10 ]   
+    result = [ d for d in designers.values() if d.totalPlays >= 10 ]
     result.sort(lambda d1, d2: -cmp(d1.totalPlays, d2.totalPlays))
-    return result    
+    return result
 
 def getPlaysRecordedYears(context):
     import mydb
@@ -1986,7 +1987,7 @@ def getCatMecData(context, typ):
     result = [ r for r in result if r.rating > 0 or r.owned > 0 ]
     result.sort(lambda r1, r2: cmp(r1.name, r2.name))
     return result
-    
+
 def getNormalisedRankingsData():
     import library, mydb
     sql = "select geek, count(geek) from geekgames where rating > 0 group by geek"
@@ -2009,14 +2010,14 @@ def getNormalisedRankingsData():
             t.rankAs = t.soFar
             t.lastRating = rating
         t.soFar += 1
-        score = 1.0 * (t.count - t.rankAs) / t.count  
+        score = 1.0 * (t.count - t.rankAs) / t.count
         g = pointsForGames.get(gid)
         if g is None:
             g = library.Thing()
             pointsForGames[gid] = g
             g.bggid = gid
             g.score = 0
-            g.count = 0 
+            g.count = 0
         g.score += score
         g.count += 1
     gs = pointsForGames.values()[:]
@@ -2051,14 +2052,14 @@ def getNormalisedRankingsDataForGames(bggids):
             t.rankAs = t.soFar
             t.lastRating = rating
         t.soFar += 1
-        score = 1.0 * (t.count - t.rankAs) / t.count  
+        score = 1.0 * (t.count - t.rankAs) / t.count
         g = pointsForGames.get(gid)
         if g is None:
             g = library.Thing()
             pointsForGames[gid] = g
             g.bggid = gid
             g.score = 0
-            g.count = 0 
+            g.count = 0
         g.score += score
         g.count += 1
     gs = pointsForGames.values()[:]
@@ -2089,7 +2090,7 @@ def getTradeData(context):
         t.want = 0
         t.trade = 0
         t.sell = 0
-        usernames.append(t.username)    
+        usernames.append(t.username)
         geeks.append(t)
         byGeek[t.username.lower()] = t
         t.forTrade = []
@@ -2173,15 +2174,16 @@ def getTradeData(context):
         interestingGames.append(g)
     interestingGames.sort(lambda g1, g2: cmp(g1.name.lower(), g2.name.lower()))
     mostWantedGames.sort(lambda g1, g2: -cmp(g1.howManyWant, g2.howManyWant))
-    leastWantedGames.sort(lambda g1, g2: -cmp(g1.howManyDontWant, g2.howManyDontWant))   
+    leastWantedGames.sort(lambda g1, g2: -cmp(g1.howManyDontWant, g2.howManyDontWant))
     return (country, geeks, interestingGames, mostWantedGames[:30], leastWantedGames[:30])
-    
+
 def getTemporalHotnessMonthData(context):
-    import library
+    import library, datetime
     plays = context.substrate.filterPlays(None, None)[0]
     years = getGeekYears(context.geek)
-    if library.TODAY.year not in years:
-        years.append(library.TODAY.year)
+    today = datetime.date.today()
+    if today.year not in years:
+        years.append(today.year)
     result = []
     values = []
     totals = []
@@ -2214,9 +2216,9 @@ def getTemporalHotnessMonthData(context):
         m = library.Thing()
         m.count = monthTotals[i]
         counts.append(m.count)
-        t.months.append(m)        
+        t.months.append(m)
     (avg, sd) = stddev(counts)
-    applyHotnessClasses(t.months, avg, sd)       
+    applyHotnessClasses(t.months, avg, sd)
     while len(values) > 0 and values[0] == 0:
         values = values[1:]
     while len(values) > 0 and values[-1] == 0:
@@ -2226,19 +2228,20 @@ def getTemporalHotnessMonthData(context):
         for year in result:
             applyHotnessClasses(year.months, avg, sd)
     while len(totals) > 0 and totals[-1] == 0:
-        totals = totals[:-1]           
-    if len(totals) > 0:        
+        totals = totals[:-1]
+    if len(totals) > 0:
         (avg, sd) = stddev(totals)
-        applyHotnessClasses(result, avg, sd)    
+        applyHotnessClasses(result, avg, sd)
     result.append(t)
     return result
-    
+
 def getTemporalHotnessDayData(context):
-    import library
-    plays = context.substrate.filterPlays(None, None)[0]  
+    import library, datetime
+    plays = context.substrate.filterPlays(None, None)[0]
     years = getGeekYears(context.geek)
-    if library.TODAY.year not in years:
-        years.append(library.TODAY.year)    
+    today = datetime.date.today()
+    if today.year not in years:
+        years.append(today.year)
     dayTotals = library.Counts()
     yearTotals = library.Counts()
     dayYear = library.DictOfCounts()
@@ -2247,7 +2250,7 @@ def getTemporalHotnessDayData(context):
             continue
         dow = p.dt.weekday()
         dayTotals.add(dow, p.count)
-        yearTotals.add(p.year, p.count)    
+        yearTotals.add(p.year, p.count)
         dayYear.add(p.year, dow, p.count)
     result = []
     values = []
@@ -2265,7 +2268,7 @@ def getTemporalHotnessDayData(context):
     applyHotnessClasses(result, avg, sd)
     (avg, sd) = stddev(values)
     for year in result:
-        applyHotnessClasses(year.data, avg, sd)    
+        applyHotnessClasses(year.data, avg, sd)
     all = library.Thing("Total")
     all.count = sum([y.count for y in result])
     all.data = []
@@ -2274,14 +2277,14 @@ def getTemporalHotnessDayData(context):
         t.count = dayTotals[dow]
         all.data.append(t)
     (avg, sd) = stddev([t.count for t in all.data])
-    applyHotnessClasses(all.data, avg, sd)      
+    applyHotnessClasses(all.data, avg, sd)
     result.append(all)
     return result
-    
+
 def getTemporalHotnessDateData(context):
     import library
-    plays = context.substrate.filterPlays(None, None)[0]    
-    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]    
+    plays = context.substrate.filterPlays(None, None)[0]
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     result = []
     values = []
     totals = []
@@ -2323,13 +2326,13 @@ def getTemporalHotnessDateData(context):
     (avg, sd) = stddev(values)
     for t in result:
         for d in t.data:
-            applyHotnessClasses(t.data, avg, sd)               
+            applyHotnessClasses(t.data, avg, sd)
     (avg, sd) = stddev(totals)
-    applyHotnessClasses(result, avg, sd)    
+    applyHotnessClasses(result, avg, sd)
     result.append(all)
     return result
-    
-def applyHotnessClasses(values, avg, sd):  
+
+def applyHotnessClasses(values, avg, sd):
     for m in values:
         m.cssClass = "class3"
         if m.count == 0:
@@ -2343,14 +2346,14 @@ def applyHotnessClasses(values, avg, sd):
             if m.count > avg + sd:
                 m.cssClass = "class5"
             else:
-                m.cssClass = "class4" 
-    
+                m.cssClass = "class4"
+
 def average(s):
-    return sum(s) * 1.0 / len(s)    
-    
+    return sum(s) * 1.0 / len(s)
+
 def variance(s, avg):
-    return map(lambda x: (x - avg)**2, s)    
-    
+    return map(lambda x: (x - avg)**2, s)
+
 def stddev(s):
     import math
     avg = average(s)

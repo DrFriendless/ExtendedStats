@@ -8,10 +8,10 @@ class Feature(object):
         self.title = title
         self.contentsFile = contentsFile
         self.cssClass = cssClass
-        
+
     def enabled(self, options):
         return options.__dict__.get("include" + self.name)
-        
+
 class PogoTable(Feature):
     def __init__(self, selector):
         Feature.__init__(self, "PogoTable", "stats/pogotable.html", "pogotable", "Plays of Games Owned Table")
@@ -19,7 +19,7 @@ class PogoTable(Feature):
             import selectors
             selector = selectors.getSelectorFromString(selector)
         self.selector = selector
-        
+
     def generate(self, context):
         import generate
         (pogo, pogoCollections) = generate.getPogoData(context, self.selector)
@@ -28,28 +28,28 @@ class PogoTable(Feature):
 class Morgan(Feature):
     def __init__(self):
         Feature.__init__(self, "Morgan", "stats/morgan.html", "mmmpie", "Pie Charts for Morgan")
-        
+
     def generate(self, context):
         return {}
 
 class Florence(Feature):
     def __init__(self):
         Feature.__init__(self, "Florence", "stats/florence.html", "florence", "Florence Nightingale Gamer Characterisation")
-        
+
     def generate(self, context):
         import imggen
         florence = imggen.getFlorenceSettings()
-        florenceDefault = "lastyear"   
+        florenceDefault = "lastyear"
         return { "florence" : florence, "florenceDefault" : florenceDefault }
-        
+
 class MorePie(Feature):
     def __init__(self):
         Feature.__init__(self, "More Pie Charts", "stats/morepie.html", "morepie", "Mike Hulsebus-style Pie Chart")
-        
+
     def generate(self, context):
-        morePieDefault = "lastyear"   
+        morePieDefault = "lastyear"
         return { "morePieDefault" : morePieDefault }
-        
+
 class PlaysByPublishedYear(Feature):
     def __init__(self, upsideDown):
         if upsideDown:
@@ -57,12 +57,12 @@ class PlaysByPublishedYear(Feature):
         else:
             Feature.__init__(self, "Pbpy", "stats/pbpy.html", "pbpy", "Plays of Games Owned by Published Year")
         self.upsideDown = upsideDown
-    
+
     def generate(self, context):
         import imgviews
         (img, rbpymap) = imgviews.playsByPublishedYear(context, self.upsideDown)
         return {"pbpydata" : imageBinaryData(img), "pbpymap" : rbpymap }
-        
+
 class OwnedByPublishedYear(Feature):
     def __init__(self, upsideDown):
         if upsideDown:
@@ -70,20 +70,20 @@ class OwnedByPublishedYear(Feature):
         else:
             Feature.__init__(self, "Obpy", "stats/obpy.html", "obpy", "Games Owned by Published Year")
         self.upsideDown = upsideDown
-        
+
     def generate(self, context):
         import imgviews
         (img, obpymap) = imgviews.ownedByPublishedYear(context, self.upsideDown)
         return { "obpydata" : imageBinaryData(img), "obpymap" : obpymap }
-        
-class RatingByPublishedYear(Feature):        
+
+class RatingByPublishedYear(Feature):
     def __init__(self, upsideDown):
         if upsideDown:
             Feature.__init__(self, "Rbpyu", "stats/rbpy.html", "rbpyu", "Ratings by Published Year Upside Down")
         else:
             Feature.__init__(self, "Rbpy", "stats/rbpy.html", "rbpy", "Ratings by Published Year")
         self.upsideDown = upsideDown
-        
+
     def generate(self, context):
         import imgviews
         if self.upsideDown:
@@ -97,7 +97,7 @@ class RatingByPublishedYear(Feature):
 class MostUnplayed(Feature):
     def __init__(self):
         Feature.__init__(self, "MostUnplayed", "stats/mostunplayed.html", "mostunplayed", "Most Played Games That You Haven't Played")
-        
+
     def generate(self, context):
         import generate
         mostUnplayed = generate.getMostPlayedUnplayedGames(context)
@@ -107,112 +107,112 @@ def imageBinaryData(img):
     import StringIO, urllib
     src = StringIO.StringIO()
     img.save(src, "PNG")
-    data = urllib.quote(src.getvalue()) 
+    data = urllib.quote(src.getvalue())
     return data
-        
-class PlayRate(Feature):        
+
+class PlayRate(Feature):
     def __init__(self, selector):
         Feature.__init__(self, "PlayRate", "stats/playrate.html", "playrate", "Plays by Rating")
         self.selector = selector
-        
+
     def generate(self, context):
         import imggen, generate
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
             return None
-        (img, imap) = imggen.createPlayRateGraph(context, data)        
+        (img, imap) = imggen.createPlayRateGraph(context, data)
         return {"prdata" : imageBinaryData(img), "prmap" : imap }
 
-class PlayRateOwn(Feature):        
+class PlayRateOwn(Feature):
     def __init__(self):
         import selectors
         Feature.__init__(self, "PlayRateOwn", "stats/playrateown.html", "playrateown", "Plays by Rating for Games that You Own")
         self.selector = selectors.getSelectorFromString("/owned/books/minus")
-        
+
     def generate(self, context):
-        import imggen, generate    
+        import imggen, generate
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
-            return None        
-        (img, imap) = imggen.createPlayRateGraph(context, data)        
+            return None
+        (img, imap) = imggen.createPlayRateGraph(context, data)
         return { "prodata" : imageBinaryData(img), "promap" : imap }
 
-class PlayRatePrevOwn(Feature):        
+class PlayRatePrevOwn(Feature):
     def __init__(self):
         Feature.__init__(self, "PlayRatePrev", "stats/playrateprev.html", "playrateprev", "Plays by Rating for Games that You Previously Owned")
         self.selector = selectors.getSelectorFromString("/prevowned/owned/minus/books/minus")
-        
+
     def generate(self, context):
-        import imggen, generate  
+        import imggen, generate
         data = generate.getPlayRateData(context, self.selector)
         if len(data[0]) == 0:
-            return None  
-        (img, imap) = imggen.createPlayRateGraph(context, data)         
+            return None
+        (img, imap) = imggen.createPlayRateGraph(context, data)
         return { "prevdata" : imageBinaryData(img), "prevmap" : imap }
-        
+
 class PlaysByMonthEver(Feature):
     def __init__(self):
         Feature.__init__(self, "PlaysByMonthEver", "stats/pbmever.html", "pbmever", "Plays by Month (Ever)")
-        
-    def generate(self, context):    
+
+    def generate(self, context):
         import generate
         pbm = generate.getPBMData(context)
-        return { "pbm" : pbm }       
+        return { "pbm" : pbm }
 
 class PlaysByMonthYTD(Feature):
     def __init__(self):
-        Feature.__init__(self, "PlaysByMonthYTD", "stats/pbmytd.html", "pbmytd", "Plays by Month (Year to Date)")    
+        Feature.__init__(self, "PlaysByMonthYTD", "stats/pbmytd.html", "pbmytd", "Plays by Month (Year to Date)")
 
-    def generate(self, context):        
+    def generate(self, context):
         import generate
         pbm = generate.getPBMData(context)
-        return { "pbm" : pbm }     
-        
-class PlaysByMonthTimeline(Feature):
-    def __init__(self):  
-        Feature.__init__(self, "PlaysByMonthTimeline", "stats/pbmtimeline.html", "timeline", "Plays by Month Timeline")  
+        return { "pbm" : pbm }
 
-    def generate(self, context):        
+class PlaysByMonthTimeline(Feature):
+    def __init__(self):
+        Feature.__init__(self, "PlaysByMonthTimeline", "stats/pbmtimeline.html", "timeline", "Plays by Month Timeline")
+
+    def generate(self, context):
         import generate
         pbm = generate.getPBMData(context)
         timelineHeight = context.options.pbm.timelineHeight
-        timelineWidth = context.options.pbm.timelineWidth           
-        return { "pbm" : pbm, "timelineHeight" : timelineHeight, "timelineWidth" : timelineWidth }     
+        timelineWidth = context.options.pbm.timelineWidth
+        return { "pbm" : pbm, "timelineHeight" : timelineHeight, "timelineWidth" : timelineWidth }
 
 class PlaysByMonthGraph(Feature):
     def __init__(self):
-        Feature.__init__(self, "PlaysByMonthGraph", "stats/pbmgraph.html", "pbmgraph", "Plays by Month Graph")    
+        Feature.__init__(self, "PlaysByMonthGraph", "stats/pbmgraph.html", "pbmgraph", "Plays by Month Graph")
 
-    def generate(self, context):        
+    def generate(self, context):
         import generate
         pbm = generate.getPBMData(context)
-        return { "pbm" : pbm }     
-        
+        return { "pbm" : pbm }
+
 class PlayRatings(Feature):
     def __init__(self):
         Feature.__init__(self, "PlayRatings", "stats/ratedplays.html", "pr", "Play Ratings")
-        
+
     def generate(self, context):
         import generate
         playRatings = generate.getPlayRatings(context)
-        return { "playRatings" : playRatings } 
-        
+        return { "playRatings" : playRatings }
+
 class GenericTable(Feature):
     def __init__(self, selector):
         Feature.__init__(self, "GenericTable", "stats/genericgamestable.html", "generic", "Games")
         self.selector = selector
-        
+
     def generate(self, context):
         import generate, selectors
-        games = generate.getGeekGames(context, self.selector)     
+        games = generate.getGeekGames(context, self.selector)
         ss = selectors.getSelectorData(context)
         return { "games" : games, "selectors" : ss }
-        
+
 class Favourites(GenericTable):
     def __init__(self, selector):
         Feature.__init__(self, "Favourites", "stats/favourites.html", "favourites", "Your Favourite Games")
         self.selector = selector
-        
+
     def generate(self, context):
         import generate
         all = GenericTable.generate(self, context)
@@ -220,10 +220,10 @@ class Favourites(GenericTable):
         del(all["games"])
         bggCorrelation = generate.calcCorrelation(favourites)
         bggCorrelationRankedOnly = generate.calcCorrelationRankedOnly(favourites)
-        hindex = generate.calcHIndex(favourites)        
+        hindex = generate.calcHIndex(favourites)
         all.update({ "favourites" : favourites, "hindex" : hindex, "bggCorrelation" : bggCorrelation, "bggCorrelationRankedOnly" : bggCorrelationRankedOnly })
         return all
-        
+
 class Pogo(Feature):
     def __init__(self, selector):
         Feature.__init__(self, "Pogo", "stats/pogo.html", "pogo", "Plays of Games")
@@ -231,7 +231,7 @@ class Pogo(Feature):
             import selectors
             selector = selectors.getSelectorFromString(selector)
         self.selector = selector
-        
+
     def generate(self, context):
         import generate, imggen
         (pogo, pogoCollections) = generate.getPogoData(context, self.selector)
@@ -241,10 +241,10 @@ class Pogo(Feature):
         title = self.selector.name
         return { "collection" : pogoCollections[0], "pogomap" : pogomap, "selectors" : ss, "title" : title,
                  "url" : "/dynamic/image/pogo", "username" : context.geek }
-        
+
 class GiniTable(Feature):
     def __init__(self, selector):
-        Feature.__init__(self, "Pogo", "stats/gini.html", "gini", "Gini Coefficient")
+        Feature.__init__(self, "Gini", "stats/gini.html", "gini", "Gini Coefficient")
         if type(selector) == type(""):
             import selectors
             selector = selectors.getSelectorsFromString(selector)
@@ -278,103 +278,103 @@ class GiniTable(Feature):
 class FavesByPublishedYear(Feature):
     def __init__(self):
         Feature.__init__(self, "FaveByPubYear", "stats/fgbpy.html", "fgbpy", "Your Favourite Games By Published Year")
-        
+
     def generate(self, context):
         import generate
-        fgbpy = generate.getFavouriteGamesByPublishedYear(context) 
+        fgbpy = generate.getFavouriteGamesByPublishedYear(context)
         if len(fgbpy) == 0:
             return None
-        return { "fgbpy" : fgbpy }    
-        
+        return { "fgbpy" : fgbpy }
+
 class BestDays(Feature):
     def __init__(self):
         Feature.__init__(self, "BestDays", "stats/bestdays.html", "bestdays", "Best Days in Gaming")
-        
+
     def generate(self, context):
         import generate
         bestDays = generate.getBestDays(context)[:20]
         if len(bestDays) == 0:
             return None
-        return { "bestDays" : bestDays }          
-        
+        return { "bestDays" : bestDays }
+
 class Streaks(Feature):
     def __init__(self):
         Feature.__init__(self, "Streaks", "stats/streaks.html", "streaks", "Most Consecutive Days Playing Games")
-        
+
     def generate(self, context):
         import generate
         streaks = generate.getStreaks(context)
         if len(streaks) == 0:
             return None
-        return { "streaks" : streaks }          
-        
+        return { "streaks" : streaks }
+
 class RatingByRanking(Feature):
     def __init__(self):
         Feature.__init__(self, "RatingByRanking", "stats/ratingbyranking.html", "ratingByRanking", "Ratings by Ranking")
-        
+
     def generate(self, context):
         import generate
         ratingByRanking = generate.getRatingByRanking(context)
-        return { "ratingByRanking" : ratingByRanking }       
-     
+        return { "ratingByRanking" : ratingByRanking }
+
 class PlaysByRanking(Feature):
     def __init__(self):
         Feature.__init__(self, "PlaysByRanking", "stats/playsByRanking.html", "playsByRanking", "Plays by Ranking")
-        
+
     def generate(self, context):
         import generate
         playsByRanking = generate.getPlaysByRanking(context)
-        return { "playsByRanking" : playsByRanking }       
-     
+        return { "playsByRanking" : playsByRanking }
+
 class LeastWanted(Feature):
     def __init__(self):
         Feature.__init__(self, "LeastWanted", "stats/least.html", "least", "Why Do You Even Own These Games?")
-        
+
     def generate(self, context):
         import generate
         least = generate.getLeastWanted(context)
         if len(least) == 0:
             return None
-        return { "least" : least }    
-        
+        return { "least" : least }
+
 class Unusual(Feature):
     def __init__(self):
         Feature.__init__(self, "Unusual", "stats/unusual.html", "unusual", "The Most Unusual Games You Own")
-        
+
     def generate(self, context):
         import generate
         unusual = generate.getUnusualData(context)
         unusual = unusual[:10]
         if len(unusual) == 0:
             return None
-        return { "unusual" : unusual }    
-        
+        return { "unusual" : unusual }
+
 class ShouldPlay(Feature):
     def __init__(self):
         Feature.__init__(self, "ShouldPlay", "stats/shouldplay.html", "shouldplay", "Games You Should Play")
-        
+
     def generate(self, context):
         import generate
         shouldPlay = generate.getShouldPlayData(context)
         if len(shouldPlay) == 0:
             return None
-        return { "shouldPlay" : shouldPlay }    
-        
+        return { "shouldPlay" : shouldPlay }
+
 class ShouldPlayOwn(Feature):
     def __init__(self):
         Feature.__init__(self, "ShouldPlayOwn", "stats/shouldplayown.html", "shouldplayown", "Games You Should Play Which You Own")
-        
+
     def generate(self, context):
         import generate
-        shouldPlayOwn = generate.getShouldPlayOwnData(context) 
+        shouldPlayOwn = generate.getShouldPlayOwnData(context)
         if len(shouldPlayOwn) == 0:
             return None
-        return { "shouldPlayOwn" : shouldPlayOwn }    
-        
+        return { "shouldPlayOwn" : shouldPlayOwn }
+
 class YearlySummaries(Feature):
     def __init__(self):
         Feature.__init__(self, "YearlySummaries", "stats/yearlysummaries.html", "yearly", "Yearly Summaries", cssClass="OtherPage", contentsFile="stats/yearlysummaries.html")
-        
+
     def generate(self, context):
         import generate
         playsYears = generate.getPlaysRecordedYears(context)
@@ -386,73 +386,73 @@ class YearlySummaries(Feature):
         if len(playsYears) > 0:
             playsYearsRows.append(playsYears)
         return { "playsYearsRows" : playsYearsRows }
-        
+
 class PlaysByQuarter(Feature):
     def __init__(self):
         Feature.__init__(self, "PlaysByQuarter", "stats/pbq.html", "pbq", "How Much Do You Play New Games?")
-        
+
     def generate(self, context):
         import generate
         # decide whether to show the image or not
         if not generate.hasPlaysData(context):
             return None
-        return {}      
-        
-class TemporalHotnessMonth(Feature):   
+        return {}
+
+class TemporalHotnessMonth(Feature):
     def __init__(self):
-        Feature.__init__(self, "TempHot", "stats/temphotmonth.html", "thm", "Temporal Hotness by Month")    
-        
+        Feature.__init__(self, "TempHot", "stats/temphotmonth.html", "thm", "Temporal Hotness by Month")
+
     def generate(self, context):
         import generate
         if not generate.hasPlaysData(context):
-            return None       
+            return None
         data = generate.getTemporalHotnessMonthData(context)
         return { "thm" : data }
-        
-class TemporalHotnessDate(Feature):   
+
+class TemporalHotnessDate(Feature):
     def __init__(self):
-        Feature.__init__(self, "TempHotDate", "stats/temphotdate.html", "thd", "Temporal Hotness by Date")    
-        
+        Feature.__init__(self, "TempHotDate", "stats/temphotdate.html", "thd", "Temporal Hotness by Date")
+
     def generate(self, context):
         import generate
         if not generate.hasPlaysData(context):
-            return None       
+            return None
         data = generate.getTemporalHotnessDateData(context)
         return { "thd" : data }
-        
-class TemporalHotnessDay(Feature):   
+
+class TemporalHotnessDay(Feature):
     def __init__(self):
-        Feature.__init__(self, "TempHotDay", "stats/temphotday.html", "thday", "Temporal Hotness by Day of Week")    
-        
+        Feature.__init__(self, "TempHotDay", "stats/temphotday.html", "thday", "Temporal Hotness by Day of Week")
+
     def generate(self, context):
         import generate
         if not generate.hasPlaysData(context):
-            return None       
+            return None
         data = generate.getTemporalHotnessDayData(context)
         return { "thday" : data }
-        
+
 class DimesByDesigner(Feature):
     def __init__(self):
         Feature.__init__(self, "DByD", "stats/dimesbydesigner.html", "dimesbydesigner", "Dimes by Designer")
         self.resultFile = "stats/dimesbydesigner_result.html"
-        
+
     def generate(self, context):
         import generate
         designerDimes = generate.getDimesByDesigner(context)
         if len(designerDimes) == 0:
             return None
         return { "designerDimes" : designerDimes }
-    
+
 class FeatureList(Feature):
     def __init__(self):
         Feature.__init__(self, "flist", "stats/featurelist.html", "featurelist", "Feature List")
-        
+
     def generate(self, context):
         return { "features" : FEATURES }
-    
+
 class Consistency(Feature):
     DEFAULT_SELECTOR = "/played"
-    
+
     def __init__(self, selector, months):
         Feature.__init__(self, "consistency", "stats/consistency.html", "consistency", "Consistency of Play Graph")
         if type(selector) == type(""):
@@ -460,7 +460,7 @@ class Consistency(Feature):
             selector = selectors.getSelectorFromString(selector)
         self.selector = selector
         self.months = months
-        
+
     def generate(self, context):
         import generate
         data = generate.getConsistencyData(context, self.selector, self.months)
@@ -479,7 +479,7 @@ class PlaysByYear(Feature):
         if len(data) == 0:
             return None
         return { "pbyData" : data }
-        
+
 class PlayLocations(Feature):
     def __init__(self):
         Feature.__init__(self, "PlayLocations", "stats/locations.html", "locations", "Play Locations")

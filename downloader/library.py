@@ -1,4 +1,3 @@
-import sitedata
 DAY = 24 * 3600
 
 EXPANSION = 1
@@ -6,12 +5,12 @@ BASEGAME = 2
 
 def esc(s):
     import MySQLdb
-    return MySQLdb.escape_string(s)    
-    
+    return MySQLdb.escape_string(s)
+
 class Thing:
     def __init__(self):
         pass
-        
+
     def __str__(self):
         return "Thing[%s]" % str(self.__dict__)
 
@@ -73,9 +72,6 @@ def newImage(w=800, h=600, yextra=0, marginProportion=20):
     draw.line([(xlo, yhi), (xhi, yhi)], BLACK)
     return (img, draw, xlo, xhi, ylo, yhi)
 
-import datetime
-TODAY = datetime.date.today()
-
 def playsToColour(plays):
     if plays == 0:
         return WHITE
@@ -93,7 +89,7 @@ def playsToColour(plays):
         return DARKGREEN
 
 def daysSince(d):
-    import datetime, time, sys
+    import datetime
     try:
         fields = [ int(x) for x in d.split("-") ]
         pd = datetime.date(fields[0], fields[1], fields[2])
@@ -104,9 +100,9 @@ def daysSince(d):
         import traceback
         traceback.print_stack()
         return -1
-    delta = TODAY - pd
+    delta = datetime.date.today() - pd
     return delta.days
-    
+
 def daysBetween(firstDate, lastDate):
     delta = lastDate - firstDate
     m = delta.days
@@ -189,7 +185,7 @@ class DictOfDictOfLists:
         ks = self.data.keys()[:]
         ks.sort()
         return ks
-        
+
     def __str__(self):
         return str(self.data)
 
@@ -215,24 +211,24 @@ class DictOfLists:
 
     def keys(self):
         return self.data.keys()
-        
+
     def addAll(self, dol):
         for (k, vs) in dol.data.items():
             for v in vs:
                 self.add(k, v)
-                
+
     def __len__(self):
-        return len(self.data)        
-        
+        return len(self.data)
+
     def size(self):
         tot = 0
         for v in self.data.values():
             tot = tot + len(v)
-        return tot        
-        
+        return tot
+
     def __repr__(self):
         return `self.data`
-        
+
     def __str__(self):
         return str(self.data)
 
@@ -263,11 +259,11 @@ class Set:
     def addAll(self, stuff):
         for x in stuff:
             self.add(x)
-          
+
     def removeAll(self, stuff):
         for x in stuff:
             self.remove(x)
-          
+
     def sort(self):
         ret = self.data[:]
         ret.sort()
@@ -291,7 +287,7 @@ class DictOfCounts:
 
     def get(self, key):
         return self.data.get(key)
-        
+
     def getCount(self, key, value):
         if self.data.get(key) is None:
             return 0
@@ -309,10 +305,10 @@ class DictOfCounts:
         return self.data.items()[:]
 
     def keys(self):
-        return self.data.keys()[:]        
-        
+        return self.data.keys()[:]
+
     def __len__(self):
-        return len(self.data)        
+        return len(self.data)
 
 class Counts:
     def __init__(self):
@@ -325,10 +321,10 @@ class Counts:
 
     def items(self):
         return self.data.items()[:]
-        
+
     def values(self):
         return self.data.values()[:]
-        
+
     def asMap(self):
         return self.data.copy()
 
@@ -358,19 +354,19 @@ class Counts:
 
     def __str__(self):
         return str(self.data)
-        
+
     def __len__(self):
         return len(self.data)
-    
+
 class AnnotatedCounts(Counts):
     def __init__(self):
         Counts.__init__(self)
         self.annotations = DictOfLists()
-        
+
     def addAnnotated(self, key, count, anno):
         self.add(key, count)
         self.annotations.add(key, anno)
-        
+
     def getAnnotations(self, key):
         return self.annotations.get(key)
 
@@ -499,11 +495,11 @@ def findBetween(pos, start, end, s):
     after = s[p2:]
     middle = s[p1:p2]
     return (before, middle, after, p2)
-    
+
 def findLinesBetween(lines, start, end):
     result = []
     inside = False
-    for l in lines:    
+    for l in lines:
         if inside:
             if l.find(end) >= 0:
                 return result
@@ -512,9 +508,9 @@ def findLinesBetween(lines, start, end):
         else:
             if l.find(start) >= 0:
                 inside = True
-    return result        
-    
-def deleteFileIfBad(filename):    
+    return result
+
+def deleteFileIfBad(filename):
     "Return whether the file exists now or not."
     import os, logging
     if os.access(filename, os.R_OK):
@@ -544,7 +540,7 @@ def downloadFile(url, filename, verbose=False):
     except subprocess.CalledProcessError:
         logging.warning("curl failed to get %s" % url)
         return 0
-            
+
 def getFile(url, filename, verbose=False):
     import logging
     deleteFileIfBad(filename)
@@ -553,8 +549,8 @@ def getFile(url, filename, verbose=False):
     if not downloadFile(url, filename, verbose):
         return 0
     return 1
-    
-def gameNames(ids, byId):    
+
+def gameNames(ids, byId):
     strs = []
     for id in ids:
         if byId.get(id) is None:
