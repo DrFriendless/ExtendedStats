@@ -3,9 +3,12 @@ class DownloaderRecord(object):
         self.filesprocessed = 0
         self.waittime = 0.0
         self.pausetime = 0.0
+        self.nothing = 0.0
         self.failures = 0
-	self.games = 0
-	self.users = 0
+        self.games = 0
+        self.users = 0
+        self.endtime = None
+        self.startime = None
 
     def usersAndGames(self, u, g):
         self.users = u
@@ -24,21 +27,24 @@ class DownloaderRecord(object):
         pass
 
     def wait(self, howlong):
-        self.waittime = self.waittime + howlong
+        self.waittime += howlong
 
     def pause(self, howlong):
-        self.pausetime = self.pausetime + howlong
+        self.pausetime += howlong
+
+    def nothingToDo(self, howlong):
+        self.nothing += howlong
 
     def processFiles(self, n):
         self.filesprocessed = self.filesprocessed + n
 
     def failure(self):
-        self.failures = self.failures + 1
+        self.failures += 1
 
     def toSQL(self):
         import time
         format = '%Y-%m-%d %H:%M:%S'
-        return "insert into downloader (starttime, endtime, filesprocessed, waittime, pausetime, failures, users, games) values ('%s', '%s', %d, %6.2f, %6.2f, %d, %d, %d)" % (time.strftime(format, time.localtime(self.starttime)), time.strftime(format, time.localtime(self.endtime)), self.filesprocessed, self.waittime, self.pausetime, self.failures, self.users, self.games)
+        return "insert into downloader (starttime, endtime, filesprocessed, waittime, pausetime, nothing, failures, users, games) values ('%s', '%s', %d, %6.2f, %6.2f, %6.2f, %d, %d, %d)" % (time.strftime(format, time.localtime(self.starttime)), time.strftime(format, time.localtime(self.endtime)), self.filesprocessed, self.waittime, self.pausetime, self.nothing, self.failures, self.users, self.games)
 
     def __str__(self):
         import time

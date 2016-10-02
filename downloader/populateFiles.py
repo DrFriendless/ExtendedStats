@@ -629,6 +629,7 @@ def updateFiles(db, records, index, finish, rec):
     global theNumbers
     for record in records:
         time.sleep(1)
+        rec.pause(1)
         if finish is not None and time.time() > finish:
             break
         try:
@@ -644,7 +645,7 @@ def updateFiles(db, records, index, finish, rec):
             db.execute("delete from files where url = %s", [record[1]])
         time.sleep(sitedata.bggPause)
         rec.pause(sitedata.bggPause)
-        theNumbers[index] = theNumbers[index] - 1
+        theNumbers[index] -= 1
 
 theNumbers = None
 
@@ -666,6 +667,7 @@ def refreshFiles(db, finishTime, rec):
     updateFiles(db, files1, 0, finishTime - reserveFor3 - reserveFor2, rec)
     updateFiles(db, files2, 1, finishTime - reserveFor3, rec)
     updateFiles(db, files3, 2, finishTime, rec)
+    rec.nothingToDo(finishTime - time.time())
 
 def ts(t):
     s = time.localtime(t)
@@ -809,7 +811,6 @@ def populateFiles(db, rec):
         recordFile(db, filename, PROFILE_URL % uu, "processUser", u, "User's profile")
     bggids = readGameIds(db)
     rec.usersAndGames(len(usernames), len(bggids))
-    shouldDeleteGames = []
     for id in bggids:
         filename = "%d.xml" % id
         recordFile(db, filename, GAME_URL % id, "processGame", None, "Game " + str(id))
@@ -947,6 +948,7 @@ def deleteUsers(db, users):
     db.execute("delete from geekgames where geek in (%s)" % users)
     db.execute("delete from files where geek in (%s)" % users)
     db.execute("delete from geeks where username in (%s)" % users)
+    db.execute("delete from users where geek in (%s)" % users)
 
 def main(db, finish, rec):
     import logging
@@ -954,9 +956,9 @@ def main(db, finish, rec):
     inlist = ", ".join([("'%s'" % u) for u in usernames])
     oldUsers = db.execute("select username from geeks where username not in (%s)" % inlist)
     if len(oldUsers) > 0:
-	deleteList = ", ".join([("'%s'" % u) for u in oldUsers])
-	logging.info("These users should be deleted: %s" % `deleteList`)
-	deleteUsers(db, deleteList)
+        deleteList = ", ".join([("'%s'" % u) for u in oldUsers])
+        logging.info("These users should be deleted: %s" % `deleteList`)
+        deleteUsers(db, deleteList)
     populateFiles(db, rec)
     refreshFiles(db, finish, rec)
 
@@ -971,8 +973,7 @@ def getGame(id, db):
         g = Game(id, db)
     except NotInDatabase:
         try:
-            import populateFiles
-            populateFiles.addGame(db, id)
+            addGame(db, id)
             g = Game(id, db)
         except NotInDatabase:
             import logging
