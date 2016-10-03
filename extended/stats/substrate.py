@@ -201,7 +201,7 @@ class Substrate:
         return plays, messages, year, month, day, args
 
     def addPlaysDataToGeekGames(self, geekgames):
-        import library
+        import library, datetime
         plays = self.getPlaysForDescribedRange([])[0]
         byGame = {}
         for p in plays:
@@ -214,18 +214,27 @@ class Substrate:
             p.game.plays.append(p)
             for e in p.expansions:
                 e.plays.append(p)
+        today = datetime.date.today()
+        if today.month == 2 and today.day == 29:
+            oneYearAgo = datetime.date(today.year-1, 2, 28)
+        else:
+            oneYearAgo = datetime.date(today.year-1, today.month, today.day)
+        oneYearAgo = oneYearAgo.strftime("%Y-%m-%d")
         for gg in geekgames:
             g = byGame.get(gg.bggid)
             if g is None:
-                (gg.plays, gg.firstPlay, gg.lastPlay, gg.monthsPlayed) = (0, None, None, 0)
+                (gg.plays, gg.firstPlay, gg.lastPlay, gg.monthsPlayed, gg.playsInLastYear) = (0, None, None, 0, 0)
             else:
                 data = g.plays
                 playCount = 0
+                playsInLastYear = 0
                 first = None
                 last = None
                 playsByMonth = library.Counts()
                 for play in data:
-                    playCount = playCount + play.count
+                    if play.date > oneYearAgo:
+                        playsInLastYear += play.count
+                    playCount += play.count
                     if ((first is None) or (play.date < first)) and not play.date.endswith("00"):
                         first = play.date
                     if ((last is None) or (play.date > last)) and not play.date.endswith("00"):
@@ -241,7 +250,7 @@ class Substrate:
                     lastPlay = library.parseYYYYMMDD(last)
                 except ValueError:
                     lastPlay = None
-                (gg.plays, gg.firstPlay, gg.lastPlay, gg.monthsPlayed, gg.pbm) = (playCount, firstPlay, lastPlay, monthCount, playsByMonth)
+                (gg.plays, gg.firstPlay, gg.lastPlay, gg.monthsPlayed, gg.pbm, gg.playsInLastYear) = (playCount, firstPlay, lastPlay, monthCount, playsByMonth, playsInLastYear)
 
     def __reconstructPlays(self, playsData):
         import plays

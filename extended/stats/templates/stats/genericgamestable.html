@@ -5,9 +5,9 @@ function showHideColumn(colnum, checked) {
             if (checked) { $(this).show(); } else { $(this).hide(); }
         }        if (colnum == index) {
             if (checked) { $(this).show(); } else { $(this).hide(); }
-        }    
+        }
     }
-    
+
     $('#generictable thead td').each(showHide);
     $('#generictable tbody tr').each(function() {
         $(this).find('td').each(showHide);
@@ -41,13 +41,13 @@ function insertColumnManager(visibleColumns) {
         var checked = '';
         var name = $.text([this]);
         if (name == "Name" | $.inArray(name, visibleColumns) >= 0) checked = ' checked';
-        c = c + before + index + ')" ' + checked + middle + name + after; 
+        c = c + before + index + ')" ' + checked + middle + name + after;
     });
     c = c + '</table>';
     $('#generictablediv').prepend(c);
 }
 
-$(document).ready(function() { 
+$(document).ready(function() {
     insertColumnManager("{{visibleColumns}}".split(","));
     showHideColumnsAccordingToCheckboxes();
     $('#columnManager').hide();
@@ -67,13 +67,14 @@ Use selection...
 <select id="selection">
 {% for s in selectors %}
 <option value="{{s.fragment}}">{{s.name}}</option>
-{% endfor %}    
+{% endfor %}
 </select>
 <button onclick="useSelection()">Go</button>
 
 <ul>
 <LI>The Friendless Happiness Metric (FHM) is (rating * 5 + plays + months played * 4 + hours played).
 <LI>The Huber Happiness Metric is (HHM) ((rating - 4.5) * hours played).
+<LI>The Huber Heat is <A HREF="https://boardgamegeek.com/geeklist/214735?commentid=6609490#comment6609490">described here</A>.
 <LI>The Randy Cox not-Unhappiness Metric (R!UHM) is <A HREF="http://boardgamegeek.com/article/11554334#11554334">described here</A>.
 <li>The Should Play Metric is ((days since played) * rating^4).
 <li>The Why Do You Own This Metric is ((days since played) / rating^2).
@@ -84,7 +85,7 @@ Use selection...
 <P>
 <div id="generictablediv">
 <table class="sortable shaded" id="generictable"><thead>
-<tr><td>Name</td><td>Rating</td><td>Plays</td><td>BGG Ranking</td><td>BGG Rating</td><td>First Played</td><td>Last Played</td><td>Months Played</TD><td>Hours Played</td><td>FHM</td><td>HHM</td><td>R!UHM</td><td>Year Published</td><td>Days Since Played</td><td>Should Play Metric</td><td>Why Own Metric</td><td>Owned</td><td>For Trade</td><td>Want in Trade</td><td>Wishlist</td><td>Previously Owned</td><td>Want to Buy</td><td>Want to Play</td><td>Preordered</td><td>Utilisation</td><td>BGG#</td><td>Min Players</td><td>Max Players</td><td>Play Time</td><td>Users Rating</td><td>Users Owning</td><td>Subdomain</td><td>Weight</td></tr></thead>
+<tr><td>Name</td><td>Rating</td><td>Plays</td><td>BGG Ranking</td><td>BGG Rating</td><td>First Played</td><td>Last Played</td><td>Months Played</TD><td>Hours Played</td><td>FHM</td><td>HHM</td><td>Huber Heat</td><td>R!UHM</td><td>Plays in last year</td><td>Year Published</td><td>Days Since Played</td><td>Should Play Metric</td><td>Why Own Metric</td><td>Owned</td><td>For Trade</td><td>Want in Trade</td><td>Wishlist</td><td>Previously Owned</td><td>Want to Buy</td><td>Want to Play</td><td>Preordered</td><td>Utilisation</td><td>BGG#</td><td>Min Players</td><td>Max Players</td><td>Play Time</td><td>Users Rating</td><td>Users Owning</td><td>Subdomain</td><td>Weight</td></tr></thead>
 <tbody>
 {% for row in games %}
 <TR>
@@ -99,7 +100,9 @@ Use selection...
 <td>{{row.hours}}</td>
 <td>{{row.fave}}</td>
 <td>{{row.huber}}</td>
+<td>{{row.huberHeat}}</td>
 <td>{{row.randyCox}}</td>
+<td>{{row.playsInLastYear}}</td>
 <td>{{row.year}}</td>
 <td>{{row.sincePlayed}}</td>
 <td>{{row.shouldPlayScore}}</td>

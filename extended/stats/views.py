@@ -627,7 +627,7 @@ def favourites(request, param):
         (context, selector) = interpretRequestAndSelector(request, param, "owned/rated/played/or/or")
         feature = features.Favourites(selector)
         all = feature.generate(context)
-        visible = "Name,Rating,Plays,BGG Ranking,BGG Rating,First Played,Last Played,Months Played,Hours Played,FHM,HHM,R!UHM,Year Published"
+        visible = "Name,Rating,Plays,BGG Ranking,BGG Rating,First Played,Last Played,Months Played,Hours Played,FHM,HHM,Huber Heat,R!UHM,Year Published"
         all.update({ "visibleColumns" : visible, "games" : all["favourites"], "username" : context.geek, "url" : "/dynamic/favourites" })
         return webserver.render("stats/favourites_result.html", all, request)
     except library.NoSuchGeekException:

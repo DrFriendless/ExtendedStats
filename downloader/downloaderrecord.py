@@ -48,4 +48,4 @@ class DownloaderRecord(object):
 
     def __str__(self):
         import time
-        return "From %s to %s, %d users %d games %d files %d failures %4.1f wait %4.1f pause" % (time.ctime(self.starttime), time.ctime(self.endtime), self.users, self.games, self.filesprocessed, self.failures, self.waittime, self.pausetime)
+        return "From %s to %s, %d users %d games %d files %d failures %4.1f wait %4.1f pause %4.1f nothing to do" % (time.ctime(self.starttime), time.ctime(self.endtime), self.users, self.games, self.filesprocessed, self.failures, self.waittime, self.pausetime, self.nothing)

@@ -4,6 +4,7 @@
 <ul>
 <LI>The Friendless Happiness Metric (FHM) is (rating * 5 + plays + months played * 4 + hours played).
 <LI>The Huber Happiness Metric is (HHM) ((rating - 4.5) * hours played).
+<LI>The Huber Heat is <A HREF="https://boardgamegeek.com/geeklist/214735?commentid=6609490#comment6609490">described here</A>.
 <LI>The Randy Cox not-Unhappiness Metric (R!UHM) is <A HREF="http://boardgamegeek.com/article/11554334#11554334">described here</A>.
 </ul>
 <P>
@@ -14,7 +15,8 @@ Therefore, your correlation with BGG ratings for ranked (common) games only is <
 You <A HREF="http://www.mikkosgameblog.com/2010/12/whats-your-h-index/">H-index</A> is <b>{{hindex}}</b> - you've played {{hindex}} games {{hindex}} times.
 <P>
 <table class="sortable shaded" id="favtable"><thead>
-<tr><td>Game</td><td>Rating</td><td>Plays</td><td>BGG Ranking</td><td>BGG Rating</td><td>First Played</td><td>Last Played</td><td>Months Played</TD><td>Hours Played</td><td>FHM</td><td>HHM</td><td>R!UHM</td><td>Year Published</td></tr></thead>
+<tr><td>Game</td><td>Rating</td><td>Plays</td><td>BGG Ranking</td><td>BGG Rating</td><td>First Played</td><td>Last Played</td><td>Months Played</TD>
+    <td>Hours Played</td><td>FHM</td><td>HHM</td><td>Huber Heat</td><td>R!UHM</td><td>Plays in last year</td><td>Year Published</td></tr></thead>
 <tbody>
 {% for row in favourites %}
 <TR>
@@ -29,7 +31,9 @@ You <A HREF="http://www.mikkosgameblog.com/2010/12/whats-your-h-index/">H-index<
 <td>{{row.hours}}</td>
 <td>{{row.fave}}</td>
 <td>{{row.huber}}</td>
+<td>{{row.huberHeat}}</td>
 <td>{{row.randyCox}}</td>
+<td>{{row.playsInLastYear}}</td>
 <td>{{row.year}}</td>
 </TR>
 {% endfor %}

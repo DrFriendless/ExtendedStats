@@ -1080,7 +1080,7 @@ def getFavourites(context, selector):
     return result
 
 def getGeekGames(context, selector):
-    import math,  library, datetime
+    import math, library, datetime
     geekgames = selector.getGames(context, context.options.fave)
     result = []
     now = datetime.date.today()
@@ -1104,6 +1104,7 @@ def getGeekGames(context, selector):
         t.firstPlay = gg.firstPlay
         t.lastPlay = gg.lastPlay
         t.monthsPlayed = int(gg.monthsPlayed)
+        t.playsInLastYear = gg.playsInLastYear
         if t.lastPlay is not None and t.firstPlay is not None and t.monthsPlayed > 0 and t.rating > 0:
             t.flash = library.daysBetween(t.firstPlay,  t.lastPlay)
             t.lag = library.daysBetween(t.lastPlay,  datetime.date.today())
@@ -1115,6 +1116,14 @@ def getGeekGames(context, selector):
             t.randyCox = int(t.log * 100)/100.0
         t.fave = int(t.rating * 5 + t.plays + t.monthsPlayed * 4 + t.hours)
         t.huber = int((t.rating - HUBER_BASELINE) * t.hours)
+        if t.plays == 0:
+            t.huberHeat = 0
+        else:
+            s = 1.0 + float(t.playsInLastYear) / t.plays
+            hours = float(t.playsInLastYear * gg.game.playtime / 60.0)
+            h = (t.rating - HUBER_BASELINE) * hours
+            t.huberHeat = s * s * math.sqrt(float(t.playsInLastYear)) * h
+            t.huberHeat = int(10 * t.huberHeat) / 10.0
         t.hours = int(math.floor(t.hours + 0.5))
         t.bggrank = gg.game.rank
         t.bggavg = int(gg.game.average * 10.0) / 10.0
