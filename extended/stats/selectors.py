@@ -417,8 +417,8 @@ class GeeklistSelector(Selector):
         self.id = int(id)
 
     def getGames(self, context, opts):
-        import sitedata, views, xml.dom.minidom, substrate, library
-        dest = sitedata.dbdir + "geeklist_%d_%s.xml" % (self.id, context.geek)
+        import sitedata, views, xml.dom.minidom, substrate, library, os
+        dest = sitedata.dbdir + os.sep + "geeklist_%d_%s.xml" % (self.id, context.geek)
         url = GEEKLIST_URL % self.id
         success = library.getFile(url, dest)
         if not success:

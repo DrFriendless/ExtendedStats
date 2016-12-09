@@ -558,7 +558,9 @@ def downloadFile(url, filename):
     import subprocess, time
     try:
         t = time.time()
-        subprocess.check_call(["/usr/bin/curl", "--compressed", "-s", "--max-time", "300", "-o", filename, url])
+        cmd = ["/usr/bin/curl", "--compressed", "-s", "--max-time", "300", "-o", filename, url]
+        print " ".join(cmd)
+        subprocess.check_call(cmd)
         t2 = time.time()
         print "took", (t2-t)
         return 1
