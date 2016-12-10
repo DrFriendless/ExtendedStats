@@ -191,7 +191,7 @@ def getConsistencyData(context, selector, monthsBack):
     months = []
     m = startMonth
     y = startYear
-    while m <= todayMonth or y < todayYear:
+    while y * 12 + m <= todayYear * 12 + todayMonth:
         months.append((m, y))
         m += 1
         if m > 12:

@@ -274,7 +274,7 @@ def ajaxSubmit(request):
     if form.is_valid():
         results['name'] = form.cleaned_data['input']
         results['success'] = True
-    return webserver.response( simplejson.dumps( results ), mimetype='application/json' )
+    return webserver.response( simplejson.dumps( results ), content_type='application/json' )
 
 def listOfGeeks(request):
     import dbaccess
@@ -362,7 +362,7 @@ def playscsv(request, param):
         context = interpretRequest(request, param)
         plays = generate.getPlaysCSVData(context)
         username = context.geek
-        return webserver.render("stats/plays.csv", locals(), request, mimetype="text/csv")
+        return webserver.render("stats/plays.csv", locals(), request, content_type="text/csv")
     except library.NoSuchGeekException:
         return webserver.render("stats/geek_error.html", locals(), request)
 

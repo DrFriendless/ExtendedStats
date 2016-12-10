@@ -409,6 +409,8 @@ class ExpansionSelector(Selector):
 
 GEEKLIST_URL = "http://boardgamegeek.com/xmlapi/geeklist/%d?comments=0"
 
+THUMBED_BY = "https://boardgamegeek.com/geekrecommend.php?action=recspy&itemtype=listitem&itemid=5072784"
+
 class GeeklistSelector(Selector):
     key = "geeklist"
     arity = 1
