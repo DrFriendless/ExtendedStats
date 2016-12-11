@@ -20,10 +20,10 @@
 	border-right: solid 1px #d8d8d8;
 	-moz-user-select: none;
 	-khtml-user-select: none;
-	cursor: pointer;	
+	cursor: pointer;
 	text-align: center;
 	font-size: 16px;
-	font-weight: bold;	
+	font-weight: bold;
 }
 
 .TabbedPanelsTabSelected {
@@ -40,10 +40,10 @@
 	border-right: solid 1px #d8d8d8;
 	-moz-user-select: none;
 	-khtml-user-select: none;
-	cursor: pointer;	
+	cursor: pointer;
 	text-align: center;
 	font-size: 18px;
-	font-weight: bold;	
+	font-weight: bold;
 }
 
 .TabbedPanelsTab a {
@@ -59,8 +59,8 @@
 .BulletList {
 	list-style-type: none;
 	margin: 0;
-	padding: 0;	
-}  
+	padding: 0;
+}
 
 .BulletList li {
 	background-repeat: no-repeat;
@@ -68,25 +68,25 @@
 }
 
 li.ThisPage {
-	background-image: url(/images/bullet_down.png);
+	background-image: url(http://i.imgur.com/0uUVP3i.png);
 	padding: 0 0 0 20px;
 	margin: .4em 0;
 }
 
 li.OtherPage {
-	background-image: url(/images/bullet_go.png);  
+	background-image: url(http://i.imgur.com/9u5lJOl.png);
 	padding: 0 0 0 20px;
 	margin: .4em 0;
 }
 
 li.BGG {
-	background-image: url(/images/bgg.png);  
+	background-image: url(http://i.imgur.com/RMbAIpK.png);
 	padding: 0 0 0 20px;
 	margin: .4em 0;
 }
 
 li.External {
-	background-image: url(/images/external.png);  
+	background-image: url(http://i.imgur.com/tMARrPD.png);
 	padding: 0 0 0 20px;
 	margin: .4em 0;
 }

@@ -28,12 +28,12 @@ function out(event, ui) { $(this).css('border', ''); }
 function makeGamesDraggable() {
     $('#manageTable').find('.groupTable').droppable({
         drop: drop, over: over, out: out
-    });  
+    });
     $('#manageTable').find('td.game').draggable({
         start: function(event, ui) {
             scrollTop = document.body.scrollTop;
-        }    
-    });   
+        }
+    });
 }
 
 function addWorkingCellsToRows() {
@@ -42,22 +42,22 @@ function addWorkingCellsToRows() {
      */
     $('#manageTable').find('td.expandable').remove();
     $('#manageTable').find('td.dropTarget').remove();
-    $('#manageTable').find('.groupTable').each(function(index) {    
+    $('#manageTable').find('.groupTable').each(function(index) {
         if (this.rows.length == 0) {
             row = this.insertRow(n);
             row.addClass('.gameRow');
         }
         if (this.rows[0].cells.length == 0) {
 	    var cell = this.rows[0].insertCell(0);
-	    cell.innerHTML = '<td>Drop here...</td>';        
+	    cell.innerHTML = '<td>Drop here...</td>';
 	    $(cell).addClass('dropTarget');
-        }     
-    });    
+        }
+    });
     $('#manageTable').find('.gameRow').each(function(index) {
         var cell = this.insertCell(this.cells.length);
         cell.innerHTML ='';
-        $(cell).css('width', 'auto');  
-        $(cell).addClass('expandable');        
+        $(cell).css('width', 'auto');
+        $(cell).addClass('expandable');
     });
 }
 
@@ -74,17 +74,17 @@ function saveChanges() {
     $('#saveButton').attr('disabled','disabled');
     notify("saving");
     $.ajax({ type: 'POST', url: '/dynamic/saveManageCollection/', async: true, data : data,
-        complete : function(jqxhr, status) { notify(status); $('#saveButton').removeAttr('disabled'); }});  
+        complete : function(jqxhr, status) { notify(status); $('#saveButton').removeAttr('disabled'); }});
 }
 
 function notify(s) {
     $('#info').text(s);
-}	
+}
 
 function quickAdd(index) {
     scrollTop = document.body.scrollTop;
     var $td = $('#td' + index);
-    var $select = $td.find("select");    
+    var $select = $td.find("select");
     var url = "/dynamic/selector/{{username}}/" + $select.val();
     var g = group(index);
     notify("loading");
@@ -92,7 +92,7 @@ function quickAdd(index) {
         g.games = g.games.concat(data);
         notify("done");
 	rerender();
-    });  
+    });
 }
 
 function quickAddExtra(index) {
@@ -101,8 +101,8 @@ function quickAddExtra(index) {
     var g = group(index);
     getSelectorGames(index, function(data) {
 	$(data).each(function(i, game) { if (!set.contains(game)) g.games.push(game); });
-	rerender();  
-    });    
+	rerender();
+    });
 }
 
 function quickRemove(index) {
@@ -113,8 +113,8 @@ function quickRemove(index) {
 	var newGames = [];
 	$(g.games).each(function(j, game) { if (!set.contains(game)) newGames.push(game); });
 	g.games = newGames;
-	rerender();  
-    });    
+	rerender();
+    });
 }
 
 function makeSetOfAllGamesInAllGroups() {
@@ -126,12 +126,12 @@ function makeSetOfAllGamesInAllGroups() {
 function makeSet(games) {
     var set = [];
     $(games).each(function(index, g) { set.push(g.id); });
-    set.contains = function(game) { return _.contains(this, game.id); }    
+    set.contains = function(game) { return _.contains(this, game.id); }
     return set;
 }
 
 function sort(games) {
-    games.sort(function(g1, g2) { 
+    games.sort(function(g1, g2) {
         if (g1.name < g2.name) {
             return -1;
         } else if (g2.name < g1.name) {
@@ -144,14 +144,14 @@ function sort(games) {
 
 function getSelectorGames(index, consequence) {
     var $td = $('#td' + index);
-    var $select = $td.find("select");    
+    var $select = $td.find("select");
     var url = "/dynamic/selector/{{username}}/" + $select.val();
     notify("loading");
     var d;
     $.ajax({url : url, async:true}).done(function(data) {
         notify("done");
 	consequence(data);
-    });  
+    });
 }
 
 function quickRetain(index) {
@@ -162,7 +162,7 @@ function quickRetain(index) {
 	var newGames = [];
 	$(g.games).each(function(j, game) { if (set.contains(game)) newGames.push(game); });
 	g.games = newGames;
-	rerender();  
+	rerender();
     });
 }
 
@@ -175,9 +175,9 @@ function quickDelete(index) {
 function edit(elementId) {
     $("#" + elementId).hide(0);
     $("#" + elementId + "_edit").show();
-    $("#" + elementId + "_edit").keypress(function(e) { 
+    $("#" + elementId + "_edit").keypress(function(e) {
         scrollTop = document.body.scrollTop;
-        return onkeypress(e, elementId + "_edit"); 
+        return onkeypress(e, elementId + "_edit");
     });
 }
 
@@ -243,7 +243,7 @@ function rerender() {
     }) ;
     makeGamesDraggable();
     addWorkingCellsToRows();
-    $('html, body').animate({ scrollTop: scrollTop }, 10);    
+    $('html, body').animate({ scrollTop: scrollTop }, 10);
 }
 
 function displayClicked(checkbox) {
@@ -256,7 +256,7 @@ function displayClicked(checkbox) {
 
 function renderGroupButtons(group) {
     var checked = group.display ? " checked" : "";
-    var result = 'Display <input type="checkbox" id="display' + group.index +'"' + checked + ' onchange="displayClicked(this)"/>';    
+    var result = 'Display <input type="checkbox" id="display' + group.index +'"' + checked + ' onchange="displayClicked(this)"/>';
     result += "<select>";
     $(SELECTORS).each(function(index, s) {
         result += '<option value="' + s.fragment + '">' + s.name + '</option>';
@@ -308,7 +308,7 @@ function groupdown(index) {
 }
 
 function renderGroup(group) {
-    var upDownWidget = '<img src="/images/arrow_up.png" onclick=groupup(' + group.index + ')>&nbsp;<img src="/images/arrow_down.png" onclick=groupdown(' + group.index + ')>';
+    var upDownWidget = '<img src="http://i.imgur.com/mbVjVa6.png" onclick=groupup(' + group.index + ')>&nbsp;<img src="http://i.imgur.com/l86BtUQ.png" onclick=groupdown(' + group.index + ')>';
     var tableContent = '<tr class="gameRow" index=' + group.index + '>';
     var n = 0;
     $(group.games).each(function(index, game) {
@@ -324,15 +324,15 @@ function renderGroup(group) {
     var descriptionEditorId = "description" + group.index + "_edit";
     var groupEditor = '<input hidden="true" id="' + nameEditorId + '" type="text" value="' + group.name + '" onblur=save("' + nameEditorId + '")>';
     var descriptionEditor = '<textarea hidden="true" cols=80 rows=3 id="' + descriptionEditorId + '" onblur=save("' + descriptionEditorId + '")>' + group.description + '</textarea>';
-    var content = '<h2 id="group' + group.index + '">' + upDownWidget + pencil("group" + group.index) + group.name + '</h2>' + groupEditor + 
-    '<P id="description' + group.index + '">' + pencil("description" + group.index) + group.description + '</p>' + descriptionEditor +'<br>' + 
+    var content = '<h2 id="group' + group.index + '">' + upDownWidget + pencil("group" + group.index) + group.name + '</h2>' + groupEditor +
+    '<P id="description' + group.index + '">' + pencil("description" + group.index) + group.description + '</p>' + descriptionEditor +'<br>' +
     renderGroupButtons(group) +
     '<table class="groupTable" id="group' + group.index + '" index=' + group.index + '><tbody>' + tableContent + '</tbody><table/>';
     var tr = '<tr class="manageRow"><td id="td' + group.index + '">' + content + '</td></tr>';
     return tr;
 }
 
-$(document).ready(function() { 
+$(document).ready(function() {
     loadModel();
     notify("Ready");
 });
