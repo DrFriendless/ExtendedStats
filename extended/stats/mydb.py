@@ -73,8 +73,8 @@ def saveRowDb(db, row, table, where, debug=0):
         updateDb(db, sql, tuple(args))
     else:
         ds = []
-        for i in range(len(vs)):
-            ds.append("%s = %s" % (cs[i], vs[i]))
+        for i, v in enumerate(vs):
+            ds.append("%s = %s" % (cs[i], v))
         data = ", ".join(ds)
         sql = "update %s set %s where %s" % (table, data, where)
         if debug:

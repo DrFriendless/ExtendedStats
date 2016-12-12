@@ -37,11 +37,11 @@ GAME_PUBLISHER_FIELDS = ["gameId", "publisherId"]
 def __extract(fields, name, constructor):
     def func(row):
         result = constructor(name)
-        for i in range(len(fields)):
+        for i, field in enumerate(fields):
             if isinstance(row[i], str):
-                result.__dict__[fields[i]] = unicode(row[i], 'utf8')
+                result.__dict__[field] = unicode(row[i], 'utf8')
             else:
-                result.__dict__[fields[i]] = row[i]
+                result.__dict__[field] = row[i]
         return result
     return func
 

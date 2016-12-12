@@ -493,8 +493,8 @@ def saveRow(db, row, table, where, debug=0):
         dbexec(db, sql, tuple(args))
     else:
         ds = []
-        for i in range(len(vs)):
-            ds.append("%s = %s" % (cs[i], vs[i]))
+        for i, v in enumerate(vs):
+            ds.append("%s = %s" % (cs[i], v))
         data = ", ".join(ds)
         sql = "update %s set %s where %s" % (table, data, where)
         if debug:
@@ -727,8 +727,7 @@ def jsonEncode(obj):
         return str(obj)
     elif isinstance(obj, Thing):
         return obj.__dict__
-    elif isinstance(obj, period.Period) or isinstance(obj, generate.MPTData) or \
-            isinstance(obj, plays.Play) or isinstance(obj, generate.DesignerPlaysData):
+    elif isinstance(obj, (period.Period, generate.MPTData, plays.Play, generate.DesignerPlaysData)):
         return obj.toMap()
     elif isinstance(obj, set):
         return list(obj)

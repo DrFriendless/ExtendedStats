@@ -176,7 +176,7 @@ def viewSelections(request, param):
         else:
             visible = "Name,Rating,Plays"
         all.update({"tabs" : tabs, "contents" : contents, "tab" : tabs[index-1], "username" : context.geek,
-                    "tabs" : tabs, "fragment" : fragment, "visibleColumns" : visible})
+                    "fragment" : fragment, "visibleColumns" : visible})
         return webserver.render("stats/viewSelections.html", all, request)
     except BadUrlException, mesg:
         import selectors

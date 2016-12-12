@@ -311,12 +311,12 @@ def createFlorenceDiagram(geek, data):
     draw = ImageDraw.Draw(img)
     PER_SLICE = 360.0 / len(cats)
     HALF = (PER_SLICE - FLORENCE_ANGLE) / 2.0
-    for slice in range(len(cats)):
+    for slice, cat in enumerate(cats):
         start = HALF + slice * PER_SLICE
         end = start + FLORENCE_ANGLE
         radius = int(floc[slice])
         xy = (MID - radius, MID - radius, MID + radius, MID + radius)
-        draw.pieslice(xy, int(start), int(end), FLORENCE_COLOURS[cats[slice]], outline=BLACK)
+        draw.pieslice(xy, int(start), int(end), FLORENCE_COLOURS[cat], outline=BLACK)
     del draw
     return img
 

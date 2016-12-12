@@ -389,7 +389,7 @@ def _inferExtraPlays(games, plays):
                 break
             count += 1
             if count == 200:
-                mms = mms + ["Got really confused"]
+                mms += ["Got really confused"]
                 break
             datePs = rs
         result = result + rs

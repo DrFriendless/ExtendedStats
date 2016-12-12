@@ -9,14 +9,14 @@
 
 from django.db import models
 
-class SimpleManager(models.Manager):        
+class SimpleManager(models.Manager):
     def query(self, sql, args=[]):
         from django.db import connection
         cursor = connection.cursor()
         cursor.execute(sql, args)
         result = cursor.fetchall()
-        cursor.close()   
-        return result       
+        cursor.close()
+        return result
 
 class NoPrimaryKeyManager(SimpleManager):
     def filter(self, cols=None, **kwargs):
@@ -29,18 +29,18 @@ class NoPrimaryKeyManager(SimpleManager):
                 (s, e) = v
                 if s is not None and e is not None:
                     extraClauses.append("%s between %s and %s" % (k, "%s", "%s"))
-                    extraArgs = extraArgs + [s, e]
+                    extraArgs += [s, e]
                 elif s is not None:
                     extraClauses.append("%s >= %s" % (k, "%s"))
                     extraArgs.append(s)
                 elif e is not None:
                     extraClauses.append("%s < %s" % (k, "%s"))
-                    extraArgs.append(e) 
+                    extraArgs.append(e)
             elif type(v) == type([]):
                 del kwargs[k]
                 if len(v) > 1:
                     extraClauses.append("%s in %s" % (k, "%s"))
-                    extraArgs.append(v)               
+                    extraArgs.append(v)
                 else:
                     extraClauses.append("%s = %s" % (k, "%s"))
                     extraArgs.append(v[0])
@@ -52,15 +52,15 @@ class NoPrimaryKeyManager(SimpleManager):
             columns = cols
         args = extraArgs + [v for (k,v) in kwargs.items()]
         where = " and ".join(extraClauses + ["%s = %s" % (k,"%s") for (k,v) in kwargs.items()])
-        header = ", ".join(columns)   
+        header = ", ".join(columns)
         sql = "select %s from %s where %s" % (header, self.model._meta.db_table, where)
         cursor.execute(sql, args)
         result = cursor.fetchall()
-        cursor.close()   
+        cursor.close()
         if len(columns) == 1:
             result = [x[0] for x in result]
-        return (columns, result)          
-        
+        return (columns, result)
+
     def _buildObjects(self, data):
         import library
         columns = data[0]
@@ -68,11 +68,11 @@ class NoPrimaryKeyManager(SimpleManager):
         result = []
         for row in rows:
             t = library.Thing()
-            for i in range(len(columns)):
-                t.__dict__[columns[i]] = row[i]
+            for i, col in enumerate(columns):
+                t.__dict__[col] = row[i]
             result.append(t)
         return result
-        
+
     def getObjects(self, **kwargs):
         data = self.filter(**kwargs)
         return self._buildObjects(data)
@@ -84,13 +84,13 @@ class Designers(models.Model):
     url = models.CharField(max_length=255, blank=True)
     class Meta:
         db_table = u'designers'
-        
+
     def __eq__(self, other):
         return self.bggid == other.bggid
 
     def __ne__(self, other):
         return self.bggid != other.bggid
-        
+
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
@@ -103,7 +103,7 @@ class Files(models.Model):
     geek = models.CharField(max_length=384, blank=True)
     description = models.CharField(max_length=384, blank=True)
     tillnextupdate = models.CharField(max_length=384, db_column='tillNextUpdate', blank=True)
-    objects = SimpleManager()    
+    objects = SimpleManager()
     class Meta:
         db_table = u'files'
 
@@ -129,19 +129,19 @@ class Games(models.Model):
     thumbnail = models.CharField(max_length=768, blank=True)
     usersowned = models.IntegerField(null=True, db_column='usersOwned', blank=True)
     subdomain = models.CharField(max_length=45, blank=True)
-    
+
     class Meta:
         db_table = u'games'
         ordering = ["name"]
-        
+
     def __eq__(self, other):
         if other is None:
             return False
         return self.bggid == other.bggid
-        
+
     def __hash__(self):
         return self.bggid
-        
+
     def __repr__(self):
         return self.name
 
@@ -152,7 +152,7 @@ class Geeks(models.Model):
     class Meta:
         db_table = u'geeks'
         ordering = ["username"]
-        
+
     def __repr__(self):
         return self.username
 
@@ -173,10 +173,10 @@ class GeekGames(models.Model):
     plays = models.IntegerField(null=True, blank=True)
     objects = NoPrimaryKeyManager()
     class Meta:
-        db_table = u'geekgames'   
-   
+        db_table = u'geekgames'
+
     def __repr__(self):
-        return "%s@%s" % (`self.game`, `self.geek`)    
+        return "%s@%s" % (`self.game`, `self.geek`)
 
 class GeekGameTags(models.Model):
     geek = models.ForeignKey(Geeks, db_column='geek')
@@ -189,8 +189,8 @@ def q(v):
     if type(v) == type(""):
         return "'%s'" % v
     else:
-        return str(v)        
-        
+        return str(v)
+
 class History(models.Model):
     geek = models.CharField(max_length=384)
     ts = models.DateTimeField()
@@ -234,8 +234,8 @@ class Plays(models.Model):
     raters = models.IntegerField()
     ratingstotal = models.IntegerField(db_column='ratingsTotal')
     basegame = models.IntegerField(null=True)
-    location = models.CharField(max_length=32)    
-    objects = NoPrimaryKeyManager()    
+    location = models.CharField(max_length=32)
+    objects = NoPrimaryKeyManager()
     class Meta:
         db_table = u'plays'
 

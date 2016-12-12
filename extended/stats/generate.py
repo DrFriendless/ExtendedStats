@@ -723,15 +723,15 @@ def addRanks(rows, valCol, rankCol, title):
             f.write(" ".join([str(d.__dict__) for d in data if d.__dict__.get("owned") is None]))
     lastValue = -1000
     lastRank = 0
-    for i in range(len(data)):
-        if data[i].__dict__[valCol] == lastValue:
+    for i, d in enumerate(data):
+        if d.__dict__[valCol] == lastValue:
             percent = math.ceil(lastRank * 100.0 / numRows)
-            data[i].__dict__[rankCol] = "%d (top %d%% of %s)" % (lastRank, percent, title)
+            d.__dict__[rankCol] = "%d (top %d%% of %s)" % (lastRank, percent, title)
         else:
             lastRank = i + 1
             percent = math.ceil(lastRank * 100.0 / numRows)
-            data[i].__dict__[rankCol] = "%d (top %d%% of %s)" % (lastRank, percent, title)
-            lastValue = data[i].__dict__[valCol]
+            d.__dict__[rankCol] = "%d (top %d%% of %s)" % (lastRank, percent, title)
+            lastValue = d.__dict__[valCol]
 
 def getAllCatsAndMecs():
     import mydb
@@ -935,7 +935,7 @@ def getMostPlayedTimelineData(context):
     options.excludeTrades = False
     options.excludeExpansions = True
     ggs = context.substrate.getAllPlayedGames(options)
-    ggs = [ gg for gg in ggs if gg.game.__dict__.has_key("plays")]
+    ggs = [ gg for gg in ggs if "plays"in gg.game.__dict__ ]
     ggs.sort(lambda g1, g2: -cmp(g1.plays, g2.plays))
     if len(ggs) > 20:
         ggs = ggs[:20]
@@ -1259,7 +1259,7 @@ def getCrazyRecommendationsData(context):
                 n = n / 2
             elif key == "designer":
                 n = n * 5
-            elif (key == "category" or key == "mechanic") and n > 50:
+            elif key in ["category","mechanic"] and n > 50:
                 n = 50
             if ratings.get(gid) is None:
                 t = library.Thing()
@@ -1427,7 +1427,7 @@ def getStreaks(context):
 def getBestDays(context, year=None):
     import math, library
     plays = getPlaysForYear(context.substrate, year)
-    dates = set([ p.date for p in plays])
+    dates = { p.date for p in plays }
     calcs = []
     for d in dates:
         ps = [ p for p in plays if p.date == d ]
