@@ -3,13 +3,13 @@
 import MySQLdb, sys, time, _mysql_exceptions, time, os, urllib, pickle, xml.dom.minidom, socket
 from MySQLdb import Timestamp
 
-COLLECTION_URL = u"http://boardgamegeek.com/xmlapi2/collection?username=%s&brief=1&stats=1"
-PLAYED_URL = "http://boardgamegeek.com/plays/bymonth/user/%s/subtype/boardgame"
-PROFILE_URL = "http://boardgamegeek.com/user/%s"
-TOP50_URL = "http://www.boardgamegeek.com/browse/boardgame"
-MOST_VOTERS_URL = "http://boardgamegeek.com/browse/boardgame?sort=numvoters&sortdir=desc"
-GAME_URL = "http://boardgamegeek.com/xmlapi/boardgame/%d&stats=1"
-MARKET_URL = "http://www.boardgamegeek.com/geekstore.php3?action=viewuser&username=%s"
+COLLECTION_URL = u"https://boardgamegeek.com/xmlapi2/collection?username=%s&brief=1&stats=1"
+PLAYED_URL = "https://boardgamegeek.com/plays/bymonth/user/%s/subtype/boardgame"
+PROFILE_URL = "https://boardgamegeek.com/user/%s"
+TOP50_URL = "https://www.boardgamegeek.com/browse/boardgame"
+MOST_VOTERS_URL = "https://boardgamegeek.com/browse/boardgame?sort=numvoters&sortdir=desc"
+GAME_URL = "https://boardgamegeek.com/xmlapi/boardgame/%d&stats=1"
+MARKET_URL = "https://www.boardgamegeek.com/geekstore.php3?action=viewuser&username=%s"
 
 def readUserNames():
     import os, sitedata
@@ -50,7 +50,7 @@ def processPlayed(db, filename, geek, url):
             url = plays.NEW_PLAYED_URL % (urllib.quote(geek), y, m, y, m)
             if m == 0 and y == 0:
                 daysSince = 10000
-                url = "http://boardgamegeek.com/xmlapi2/plays?username=%s&mindate=0000-00-00&maxdate=0000-00-00&subtype=boardgame" % urllib.quote(geek)
+                url = "https://boardgamegeek.com/xmlapi2/plays?username=%s&mindate=0000-00-00&maxdate=0000-00-00&subtype=boardgame" % urllib.quote(geek)
             else:
                 try:
                     pd = datetime.date(y, m, calendar.monthrange(y,m)[1])
@@ -663,6 +663,9 @@ def refreshFiles(db, finishTime, rec):
         reserveFor2 = 0
     if len(files3) == 0:
         reserveFor3 = 0
+    rec.files1 = len(files1)
+    rec.files2 = len(files2)
+    rec.files3 = len(files3)
     theNumbers = [len(files1), len(files2), len(files3)]
     updateFiles(db, files1, 0, finishTime - reserveFor3 - reserveFor2, rec)
     updateFiles(db, files2, 1, finishTime - reserveFor3, rec)

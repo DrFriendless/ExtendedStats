@@ -10,10 +10,13 @@ def loadGameFiles(db, rec):
     finish = time.time() + BETWEEN_POPULATES
     populateFiles.main(db, finish, rec)
 
-import sys, downloaderdb, logging, logging.handlers, sitedata, time
+import sys, downloaderdb, logging, logging.handlers, sitedata, time, logentries
+from logentries import LogentriesHandler
 handler = logging.handlers.RotatingFileHandler(sitedata.logfile, maxBytes=10000000, backupCount=5)
-logging.getLogger().setLevel(logging.DEBUG)
+handler2 = LogentriesHandler('fc5a7e31-81e8-492b-ab9e-27c5cbcf49b3')
+logging.getLogger().setLevel(logging.INFO)
 logging.getLogger().addHandler(handler)
+logging.getLogger().addHandler(handler2)
 
 import downloaderrecord
 with downloaderrecord.DownloaderRecord() as rec:

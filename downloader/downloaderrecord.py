@@ -9,6 +9,9 @@ class DownloaderRecord(object):
         self.users = 0
         self.endtime = None
         self.startime = None
+        self.files1 = 0
+        self.files2 = 0
+        self.files3 = 0
 
     def usersAndGames(self, u, g):
         self.users = u
@@ -44,7 +47,7 @@ class DownloaderRecord(object):
     def toSQL(self):
         import time
         format = '%Y-%m-%d %H:%M:%S'
-        return "insert into downloader (starttime, endtime, filesprocessed, waittime, pausetime, nothing, failures, users, games) values ('%s', '%s', %d, %6.2f, %6.2f, %6.2f, %d, %d, %d)" % (time.strftime(format, time.localtime(self.starttime)), time.strftime(format, time.localtime(self.endtime)), self.filesprocessed, self.waittime, self.pausetime, self.nothing, self.failures, self.users, self.games)
+        return "insert into downloader (starttime, endtime, filesprocessed, waittime, pausetime, nothing, failures, users, games, files1, files2, files3) values ('%s', '%s', %d, %6.2f, %6.2f, %6.2f, %d, %d, %d, %d, %d, %d)" % (time.strftime(format, time.localtime(self.starttime)), time.strftime(format, time.localtime(self.endtime)), self.filesprocessed, self.waittime, self.pausetime, self.nothing, self.failures, self.users, self.games, self.files1, self.files2, self.files3)
 
     def __str__(self):
         import time

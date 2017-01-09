@@ -2,7 +2,7 @@ import time, library, os, sitedata
 
 END_YEAR = time.localtime()[0]
 END_MONTH = time.localtime()[1]
-NEW_PLAYED_URL = "http://boardgamegeek.com/xmlapi2/plays?username=%s&mindate=%d-%d-01&maxdate=%d-%d-31&subtype=boardgame"
+NEW_PLAYED_URL = "https://boardgamegeek.com/xmlapi2/plays?username=%s&mindate=%d-%d-01&maxdate=%d-%d-31&subtype=boardgame"
 DAY = library.DAY
 
 class Play:
@@ -36,7 +36,7 @@ class Play:
         else:
             self.dt = datetime.date(self.year, self.month, self.day)
         self.hashcode = self.year * 10000 + self.month * 100 + self.day
-        
+
     def __repr__(self):
         if len(self.expansions) == 0:
             return "Played %s %d times on %s" % (`self.game`, self.count, self.date)
@@ -117,7 +117,7 @@ def processPlaysFile(db, geek, filename, recorded):
 def getAllPlays(db, geek):
     data = db.execute("select game, playDate, quantity from plays where geek = %s", [geek])
     return __reconstructPlays(geek, db, data)
-    
+
 def getRatings(pe):
     playersNodes = pe.getElementsByTagName("players")
     if len(playersNodes) == 0:
@@ -125,10 +125,10 @@ def getRatings(pe):
     playerNodes = playersNodes[0].getElementsByTagName("player")
     count = 0
     total = 0.0
-    for pn in playerNodes:       
+    for pn in playerNodes:
         r = float(pn.getAttribute("rating"))
         if r < 1 or r > 10:
-            continue 
+            continue
         count = count + 1
         total = total + r
     return (count, int(total))
@@ -160,7 +160,7 @@ def _inferExtraPlays(geek, db, plays):
             print "after", rs
         result = result + rs
     return result
-  
+
 def _inferExtraPlaysForADate(debug, db, plays):
     import library
     result = []
@@ -171,7 +171,7 @@ def _inferExtraPlaysForADate(debug, db, plays):
                 if play is bgplay:
                     continue
                 bgplaygame = getGame(db, bgplay.game)
-                if (bgplay.game in game.basegames or library.intersect(game.basegames, bgplaygame.expansions)) and play.game not in bgplay.expansions:                    
+                if (bgplay.game in game.basegames or library.intersect(game.basegames, bgplaygame.expansions)) and play.game not in bgplay.expansions:
                     if debug: print "A"
                     nq = min(play.count, bgplay.count)
                     play.count = play.count - nq
@@ -187,7 +187,7 @@ def _inferExtraPlaysForADate(debug, db, plays):
                     orig = len(plays)
                     others = [ op for op in plays if op is not play and op is not bgplay ]
                     if len(others) == len(plays):
-                        print "Failed to remove", plays, others                    
+                        print "Failed to remove", plays, others
                     return (others + newps, True)
             # no known basegame
             if len(game.basegames) == 1:
@@ -196,7 +196,7 @@ def _inferExtraPlaysForADate(debug, db, plays):
                 others = [ op for op in plays if op is not play ]
                 return (others + [p], True)
         result.append(play)
-    return (result, False)    
+    return (result, False)
 
 def __reconstructPlays(geek, db, playsData):
     import plays
@@ -206,11 +206,11 @@ def __reconstructPlays(geek, db, playsData):
             ids.append(p[0])
     getGames(db, ids)
     result = []
-    for (id, ts, q) in playsData:           
+    for (id, ts, q) in playsData:
         result.append(Play(id, [], ts, q, 0, 0, ""))
     result = _inferExtraPlays(geek, db, result)
     result.sort()
-    return result  
+    return result
 
 games = {}
 
@@ -221,14 +221,14 @@ class Game(object):
         self.name = name
         self.basegames = []
         self.expansions = []
-        
+
 def getGame(db, id):
     global games
     if games.get(id) is not None:
         return games[id]
     getGames(db, [id])
     return games[id]
-        
+
 def getGames(db, ids):
     if len(ids) == 0:
         return

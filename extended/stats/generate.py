@@ -893,7 +893,6 @@ def addPissingWarRanks(rows):
     addRanks(rows, "hindex", "hindexRank", "H-Index")
     addRanks(rows, "trade", "tradeRank", "Games For Trade")
     addRanks(rows, "sdj", "sdjRank", "Spiel des Jahre Winners Played")
-    addRanks(rows, "hindex", "hindexRank", 'H-Index')
     addRanks(rows, "top50", "top50Rank", "Top 50 Games Played")
     addRanks(rows, "ext100", "ext100Rank", "Extended Stats Top 100 Games Played")
     addRanks(rows, "mv", "mvRank", "Most Voted For Games Played")
