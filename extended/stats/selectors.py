@@ -407,7 +407,7 @@ class ExpansionSelector(Selector):
         allGames = context.substrate.getAllGeekGamesWithOptions(opts)
         return [ gg for gg in allGames if gg.game.expansion ]
 
-GEEKLIST_URL = "http://boardgamegeek.com/xmlapi/geeklist/%d?comments=0"
+GEEKLIST_URL = "https://boardgamegeek.com/xmlapi/geeklist/%d?comments=0"
 
 THUMBED_BY = "https://boardgamegeek.com/geekrecommend.php?action=recspy&itemtype=listitem&itemid=5072784"
 
