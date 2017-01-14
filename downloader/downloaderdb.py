@@ -11,8 +11,8 @@ class MyDB(object):
         dbc.execute('SET CHARACTER SET utf8;')
         dbc.execute('SET character_set_connection=utf8;')
         dbc.close()
-        self.db.optimised = False 
-        
+        self.db.optimised = False
+
     def execute(self, sql, args=None):
         c = self.db.cursor()
         c.execute(sql, args)
@@ -29,7 +29,7 @@ class MyDB(object):
 
     def __exit__(self, type, value, tb):
         self.close()
-        
+
     def saveRow(self, row, table, where, debug=0):
         count = self.execute("select count(*) from %s where %s" % (table, where))[0][0]
         cs = []
@@ -54,8 +54,8 @@ class MyDB(object):
             self.execute(sql, tuple(args))
         else:
             ds = []
-            for i in range(len(vs)):
-                ds.append("%s = %s" % (cs[i], vs[i]))
+            for (index,v) in enumerate(vs):
+                ds.append("%s = %s" % (cs[index], v))
             data = ", ".join(ds)
             sql = "update %s set %s where %s" % (table, data, where)
             if debug:

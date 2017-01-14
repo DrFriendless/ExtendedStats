@@ -826,8 +826,8 @@ def createPlaysForYearByQuarterPlot(data, imgspec, startYear):
     years.sort()
     colours = SPECTRUM * 5
     ycs = {}
-    for i in range(len(years)):
-        ycs[years[i]] = colours[i]
+    for (index, year) in enumerate(years):
+        ycs[year] = colours[index]
     (img, draw, xlo, xhi, ylo, yhi) = newImage(imgspec.width, imgspec.height)
     for i in range(len(quarters)):
         x1 = xlo + (i * (xhi - xlo) / len(quarters))

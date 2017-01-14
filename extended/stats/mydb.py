@@ -109,8 +109,8 @@ def saveRow(row, table, where, debug=0):
         update(sql, tuple(args))
     else:
         ds = []
-        for i in range(len(vs)):
-            ds.append("%s = %s" % (cs[i], vs[i]))
+        for (index,v) in enumerate(vs):
+            ds.append("%s = %s" % (cs[index], v))
         data = ", ".join(ds)
         sql = "update %s set %s where %s" % (table, data, where)
         if debug:

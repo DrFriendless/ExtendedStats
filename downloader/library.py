@@ -533,6 +533,8 @@ def downloadFile(url, filename, verbose=False):
     import subprocess, time, logging
     try:
         t = time.time()
+        # I used to use wget but found it very unreliable on my internet connection.
+        # I could probably use urllib now but would it be as good as wget or as good as curl?
         subprocess.check_call(["/usr/bin/curl", "--compressed", "-s", "--max-time", "300", "-o", filename, url])
         t2 = time.time()
         logging.info("took %f" % (t2-t))
@@ -549,6 +551,16 @@ def getFile(url, filename, verbose=False):
     if not downloadFile(url, filename, verbose):
         return 0
     return 1
+
+def getURLLines(url):
+    import os, sitedata
+    dest = os.path.join(sitedata.dbdir, "temp.txt")
+    if not getFile(url, dest):
+        return None
+    f = file(dest, "r")
+    result = f.readlines()
+    f.close()
+    return result
 
 def gameNames(ids, byId):
     strs = []

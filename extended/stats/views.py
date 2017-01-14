@@ -536,7 +536,7 @@ def plays(request, param):
                     url = playsLink(True, context.geek, year, month, day)
                     links.append(Link(url, "Totals for this period"))
             if totals:
-                plays = generate.totalPlays(plays)
+                plays = generate.collatePlays(plays)
                 generate.addGeekData(context.geek, plays)
                 return webserver.render("stats/totalplays.html", locals(), request)
             elif florence:

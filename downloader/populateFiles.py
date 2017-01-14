@@ -12,11 +12,12 @@ GAME_URL = "https://boardgamegeek.com/xmlapi/boardgame/%d&stats=1"
 MARKET_URL = "https://www.boardgamegeek.com/geekstore.php3?action=viewuser&username=%s"
 
 def readUserNames():
-    import os, sitedata
-    with open(os.path.join(sitedata.installDir, "usernames.txt")) as uf:
-        usernames = [ line.strip() for line in uf.readlines() ]
-    usernames = [ u for u in usernames if len(u) > 0 ]
-    return usernames
+    import sitedata, library
+    user_lines = library.getURLLines(sitedata.usernames_url)
+    if user_lines is None:
+        return None
+    usernames = [ line.strip() for line in user_lines ]
+    return [ u for u in usernames if len(u) > 0 ]
 
 def readGameIds(db):
     result = db.execute("select bggid from games")
@@ -93,11 +94,10 @@ def processPlayed(db, filename, geek, url):
         return 1
 
 def processPlays(db, filename, geek, url):
-    import datetime, calendar, plays, stat, library, logging
+    import datetime, calendar, plays, library, logging
     library.deleteFileIfBad(filename)
     try:
         ps = library.DictOfLists()
-        mtime = os.stat(filename)[stat.ST_MTIME]
         fields = filename.split(".")[-2].split("_")
         month = int(fields[-2])
         year = int(fields[-1])
@@ -111,7 +111,7 @@ def processPlays(db, filename, geek, url):
                 logging.warning("That's a bad date %d %d" % (year, month))
                 return 1
         try:
-            numEntries = plays.processPlaysFile(db, geek, filename, ps)
+            numEntries = plays.processPlaysFile(filename, ps)
             soFar = 100
             page = 2
             while soFar < numEntries:
@@ -122,9 +122,9 @@ def processPlays(db, filename, geek, url):
                 if r == 0:
                     logging.error("Failed to download page %d of %s." % (page, url))
                     return 0
-                plays.processPlaysFile(db, geek, filename2, ps)
-                page = page + 1
-                soFar = soFar + 100
+                plays.processPlaysFile(filename2, ps)
+                page += 1
+                soFar += 100
         except socket.error:
             logging.exception('')
             return 0
@@ -153,7 +153,7 @@ def processPlays(db, filename, geek, url):
                 d = '0000-00-00'
             else:
                 d = datetime.date(y, m, d)
-            playerRecs = playerRecs + _writePlaysToDB(db, geek, date, dps, d, month, year)
+            playerRecs = playerRecs + _writePlaysToDB(db, geek, date, dps, d)
         _writeOpponentsToDB(db, geek, playerRecs, month, year)
         import frontpage
         frontpage.updateFrontPageData(db, geek)
@@ -178,7 +178,7 @@ class PlayerRecKey(object):
     def __str__(self):
         return str((self.username, self.name, self.colour))
 
-def _writePlaysToDB(db, geek, date, dps, d, month, year):
+def _writePlaysToDB(db, geek, date, dps, d):
     import plays
     sql = "insert into plays (game, geek, playDate, quantity, basegame, raters, ratingstotal, location) values (%s, %s, %s, %s, %s, %s, %s, %s)"
     (processedPlays, playerRecs) = plays.createPlays(db, date, dps)
@@ -304,7 +304,7 @@ def addGamesFromFile(db, dom, geek):
         db.execute("delete from geekgametags where geek = '%s'" % geek)
         try:
             tagsNode = gameNode.getElementsByTagName("tags")[0]
-            tagNodes = gameNode.getElementsByTagName("tag")
+            tagNodes = tagsNode.getElementsByTagName("tag")
             for tagNode in tagNodes:
                 tag = library.Row()
                 tag.geek = geek
@@ -349,7 +349,7 @@ def processUser(db, filename, geek, url):
             n = int(library.between(line, "/images/user/", "/"))
             sql = "update users set bggid = %s where geek = %s"
             db.execute(sql, [n, geek])
-            changes = changes + 1
+            changes += 1
         if line.find("/users?country=") > 0:
             s = library.between(line, "country=", '"')
             sql = "update users set country = %s where geek = %s"
@@ -357,7 +357,7 @@ def processUser(db, filename, geek, url):
                 filename = "market_%s.html" % geek
                 recordFile(db, filename, MARKET_URL % geek, "processMarket", geek, "User marketplace data")
             db.execute(sql, [s, geek])
-            changes = changes + 1
+            changes += 1
         if changes == 2:
             break
     f.close()
@@ -628,8 +628,8 @@ def updateFiles(db, records, index, finish, rec):
     import time, logging, sitedata
     global theNumbers
     for record in records:
-        time.sleep(1)
-        rec.pause(1)
+        time.sleep(0.5)
+        rec.pause(0.5)
         if finish is not None and time.time() > finish:
             break
         try:
@@ -884,8 +884,10 @@ def readMetadata():
     import library, sitedata
     series = {}
     expansions = []
-    f = file(os.path.join(sitedata.installDir, "metadata.txt"))
-    for line in f.readlines():
+    metadata_lines = library.getURLLines(sitedata.metadata_url)
+    if metadata_lines is None:
+        return None
+    for line in metadata_lines:
         line = line.strip()
         if line.find('#') >= 0:
             line = line[:line.find('#')].strip()
@@ -899,8 +901,7 @@ def readMetadata():
             series[key] = ids
         else:
             expansions.append(line)
-    f.close()
-    return (series, expansions)
+    return series, expansions
 
 from library import EXPANSION
 from library import BASEGAME

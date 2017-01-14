@@ -162,7 +162,7 @@ def calcFriendless(data):
             tot = tot + library.cdf(p, LAMBDA)
         utilisation = int(tot / ld * 10000.0) / 100.0
         cfm = int(library.invcdf(tot / ld, LAMBDA) * 100.0) / 100.0
-    return (friendless, utilisation, cfm, tens, zeros)
+    return friendless, utilisation, cfm, tens, zeros
 
 def calculateCollectionData(coll, title):
     import library
@@ -325,15 +325,15 @@ def getChecklistData(context):
     result.sort(lambda t1, t2: cmp(t1.name.lower(), t2.name.lower()))
     return result
 
-def totalPlays(playsData):
+def collatePlays(playsData):
     import library, plays, substrate
     exps = library.DictOfSets()
     counts = library.Counts()
     ts = None
-    for p in playsData:
-        exps.addAll(p.game, p.expansions)
-        counts.add(p.game, p.count)
-        ts = p.date
+    for play in playsData:
+        exps.addAll(play.game, play.expansions)
+        counts.add(play.game, play.count)
+        ts = play.date
     result = []
     for g in counts.keys():
         play = plays.Play(g, exps[g], ts, counts[g], 0, 0,  "")
@@ -582,7 +582,7 @@ def getPlayLoggingData(context):
         t.name = name
         t.colour = colour
         players.append(t)
-    return (players, locations)
+    return players, locations
 
 def getMultiYearData(context):
     import library, mydb
@@ -741,7 +741,7 @@ def getAllCatsAndMecs():
     sql = "select distinct mechanic from gameMechanics order by 1"
     mecs = mydb.query(sql)
     mecs = [ c[0] for c in mecs ]
-    return (cats, mecs)
+    return cats, mecs
 
 def getNormRankedData(category):
     import substrate, mydb
@@ -750,10 +750,10 @@ def getNormRankedData(category):
     if not category:
         category = "all"
     parts = category.split("/", 1)
-    for i in range(len(parts)):
-        if parts[i].startswith("-"):
-            minus = int(parts[i][1:])
-            del parts[i]
+    for (index, part) in enumerate(parts):
+        if part.startswith("-"):
+            minus = int(part[1:])
+            del part
             break
     if parts[0] == "all":
         title = "All Games"
@@ -1433,7 +1433,7 @@ def getBestDays(context, year=None):
         plays = [ p for p in plays if p.date != d ]
         if d is None:
             continue
-        games = set([ p.game for p in ps ])
+        games = { p.game for p in ps }
         playDescs = []
         score = 0.0
         for g in games:
@@ -1556,7 +1556,7 @@ def getPlaysRecordedYears(context):
 def getNickelAndDime(context, year):
     import library
     (plays, messages, year, month, day, args) = context.substrate.getPlaysForDescribedRange([str(year)])
-    plays = totalPlays(plays)
+    plays = collatePlays(plays)
     data = [ p for p in plays if p.count >= 3 ]
     data.sort(lambda p1, p2: -cmp(p1.count, p2.count))
     result = library.Thing()
@@ -1606,7 +1606,7 @@ def getPlaysByYearData(context):
     for play in playData:
         if not play.year:
             continue
-        elif not years.has_key(play.year):
+        elif not play.year in years:
             years[play.year] = []
         years[play.year].append(play)
         if play.game not in games:
@@ -1730,7 +1730,6 @@ def getPlaysByRanking(context):
     opts = library.Thing()
     opts.excludeTrades = False
     opts.excludeExpansions = False
-    geekgames = context.substrate.getAllRatedGames(opts)
     sql = "select bggid, name, rank from games where usersRated >= 30 order by 3 asc"
     gdata = mydb.query(sql)
     games = {}
@@ -1914,7 +1913,7 @@ def getNewCatRow(key, typ):
     return t
 
 def getCatMecData(context, typ):
-    import library, mydb
+    import mydb
     if typ == "category":
         tab = "category from gameCategories"
         where = "category"
@@ -2183,7 +2182,7 @@ def getTradeData(context):
     interestingGames.sort(lambda g1, g2: cmp(g1.name.lower(), g2.name.lower()))
     mostWantedGames.sort(lambda g1, g2: -cmp(g1.howManyWant, g2.howManyWant))
     leastWantedGames.sort(lambda g1, g2: -cmp(g1.howManyDontWant, g2.howManyDontWant))
-    return (country, geeks, interestingGames, mostWantedGames[:30], leastWantedGames[:30])
+    return country, geeks, interestingGames, mostWantedGames[:30], leastWantedGames[:30]
 
 def getTemporalHotnessMonthData(context):
     import library, datetime

@@ -72,7 +72,7 @@ def createPlays(db, date, ps):
             print "BAD DATE in play: %s" % str(date)
     return (plays, recs)
 
-def processPlaysFile(db, geek, filename, recorded):
+def processPlaysFile(filename, recorded):
     import xml.dom.minidom
     try:
         dom = xml.dom.minidom.parse(filename)
