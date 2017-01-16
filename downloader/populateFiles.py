@@ -204,7 +204,7 @@ def _writeOpponentsToDB(db, geek, playerRecs, month, year):
         lhs = []
         rhs = []
         binds = []
-        if prk.name is not None:
+        if prk.name is not None and len(prk.name) <= 45:
             lhs.append("name")
             rhs.append("%s")
             binds.append(prk.name)
