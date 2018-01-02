@@ -1,0 +1,20 @@
+{
+  "name": "extended-stats-dashboard",
+  "version": "0.1",
+  "license": "",
+  "description": "",
+  "dependencies": {
+    "@angular/common": "2.4.7",
+    "@angular/compiler": "2.4.7",
+    "@angular/core": "2.4.7",
+    "@angular/platform-browser": "2.4.7",
+    "@angular/platform-browser-dynamic": "2.4.7",
+    "@angular/router": "3.4.7",
+    "rxjs": "5.1.1",
+    "systemjs": "^0.20.7",
+    "zone.js": "^0.7.7"
+  },
+  "devDependencies": {
+    "typescript": "^2.1.6"
+  }
+}
