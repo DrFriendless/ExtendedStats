@@ -1785,9 +1785,13 @@ def getPlaysByRanking(context):
     for g in games.values():
         if g.rank <= 0:
             continue
-        row = rindex[int((g.rank-1)/100)]
-        row.count += 1
-        row.plays = row.plays + g.plays
+        try:
+            row = rindex[int((g.rank-1)/100)]
+            row.count += 1
+            row.plays = row.plays + g.plays
+        except KeyError:
+            # why does this happen?
+            continue
     return result
 
 def getCategoriesToGraph(context):
