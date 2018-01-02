@@ -24,4 +24,4 @@ timezone = "Australia/Brisbane"
 language = "en-uk"
 
 # pause between BGG hits in seconds, to avoid 503 errors
-bggPause = 0.5
+bggPause = 0.4
