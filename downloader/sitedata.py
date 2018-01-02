@@ -12,7 +12,7 @@ resultdir= os.path.join(installDir, "static")
 logfile = os.path.join(installDir, "downloader.log")
 
 # a public file owned by drfriendless@gmail.com
-usernames_url = "http://pastebin.com/raw/BvvdxzcH"
+usernames_url = "https://pastebin.com/raw/BvvdxzcH"
 
 # a public file owned by drfriendless@gmail.com
-metadata_url = "http://pastebin.com/raw/iS8idfaH"
+metadata_url = "https://pastebin.com/raw/iS8idfaH"

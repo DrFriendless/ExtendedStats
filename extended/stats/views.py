@@ -1,4 +1,5 @@
 import generate, imggen, webserver_factory
+from django.views.decorators.csrf import csrf_exempt
 webserver = webserver_factory.get()
 
 POGO_SELECTOR = "/owned/books/minus/\"Owned\""
@@ -51,6 +52,7 @@ class OptimisationContext(object):
         # options are all the options from the HTTP request
         import substrate
         self.geek = geek
+        recordProfileView(geek)
         self.substrate = substrate.Substrate(geek, self)
         self.options = options
         self.imageSpec = ispec
@@ -376,6 +378,7 @@ def updates(request, param):
     except library.NoSuchGeekException:
         return webserver.render("stats/geek_error.html", locals(), request)
 
+@csrf_exempt
 def refresh(request, param):
     import urllib2, mydb
     arg = request.META["REQUEST_URI"]
@@ -384,22 +387,19 @@ def refresh(request, param):
     if arg is None:
         errors = str(request.META)
     vals = {}
-    vals.update(webserver.csrf(request))
-    l = len(param)
     if param is None or len(param) > 190 or "'" in param:
         return webserver.render("stats/refresh.html", vals, request)
     param = urllib2.unquote(param)
     sql = "update files set lastUpdate = null where url = %s"
-    result = mydb.update(sql, [param])
+    mydb.update(sql, [param])
     return webserver.render("stats/refresh.html", vals, request)
 
+@csrf_exempt
 def quickRefresh(request, param):
     if len(param) > 32 or "'" in param:
         return webserver.render("stats/refresh.html", locals(), request)
     import mydb
-    sql = "update files set lastUpdate = null where geek = %s and char_length(tillNextUpdate) <= 8"
-    with open("/tmp/url.txt", "w") as f:
-        f.write(param + "\n" + str(request))
+    sql = "update files set lastUpdate = null where geek = %s and tillNextUpdate is not null and char_length(tillNextUpdate) <= 8"
     mydb.update(sql, [param])
     return webserver.render("stats/refresh.html", locals(), request)
 
@@ -785,7 +785,6 @@ def tabbed(request,  param):
             all["contents"] = contents
         elif tab == 7:
             runFeatures([features.FeatureList()], all, context)
-        recordProfileView(context.geek)
         all.update({"username" : context.geek, "tab" : tab })
         return webserver.render("stats/result_tabbed.html", all, request)
     except library.NoSuchGeekException:
@@ -836,7 +835,6 @@ def result(request, param):
         all['username'] = context.geek
         all.update(locals())
         all["selectors"] = selectors.getSelectorData(context)
-        recordProfileView(context.geek)
         return webserver.render("stats/result.html", all, request)
     except library.NoSuchGeekException:
         return webserver.render("stats/geek_error.html", locals(), request)

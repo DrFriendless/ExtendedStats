@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     (r'^dimesbydesigner/(.*)', views.dimesByDesigner),
     (r'^selections/(.*)', views.viewSelections),
     (r'^selector/(.*)', views.selector),
-    (r'^collection/(.*)', views.collection),    
+    (r'^collection/(.*)', views.collection),
     (r'^collections/(.*)', views.manageCollections),
     (r'^editCollection/(.*)', views.editCollection),
     (r'^deleteCollection/(.*)', views.deleteCollection),
@@ -56,9 +56,9 @@ urlpatterns = patterns('',
     (r'^series/(.*)', views.series),
     (r'^cat/(.*)', views.category),
     (r'^playrate/(.*)', views.playrate),
-    (r'^image/lag/(.*)', imgviews.lagHistogram),    
-    (r'^image/newPlays/(.*)', imgviews.newPlays),    
-    (r'^image/fpvr/(.*)', imgviews.firstPlayVsRating),    
+    (r'^image/lag/(.*)', imgviews.lagHistogram),
+    (r'^image/newPlays/(.*)', imgviews.newPlays),
+    (r'^image/fpvr/(.*)', imgviews.firstPlayVsRating),
     (r'^image/mpct/(.*)', imgviews.mostPlayedCumulativeTimeline),
     (r'^image/rbpy/(.*)', imgviews.ratingByPublishedYear),
     (r'^image/rbpyu/(.*)', imgviews.ratingByPublishedYearUpsideDown),
@@ -78,7 +78,7 @@ urlpatterns = patterns('',
     # Example:
     # (r'^dynamic/', include('dynamic.foo.urls')),
 
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
+    # Uncomment the admin/doc line below and add 'django.contrib.admindocs'
     # to INSTALLED_APPS to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

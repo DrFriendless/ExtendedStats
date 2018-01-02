@@ -26,7 +26,7 @@ def readGameIds(db):
 
 def processPlayed(db, filename, geek, url):
     import calendar, plays, datetime, library, logging
-    existing = db.execute("select count(*) from monthsplayed where geek = '%s'" % geek)
+    existing = db.execute("select count(*) from monthsplayed where geek = %s", [geek])
     noneBefore = existing[0][0] == 0l
     toAdd = []
     for line in file(filename).readlines():
@@ -37,12 +37,12 @@ def processPlayed(db, filename, geek, url):
             toAdd.append(data)
     if len(toAdd) > 0:
         ensureGeek(db, geek)
-        db.execute("delete from monthsplayed where geek = '%s'" % geek)
         luData = {}
-        lastUpdateTimes = db.execute("select url, lastupdate from files where geek = '%s' and processMethod = 'processPlays'" % geek)
+        lastUpdateTimes = db.execute("select url, lastupdate from files where geek = %s and processMethod = 'processPlays'", [geek])
         for (url, lu) in lastUpdateTimes:
             luData[url] = lu
-        db.execute("delete from files where geek = '%s' and processMethod = 'processPlays'" % geek)
+        db.execute("delete from monthsplayed where geek = %s", [geek])
+        db.execute("delete from files where geek = %s and processMethod = 'processPlays'", [geek])
         for data in toAdd:
             m = int(data[1])
             y = int(data[2])
@@ -67,6 +67,7 @@ def processPlayed(db, filename, geek, url):
             else:
                 tillNext = None
             description = "Plays for %d/%s" % (y,m)
+
             lu = luData.get(url)
             if tillNext is not None:
                 if lu is not None:
@@ -225,7 +226,7 @@ def _writeOpponentsToDB(db, geek, playerRecs, month, year):
         db.execute(s, binds)
 
 def processCollection(db, filename, geek, url):
-    import logging
+    import logging, library
     try:
         dom = xml.dom.minidom.parse(filename)
     except xml.parsers.expat.ExpatError, e:
@@ -233,6 +234,10 @@ def processCollection(db, filename, geek, url):
         return 0
     if len(dom.getElementsByTagName("items")) == 0:
         logging.warning("no items in %s" % filename)
+        if len(dom.getElementsByTagName("message")) > 0:
+            message = library.getText(dom.getElementsByTagName("message")[0]).strip()
+            logging.warning("Aldie says: " + message)
+            return -1
         return 0
     db.execute("delete from geekgames where geek = '%s'" % geek)
     addGamesFromFile(db, dom, geek)
@@ -278,14 +283,8 @@ def addGamesFromFile(db, dom, geek):
             game.rating = -1.0
         if game.rating == 0.0:
             game.rating = -1.0
-        comments = gameNode.getElementsByTagName("comment")
-        if len(comments) > 0:
-            game.comment = library.getText(comments[0])
-        else:
-            game.comment = "&nbsp;"
-        if len(game.comment) > 1024:
-            game.comment = game.comment[:1024]
-        game.wish = statusNode.getAttribute("wishlistpriority")
+        game.comment = ""
+        game.wish = statusNode.getAttribute("wishlist")
         if game.wish == "":
             game.wish = "0"
         game.want = statusNode.getAttribute("want")
@@ -633,14 +632,19 @@ def updateFiles(db, records, index, finish, rec):
         if finish is not None and time.time() > finish:
             break
         try:
-            db.execute("update files set lastattempt = now() where url = %s", [record[1]])
-            if refreshFile(db, record[0], record[1], record[2], record[3], rec):
-                db.execute("update files set lastUpdate = now() where url = %s", [record[1]])
-                db.execute("update files set nextUpdate = addtime(lastUpdate, tillNextUpdate) where url = %s", [record[1]])
+            success = refreshFile(db, record[0], record[1], record[2], record[3], rec)
+            if success >  0:
+                db.execute("update files set lastattempt = now(), lastUpdate = now(), nextUpdate = addtime(now(), tillNextUpdate) where url = %s and processMethod = %s", [record[1], record[2]])
                 rec.processFiles(1)
-            else:
+            elif success == 0:
+                db.execute("update files set lastattempt = now() where url = %s and processMethod = %s", [record[1], record[2]])
                 rec.failure()
                 logging.warning("DIDN'T PROCESS %s" % record[1])
+            else:
+                # try again soon
+                rec.tryagain()
+                logging.warning("TRY AGAIN SOON %s" % record[1])
+
         except NoSuchGame:
             db.execute("delete from files where url = %s", [record[1]])
         time.sleep(sitedata.bggPause)
