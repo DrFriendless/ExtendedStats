@@ -17,3 +17,9 @@ def csrf(request):
 
 def get_cookie(request, cookieName):
     return request.COOKIES.get(cookieName)
+
+def get_int_cookie(request, cookieName, defolt):
+    s = request.COOKIES.get(cookieName)
+    if s is None or s == "":
+        return defolt
+    return int(s)

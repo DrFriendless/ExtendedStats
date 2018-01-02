@@ -12,6 +12,7 @@ class Options(object):
         import features, library
         self.consistencyMonths = 96
         self.pogo = library.Thing()
+        self.firstYearGames = webserver.get_int_cookie(request, "firstYearGames", 1995)
         self.upsideDownRbpy = (webserver.get_cookie(request, "rbpyUpsideDown") == "True")
         self.upsideDownObpy = (webserver.get_cookie(request, "obpyUpsideDown") == "True")
         self.upsideDownPbpy = (webserver.get_cookie(request, "pbpyUpsideDown") == "True")

@@ -590,7 +590,7 @@ def createFirstPlayVsRatingGraph(context, data, years):
 
 def createRatingByPublishedYearGraph(context, data, upsideDown):
     import time, math
-    startYear = 1995
+    startYear = context.options.firstYearGames
     endYear = time.localtime()[0]
     yearData = {}
     year = startYear
@@ -640,7 +640,7 @@ def createRatingByPublishedYearGraph(context, data, upsideDown):
 
 def createOwnedByPublishedYearGraph(context, data, upsideDown):
     import time, math
-    startYear = 1995
+    startYear = context.options.firstYearGames
     endYear = time.localtime()[0]
     yearData = {}
     year = startYear
@@ -694,7 +694,7 @@ def createOwnedByPublishedYearGraph(context, data, upsideDown):
 
 def createPlaysByPublishedYearGraph(context, data, upsideDown):
     import time, mydb
-    startYear = 1995
+    startYear = context.options.firstYearGames
     endYear = time.localtime()[0]
     years = []
     year = startYear

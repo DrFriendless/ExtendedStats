@@ -7,6 +7,7 @@ class CookieForm(forms.Form):
     username = forms.CharField(max_length=100,  label="BGG user name", required=False)
     width = forms.IntegerField(label = "Image width", required=False)
     height = forms.IntegerField(label = "Image height", required=False)
+    firstYearGames = forms.IntegerField(label="First year you play games from", required=False)
     rbpyUpsideDown = forms.BooleanField(label="Show Ratings By Published Year Upside Down", required=False)
     obpyUpsideDown = forms.BooleanField(label="Show Games Owned By Published Year Upside Down", required=False)
     pbpyUpsideDown = forms.BooleanField(label="Show Plays of Games Owned By Published Year Upside Down", required=False)
@@ -39,6 +40,9 @@ class CookieForm(forms.Form):
         width = self.cleaned_data['width']
         if width is not None:
             set_cookie(response, self.cookieHost, 'width', width)
+        firstYearGames = self.cleaned_data['firstYearGames']
+        if firstYearGames is not None:
+            set_cookie(response, self.cookieHost, 'firstYearGames', firstYearGames)
         height = self.cleaned_data['height']
         if height is not None:
             set_cookie(response, self.cookieHost, 'height', height)
