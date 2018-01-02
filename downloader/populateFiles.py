@@ -284,8 +284,8 @@ def addGamesFromFile(db, dom, geek):
         if game.rating == 0.0:
             game.rating = -1.0
         game.comment = ""
-        game.wish = statusNode.getAttribute("wishlist")
-        if game.wish == "":
+        game.wish = statusNode.getAttribute("wishlistpriority")
+        if game.wish is None or game.wish == "":
             game.wish = "0"
         game.want = statusNode.getAttribute("want")
         if game.want == "":
