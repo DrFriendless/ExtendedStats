@@ -1,6 +1,7 @@
 from django.core.context_processors import csrf
-from django import forms        
+from django import forms
 from django.shortcuts import render_to_response
+from django.views.decorators.csrf import csrf_exempt
 
 class CookieForm(forms.Form):
     username = forms.CharField(max_length=100,  label="BGG user name", required=False)
@@ -21,53 +22,53 @@ class CookieForm(forms.Form):
     obpyExpansions = forms.BooleanField(label="Games Owned by Published Year: exclude expansions", required=False)
     obpyTrades = forms.BooleanField(label="Games Owned by Published Year: exclude games up for trade", required=False)
     pbmExpansions = forms.BooleanField(label="Plays by Month: exclude expansions", required=False)
-    pbmTrades = forms.BooleanField(label="Plays by Month: exclude games up for trade", required=False)   
-    
+    pbmTrades = forms.BooleanField(label="Plays by Month: exclude games up for trade", required=False)
+
     def __init__(self, *args, **kwargs):
         super(CookieForm, self).__init__(*args, **kwargs)
         import features
         for feature in features.FEATURES:
             label = "User Tab: include %s" % feature.title
-            self.fields["user" + feature.name] = forms.BooleanField(label=label + " [%s]" % feature.tag, required=False)  
+            self.fields["user" + feature.name] = forms.BooleanField(label=label + " [%s]" % feature.tag, required=False)
 
     def prepareResponse(self,  response):
         import features
-        username = self.cleaned_data['username']        
+        username = self.cleaned_data['username']
         if username is not None:
-            set_cookie(response,  'username', username)
+            set_cookie(response, self.cookieHost, 'username', username)
         width = self.cleaned_data['width']
         if width is not None:
-            set_cookie(response, 'width', width)
+            set_cookie(response, self.cookieHost, 'width', width)
         height = self.cleaned_data['height']
         if height is not None:
-            set_cookie(response, 'height', height)
+            set_cookie(response, self.cookieHost, 'height', height)
         rbpyUpsideDown = self.cleaned_data['rbpyUpsideDown']
         if rbpyUpsideDown is not None:
-            set_cookie(response, 'rbpyUpsideDown', rbpyUpsideDown)
+            set_cookie(response, self.cookieHost, 'rbpyUpsideDown', rbpyUpsideDown)
         obpyUpsideDown = self.cleaned_data['obpyUpsideDown']
         if obpyUpsideDown is not None:
-            set_cookie(response, 'obpyUpsideDown', obpyUpsideDown)
+            set_cookie(response, self.cookieHost, 'obpyUpsideDown', obpyUpsideDown)
         pbpyUpsideDown = self.cleaned_data['pbpyUpsideDown']
         if pbpyUpsideDown is not None:
-            set_cookie(response, 'pbpyUpsideDown', pbpyUpsideDown)
+            set_cookie(response, self.cookieHost, 'pbpyUpsideDown', pbpyUpsideDown)
         pogoExpansions = self.cleaned_data['pogoExpansions']
         if pogoExpansions is not None:
-            set_cookie(response, 'pogoExpansions', pogoExpansions)
+            set_cookie(response, self.cookieHost, 'pogoExpansions', pogoExpansions)
         pogoTrades = self.cleaned_data['pogoTrades']
         if pogoTrades is not None:
-            set_cookie(response, 'pogoTrades', pogoTrades)
+            set_cookie(response, self.cookieHost, 'pogoTrades', pogoTrades)
         faveExpansions = self.cleaned_data['faveExpansions']
         if faveExpansions is not None:
-            set_cookie(response, 'faveExpansions', faveExpansions)
+            set_cookie(response, self.cookieHost, 'faveExpansions', faveExpansions)
         faveTrades = self.cleaned_data['faveTrades']
         if faveTrades is not None:
-            set_cookie(response, 'faveTrades', faveTrades)
+            set_cookie(response, self.cookieHost, 'faveTrades', faveTrades)
         timelineHeight = self.cleaned_data['timelineHeight']
         if timelineHeight is not None:
-            set_cookie(response, 'timelineHeight', timelineHeight)
+            set_cookie(response, self.cookieHost, 'timelineHeight', timelineHeight)
         timelineWidth = self.cleaned_data['timelineWidth']
         if timelineWidth is not None:
-            set_cookie(response, 'timelineWidth', timelineWidth)
+            set_cookie(response, self.cookieHost, 'timelineWidth', timelineWidth)
         self.setCleanedCookie("obpyExpansions", response)
         self.setCleanedCookie("obpyTrades", response)
         self.setCleanedCookie("pbmExpansions", response)
@@ -78,18 +79,20 @@ class CookieForm(forms.Form):
         for feature in features.FEATURES:
             key = feature.name
             self.setCleanedCookie("user" + key, response)
-        
+
     def setCleanedCookie(self, name, response):
         x = self.cleaned_data[name]
         if x is not None:
-            set_cookie(response, name, x)
-                                  
+            set_cookie(response, self.cookieHost, name, x)
+
+@csrf_exempt
 def cookies(request):
     import views
-    options = views.Options(request)    
-    if request.method == 'POST': # If the form has been submitted...
+    options = views.Options(request)
+    if request.method == 'POST':
         form = CookieForm(request.POST) # A form bound to the POST data
-        if form.is_valid(): # All validation rules pass
+        form.cookieHost = request.get_host()
+        if form.is_valid():
             # Process the data in form.cleaned_data
             vals =  { 'form': form,  'cookies' : request.COOKIES, 'options' : options }
             vals.update(csrf(request))
@@ -98,19 +101,20 @@ def cookies(request):
             return response
     else:
         form = CookieForm(request.COOKIES)
+        form.cookieHost = request.get_host()
     vals =  { 'form': form,  'cookies' : request.COOKIES, 'options' : options }
     vals.update(csrf(request))
     return render_to_response('stats/cookies.html', vals)
-    
-def set_cookie(response, key, value, days_expire = None):    
+
+def set_cookie(response, domain, key, value, days_expire = None):
     import datetime
     if days_expire is None:
         max_age = 365*24*60*60  #one year
     else:
-        max_age = days_expire*24*60*60 
+        max_age = days_expire*24*60*60
     expires = datetime.datetime.strftime(datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age), "%a, %d-%b-%Y %H:%M:%S GMT")
     try:
-        response.set_cookie(key, value, max_age=max_age, expires=expires, domain="friendlessstats.dtdns.net", secure=None)
+        response.set_cookie(key, value, max_age=max_age, expires=expires, domain=domain, secure=None)
     except AttributeError:
         pass
-        
+
