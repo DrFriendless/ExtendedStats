@@ -25,7 +25,6 @@ By default cookies expire after a year. I'm not really sure what that means.
 </dl>
 <P>
 <form action="/dynamic/cookies/" method="post">
-{% csrf_token %}
 {{ form.as_p }}
 <input type="submit" value="Submit" />
 </form>
