@@ -33,15 +33,15 @@ Red user names represent sales, and link through to the BGG market place.
 <td><A href="{{game.url}}">{{game.name}}</A></td>
 <td>
 {% for geek in game.notwanting %}
-<A href="http://boardgamegeek.com/user/{{geek.username}}" title="{{geek.tooltip}}">{{geek.username}}</A>&nbsp;
+<A href="https://boardgamegeek.com/user/{{geek.username}}" title="{{geek.tooltip}}">{{geek.username}}</A>&nbsp;
 {% endfor %}
 {% for sale in game.selling %}
-<A class="sale" href="http://www.boardgamegeek.com/geekstore.php3?action=viewitem&amp;itemid={{sale.itemid}}">{{sale.geek}}</A>&nbsp;
+<A class="sale" href="https://www.boardgamegeek.com/geekstore.php3?action=viewitem&amp;itemid={{sale.itemid}}">{{sale.geek}}</A>&nbsp;
 {% endfor %}
 </td>
 <td>
 {% for geek in game.wanting %}
-<A href="http://boardgamegeek.com/user/{{geek.username}}" title="{{geek.tooltip2}}">{{geek.username}}</A>&nbsp;
+<A href="https://boardgamegeek.com/user/{{geek.username}}" title="{{geek.tooltip2}}">{{geek.username}}</A>&nbsp;
 {% endfor %}
 </td>
 </tr>
@@ -57,10 +57,10 @@ This is who's on Extended Stats in {{country}}, and how many games they have or 
 <tbody>
 {% for geek in geeks %}
 <tr>
-<td><A href="http://boardgamegeek.com/user/{{geek.username}}">{{geek.username}}</A></td>
-<td><A href="http://boardgamegeek.com/user/{{geek.username}}">{{geek.want}}</A></td>
-<td><A href="http://boardgamegeek.com/user/{{geek.username}}">{{geek.trade}}</A></td>
-<td><A href="http://boardgamegeek.com/user/{{geek.username}}">{{geek.sell}}</A></td>
+<td><A href="https://boardgamegeek.com/user/{{geek.username}}">{{geek.username}}</A></td>
+<td><A href="https://boardgamegeek.com/user/{{geek.username}}">{{geek.want}}</A></td>
+<td><A href="https://boardgamegeek.com/user/{{geek.username}}">{{geek.trade}}</A></td>
+<td><A href="https://boardgamegeek.com/user/{{geek.username}}">{{geek.sell}}</A></td>
 </tr>
 {% endfor %}
 </tbody>

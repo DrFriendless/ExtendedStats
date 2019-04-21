@@ -2,7 +2,7 @@ import time, library
 
 END_YEAR = time.localtime()[0]
 END_MONTH = time.localtime()[1]
-NEW_PLAYED_URL = "http://boardgamegeek.com/xmlapi2/plays?username=%s&mindate=%d-%d-01&maxdate=%d-%d-31&subtype=boardgame"
+NEW_PLAYED_URL = "https://boardgamegeek.com/xmlapi2/plays?username=%s&mindate=%d-%d-01&maxdate=%d-%d-31&subtype=boardgame"
 DAY = library.DAY
 
 class Play:
@@ -36,7 +36,7 @@ class Play:
         else:
             self.dt = datetime.date(self.year, self.month, self.day)
         self.hashcode = self.year * 10000 + self.month * 100 + self.day
- 
+
     def __repr__(self):
         if len(self.expansions) == 0:
             return "Played %s %d times on %s" % (self.game.name, self.count, self.date)
@@ -102,7 +102,7 @@ def processPlaysFile(filename, recorded):
                     playerRecs.append((username, name, colour))
         recorded.add(date, (gameId, quantity, raters, ratingsTotal,  location, playerRecs))
     return numEntries
-    
+
 def getRatings(pe):
     playersNodes = pe.getElementsByTagName("players")
     if len(playersNodes) == 0:
@@ -110,10 +110,10 @@ def getRatings(pe):
     playerNodes = playersNodes[0].getElementsByTagName("player")
     count = 0
     total = 0.0
-    for pn in playerNodes:       
+    for pn in playerNodes:
         r = float(pn.getAttribute("rating"))
         if r < 1 or r > 10:
-            continue 
+            continue
         count += 1
         total += r
     return (count, int(total))

@@ -1,7 +1,7 @@
 import math, time
 
-GAME_XML_URL = "http://boardgamegeek.com/xmlapi/game/%d"
-GAME_URL = "http://www.boardgamegeek.com/game/%d"
+GAME_XML_URL = "https://boardgamegeek.com/xmlapi/game/%d"
+GAME_URL = "https://www.boardgamegeek.com/game/%d"
 LAMBDA = math.log(0.1) / -10.0
 START_YEAR = 2003
 END_YEAR = time.localtime()[0]
@@ -1891,8 +1891,8 @@ def getUnusualData(context):
     result = [ games[gid] for (gid, v) in data ]
     return result
 
-DESIGNER_URL = "http://www.boardgamegeek.com/boardgamedesigner/%d"
-PUBLISHER_URL = "http://www.boardgamegeek.com/boardgamepublisher/%d"
+DESIGNER_URL = "https://www.boardgamegeek.com/boardgamedesigner/%d"
+PUBLISHER_URL = "https://www.boardgamegeek.com/boardgamepublisher/%d"
 
 def getNewCatRow(key, typ):
     import library

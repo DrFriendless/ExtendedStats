@@ -11,9 +11,9 @@ ALDIES_COLOURS = [ '#ff0000', '#ff3366', '#ff6699', '#ff66cc', '#cc99ff', '#9999
 MIKE_HULSEBUS_COLOURS = ["#ff420e", "#ffd320", "#569d1b", "#7d0020", "#83cafe", "#324005", "#aed000",
                          "#4a1f6f", "#fd950e", "#c5000a", "#0083d1", "#004586" ]
 MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-GAME_PLAYS_URL = "http://boardgamegeek.com/plays/thing/%d?userid=%d"
-BGG_PLAYS_URL = "http://boardgamegeek.com/collection/user/%s?own=1&minplays=%d&maxplays=%d"
-BGG_ZERO_PLAYS_URL = "http://boardgamegeek.com/collection/user/%s?own=1&played=0"
+GAME_PLAYS_URL = "https://boardgamegeek.com/plays/thing/%d?userid=%d"
+BGG_PLAYS_URL = "https://boardgamegeek.com/collection/user/%s?own=1&minplays=%d&maxplays=%d"
+BGG_ZERO_PLAYS_URL = "https://boardgamegeek.com/collection/user/%s?own=1&played=0"
 import library
 CLOSENESS = library.DictOfDicts()
 

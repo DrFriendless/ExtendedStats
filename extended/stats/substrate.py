@@ -1,6 +1,6 @@
 import math
 LAMBDA = math.log(0.1) / -10.0
-GAME_URL = "http://www.boardgamegeek.com/game/%d"
+GAME_URL = "https://www.boardgamegeek.com/game/%d"
 
 def optionKey(options):
     return "%s%s" % (str(options.excludeTrades), str(options.excludeExpansions))
