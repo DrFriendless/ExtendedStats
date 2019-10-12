@@ -1,4 +1,3 @@
-from django.core.context_processors import csrf
 from django import forms
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt

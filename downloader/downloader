@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/home/ec2-user/.virtualenvs/extended/bin/python
 
 import sys, os
 sys.path.append(".")
 
-BETWEEN_POPULATES = 540
+BETWEEN_POPULATES = 850
 
 def loadGameFiles(db, rec):
     import time, populateFiles

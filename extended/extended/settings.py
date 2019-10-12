@@ -3,6 +3,7 @@
 import os, sys
 dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, os.pardir)
 sys.path.append(dir)
+BASE_DIR=os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, "stats")
 import sitesettings
 
 DEBUG = True
@@ -27,7 +28,7 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["stats.drfriendless.com", "stats6.drfriendless.com", "localhost"]
+ALLOWED_HOSTS = ["stats.drfriendless.com", "stats3.drfriendless.com", "localhost"]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -164,3 +165,19 @@ LOGGING = {
 
 CSRF_FAILURE_VIEW='extended.csrf.wtf'
 CSRF_COOKIE_DOMAIN = sitesettings.domain
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Already defined Django-related contexts here
+
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
+            ],
+        },
+    },
+]

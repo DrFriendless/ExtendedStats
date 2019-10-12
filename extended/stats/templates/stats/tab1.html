@@ -28,7 +28,7 @@
 <LI class="BGG"><A HREF="https://www.boardgamegeek.com/profile.php?action=extstats&subaction=overrated&username={{username}}">Overrated Games</A>
 <LI class="OtherPage">{% include 'stats/yearlysummaries.html' %}
 <LI class="OtherPage"><A HREF="/dynamic/updates/{{username}}">Update Schedule</A>
-<form name="input" action="{% url "stats.views.quickRefresh" username %}" method="post">
+<form name="input" action="{% url "quick-refresh" username %}" method="post">
 {% csrf_token %}
 <input type="submit" value="Refresh" />
 </form>
