@@ -23,6 +23,8 @@ def get():
 def query(sql, args=None):
     db = get()
     dbc = db.cursor()
+    if type(args) in [type(""), type(u"")]:
+        args = [args]
     dbc.execute(sql, args)
     result = dbc.fetchall()
     dbc.close()
