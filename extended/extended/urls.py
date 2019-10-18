@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^normrankings/(.*)', views.normrankings),
     url(r'^geeks/$', views.listOfGeeks),
     url(r'^updates/(.*)', views.updates),
-    url(r'^refreshPage/(.*)', views.refresh),
+    url(r'^refreshPage/(.*)', views.refresh, name='full-refresh'),
     url(r'^quickRefresh/(.*)', views.quickRefresh, name='quick-refresh'),
     url(r'^result/(.*)', views.result),
     url(r'^tabbed/(.*)', views.tabbed),

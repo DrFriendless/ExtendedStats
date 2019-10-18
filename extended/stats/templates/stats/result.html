@@ -26,7 +26,7 @@
 <LI><A HREF="/dynamic/locations/{{username}}">Plays by Location</A>
 <LI><A HREF="/dynamic/checklist/{{username}}">Collection Checklist</A>
 <LI><A HREF="/dynamic/updates/{{username}}">Update Schedule</A>
-<form name="input" action="{% url "stats.views.quickRefresh" username %}" method="post">
+<form name="input" action="{% url "quick-refresh" username %}" method="post">
 {% csrf_token %}
 <input type="submit" value="Refresh" />
 </form>
