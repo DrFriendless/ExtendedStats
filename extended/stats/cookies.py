@@ -1,6 +1,7 @@
 from django import forms
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
+from django.template.context_processors import csrf
 
 class CookieForm(forms.Form):
     username = forms.CharField(max_length=100,  label="BGG user name", required=False)
